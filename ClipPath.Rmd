@@ -1,0 +1,69 @@
+---
+title: "ClipPath"
+output:
+  html_document:
+    toc: true
+    theme: united
+---
+
+
+```{r, echo=FALSE}
+stopifnot(require(svgR, quietly=TRUE))
+```
+
+```{r, echo=FALSE}
+if(!exists("newId")){
+  source('Util.R')
+}
+```
+
+With a defs clipPath works seamlessly, but
+```{r, echo=T, results="asis"}
+#```{r, echo=T}
+WH=c(600, 100) # window rect
+svgR( wh=WH,
+    defs(
+    clipPath(
+      id="clip0",
+      rect(cxy=c(0,50), wh=c(600,50))
+    )    
+    ),
+    g(  clip.path="url(#clip0)",
+      circle( cxy=c(50,50), r=30, fill='darkblue'),
+      circle( cxy=c(150,50), r=50, fill='red'  )
+    )
+    
+)
+```
+
+
+```{r, echo=T, results="asis"}
+#```{r, echo=T}
+WH=c(600, 100) # window rect
+svgR( wh=WH,
+    g(
+      clip.path=clipPath( rect(cxy=c(0,50), wh=c(600,50))),
+      circle( cxy=c(50,50), r=30, fill='darkblue'),
+      circle( cxy=c(150,50), r=50, fill='red'  )
+    )
+)
+```
+
+
+**Note** removing the defs, we see that it works in firefox, chromium, but not in the RStudio browser on Ubuntu.
+```{r, echo=T, results="asis"}
+#```{r, echo=T}
+WH=c(600, 100) # window rect
+svgR( wh=WH,
+    #defs(
+    clipPath(
+      id="clip1",
+      rect(cxy=c(0,50), wh=c(600,50))
+    #)    
+    ),
+    g(  clip.path="url(#clip1)",
+      circle( cxy=c(50,50), r=30, fill='green'),
+      circle( cxy=c(150,50), r=50, fill='orange')
+    )
+)
+```

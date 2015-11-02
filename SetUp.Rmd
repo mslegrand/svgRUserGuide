@@ -1,0 +1,84 @@
+---
+title: "Set Up"
+output:
+  html_document:
+    toc: true
+    theme: united
+---
+
+```{r, echo=FALSE}
+stopifnot(require(svgR, quietly=TRUE))
+```
+
+```{r, echo=FALSE}
+if(!exists("newId")){
+  source('Util.R')
+}
+```
+
+## To install from github
+
+```
+install.packages("devtools")
+install_github("svgR")
+```
+
+## To render in an RPres or R Markdown document 
+- Include prior to any calls to svgR a block with
+```
+'''{r, echo=FALSE}
+library(svgR)
+'''
+```
+- To render either 
+  + a simple call to svgR inside a block with results='asis'
+```
+'''{r, echo=T, results="asis"}
+svgR(  wh=c(600, 100), circle(cxy=c(200,50),r=50, fill='red') )
+'''
+```
+```{r, echo=T, results="asis"}
+svgR(  wh=c(600, 100), circle(cxy=c(200,50),r=50, fill='red') )
+```
+
+or
+
+  + call to svgR to create an svg markup object and echo back within a block with results='asis'
+```
+'''{r, echo=F, results="asis"}
+svgM<-svgR(  wh=c(600, 100), circle(cxy=c(200,50),r=50, fill='red') )
+svgM
+'''
+```
+```{r, echo=F, results="asis"}
+svgM<-svgR(  wh=c(600, 100), circle(cxy=c(200,50),r=50, fill='red') )
+svgM
+```
+
+**Note** Note the mustache should be three backticks 
+
+
+## To Rendered in an RStudio **Shiny-server**
+
+- Require svgR
+- In the ui, set the svg output to be an htmlOutput
+- In the server, 
+  + convert the svg markup to text using *as.character*
+  + set the corresponding output object to renderUI of an 
+  *HTML* frame of the svg markp text.
+  
+  A short example is:
+
+```
+require(shiny)
+svgMarkup<-svgR( circle(cxy=c(200,100),r=50, fill='red') )
+app <- list(
+  ui = bootstrapPage(  htmlOutput("svg") ) ,
+  server = function(input, output) {
+    output$svg<-renderUI( { HTML(
+      as.character(svgMarkup)) } ) } 
+) 
+runApp(app) 
+```
+**Again Note**  we convert the svgMarkup to a character vector before rendering.
+

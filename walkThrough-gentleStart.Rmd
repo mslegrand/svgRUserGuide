@@ -1,0 +1,143 @@
+---
+title: "GentleStart"
+output:
+  html_document:
+    toc: true
+    theme: united
+---
+
+```{r, echo=FALSE}
+stopifnot(require(svgR, quietly=TRUE))
+```
+
+```{r, echo=FALSE}
+if(!exists("newId")){
+  source('Util.R')
+}
+```
+
+## Lesson 0: A Gentle Start: 
+
+One of the simplest examples to draw a circle. 
+So we start specifying a circle
+```{r, echo=T, results="asis"}
+svgR( circle())
+```
+But we see nothing. This is because by default the radius is and center of a circle is 0,0.
+So lets set the radius=100 and try again
+```{r, echo=T, results="asis"}
+svgR( circle(r=100))
+```
+Better, but still only a quarter of a circle. 
+```{r, echo=T, results="asis"}
+svgR( circle(r=100, cxy=c(100,100)))
+```
+Hmmm. Now the circle is cut off at the bottom. This is because the vertical dimension screen display is by default 150. So let's reset the display to be 800 by 220
+```{r, echo=T, results="asis"}
+svgR( wh=c(800,220),
+      circle(r=100, cxy=c(100,100))
+)
+```
+Lets put the circle at the center
+```{r, echo=T, results="asis"}
+svgR( wh=c(800,220),
+      circle(r=100, cxy=c(400,100))
+)
+```
+This looks better, although the circle is black. This is the default fill color. Now
+black is not very cheerful, so we change it to red.
+```{r, echo=T, results="asis"}
+svgR( wh=c(800,220),
+      circle(r=100, cxy=c(400,100), fill="red")
+)
+```
+Now lets put some text in the center of the circle
+```{r, echo=T, results="asis"}
+svgR( wh=c(800,220),
+      text('data',cxy=c(400,100)),
+      circle(r=100, cxy=c(400,100), fill="red")
+)
+```
+**THIS DIDN'T WORK**. That's because we put the text first, and the circle painted red over it. We need to put the text after the circle if we want to see it. Order (or z-order) counts!
+```{r, echo=T, results="asis"}
+svgR( wh=c(800,220),
+      circle(r=100, cxy=c(400,100), fill="red"),
+      text('data',cxy=c(400,100))
+)
+```
+Lets make the text larger and color it yellow
+```{r, echo=T, results="asis"}
+svgR( wh=c(800,220),
+      circle(r=100, cxy=c(400,100), fill="red"),
+      text('data',cxy=c(400,100), fill='yellow', font.size=50)
+)
+```
+Now we add a blue stroke  both
+```{r, echo=T, results="asis"}
+svgR( wh=c(800,220),
+      circle(r=100, cxy=c(400,100), fill="red",    stroke='blue'),
+      text('data',  cxy=c(400,100), fill='yellow', stroke='blue', font.size=50)
+)
+```
+Now we remove the fill from the circle and the text by setting the fill to none (Remember, the fill is black by default, so if we simply ommit the fill, it will be black) By the way, since the fill is now set to none, the red fill of the circle will not cover the text if put the text first.
+```{r, echo=T, results="asis"}
+svgR( wh=c(800,220),
+      circle(r=100, cxy=c(400,100), fill="none", stroke='blue'),
+      text('data',  cxy=c(400,100), fill='none', stroke='blue', font.size=50 )
+)
+```
+Since all our objects have stroke blue and fill none, we can move those attributes
+ assignments up one level.
+```{r, echo=T, results="asis"}
+svgR( wh=c(800,220),  
+      fill="none",  stroke='blue',
+      circle(r=100, cxy=c(400,100) ),
+      text('data',  cxy=c(400,100), font.size=50 )
+)
+```
+To make the circle and text more prominent we increase the size the stroke.
+```{r, echo=T, results="asis"}
+svgR( wh=c(800,220),  
+      fill="none",  stroke='blue', stroke.width=3,
+      circle(r=100, cxy=c(400,100) ),
+      text('data',  cxy=c(400,100), font.size=50 )
+)
+```
+
+Now what happens if we change the dimensions of our display area on the screen?
+```{r, echo=T, results="asis"}
+svgR( wh=c(400,400),  
+      fill="none",  stroke='blue', stroke.width=3,
+      circle(r=100, cxy=c(400,100) ),
+      text('data',  cxy=c(400,100), font.size=50 )
+)
+```
+Again, the circle is cutoff. To be independent of the display dimensions we resort to using variables.
+```{r, echo=T, results="asis"}
+WH<-c(600,300)
+svgR( wh=WH,  
+      fill="none",  stroke='blue', stroke.width=3,
+      circle(r=min(WH/2), cxy=WH/2 ),
+      text('data',  cxy=WH/2, font.size=.25*min(WH) )
+)
+```
+But we would like to see the drawing region to make sure we our centering is correct.
+An easy solution is to flood the region with a color. That is, use a filer with the feFlood filter element. Again, order counts, so we need to put the flood before we do the text and circle.
+```{r, echo=T, results="asis"}
+WH<-c(600,300)
+svgR( wh=WH,  
+      use(filter=filter( feFlood(flood.color='lightgreen') )),
+      fill="none",  stroke='blue', stroke.width=3,
+      circle(r=min(WH/2), cxy=WH/2 ),
+      text('data',  cxy=WH/2, font.size=.25*min(WH) )
+)
+```
+
+#### Lesson 0 Summary
+
+  - Call svgR( ) to create graphics.
+  - cxy sets the center (of the circle)
+  - The upper-left hand corner is at c(0,0), coordinates are 
+  - wh sets the width and height
+  - 
+

@@ -1,0 +1,91 @@
+---
+title: "One Line Teasers"
+output:
+  html_document:
+    toc: true
+    theme: united
+---
+
+
+
+```{r, echo=FALSE}
+stopifnot(require(svgR, quietly=TRUE))
+```
+
+```{r, echo=FALSE}
+if(!exists("newId")){
+  source('Util.R')
+}
+```
+
+Here we illustrate a simple circle
+of radius 50 located at 200,20
+```{r, echo=T, results="asis"}
+svgR( wh=c(600, 100), circle(cxy=c(200,50),r=50, fill='lightgreen') )
+```
+
+This illustates the use of lapply to constuct multiple circles
+```{r, echo=T, results="asis"}
+svgR(  wh=c(600, 150), lapply(1:10, function(i)circle(cxy=c(i*30,i*10),r=5+i, fill=rrgb() ) ))
+```
+
+Again using lapply, but with random colors.
+```{r, echo=T, results="asis"}
+svgR( wh=c(600, 100),  lapply(10:1, function(i)circle(cxy=c(100,50),r=i*5, fill=rrgb()) ))
+```
+
+Again using lapply, on circle radii.
+```{r, echo=T, results="asis"}
+svgR( wh=c(600, 100),  lapply(10:1, function(i)circle(cxy=sample(1:100,2),r=5+sample(5:50,1), fill=rrgb()) ))
+```
+
+Using a sapply on polylines
+```{r, echo=T, results="asis"}
+svgR( wh=c(600, 100),  polyline(points=sapply(4*pi*(0:5)/5,function(i)c(100,50)+50*c(cos(i),sin(i))), fill='none', stroke='red'))
+```
+Using a sapply on polylines
+```{r, echo=T, results="asis"}
+svgR( wh=c(600, 100),  polyline(points=sapply(1:41,function(i)50*(c(i,1)-i%%2)), fill='red'))
+```
+
+Rectangles
+```{r, echo=T, results="asis"}
+svgR( wh=c(600, 100),  lapply(1:15, function(i)rect(xy=i*c(80,0), wh=sample(20:80,2), fill=rrgb())))
+```
+
+ 
+```{r, echo=T, results="asis"}
+svgR( wh=c(600, 100),  lapply(1:256, function(i)line(xy1=c(255,0), xy2=c(i*2,100), stroke=as.rgb(255-i,128,255-i))))
+```
+
+```{r, echo=T, results="asis"}
+svgR( wh=c(600, 100),  lapply(1:100, function(i)line(x12=sample(0:600,2), y12=c(0,100), stroke=rrgb())))
+```
+
+```{r, echo=T, results="asis"}
+svgR( wh=c(600, 100),  lapply(1:10, function(i) rect(cxy=c(100+i*10,50), wh=c(80+i*10,40), fill='none', stroke=rrgb())))
+```
+
+```{r, echo=T, results="asis"}
+svgR( wh=c(600, 200),  lapply(1:45, function(i) ellipse(cxy=c(100,100), rxy=c(80,40), transform=list(rotate= c(i*4, 100,100)), fill='none', stroke=rrgb())))
+```
+
+
+```{r, echo=T, results="asis"}
+svgR( wh=c(600, 200),  lapply(1:15, function(i) rect(cxy=c(100,100), wh=c(80,80), transform=list(rotate= c(i*8, 100,100)), fill='none', stroke=rrgb())))
+```
+
+
+```{r, echo=T, results="asis"}
+svgR(wh=c(600,200), lapply(0:10,  function(i)circle(cxy=c(350,100),r=30,fill=rrgb(),opacity=.3, transform=list(rotate= c(-i*18,300,100)))))
+```
+
+
+
+```{r, echo=T, results="asis"}
+svgR( wh=c(600, 200), lapply( 1:5,  function(x)polygon(points= 5*(c(0,0,-4,6, 4, 6)+ x*c(4,6)), fill='brown')))
+```
+
+```{r, echo=T, results="asis"}
+svgR( wh=c(600, 100), line( xy1=c(0,50), xy2=c(600,50), stroke.width=20, stroke.dasharray=8, stroke.dashoffset=16, stroke="lightblue", animate(attributeName="stroke.dashoffset", from=16, to=0 , dur=0.5, repeatCount="indefinite")))
+```

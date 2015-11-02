@@ -1,0 +1,248 @@
+---
+title: "Coordinates, Viewports, and Containers"
+output:
+  html_document:
+    toc: true
+    theme: united
+---
+
+
+```{r, echo=FALSE}
+stopifnot(require(svgR, quietly=TRUE))
+```
+
+```{r, echo=FALSE}
+if(!exists("newId")){
+  source('Util.R')
+}
+```
+
+
+
+
+This section discusses some of the basics of coordinates systems, viewports and  viewboxes.
+
+
+## Viewports and Viewboxes
+<a name="viewpors"></a> 
+
+The **viewport** is the viewing area through which image is rendered. Essentially, it is a rectangular window on the page. 
+
+A **viewBox** is the area of the graphics surface which is to be placed inside the viewport. When not specified, the viewbox
+
+
+
+```{r, echo=FALSE}
+WH=c(800,300)
+cid<-newId()
+#coods lhs
+# XY.svg.lhs<-c(0,0)
+# WH.svg.lhs<-c(1,1)*WH[2]
+# XY.svg.rhs<-c(.5,0)*WH
+# WH.svg.rhs<-.5*c(1,1)*WH[2]
+
+# svg.lhs<-list( XY=c(0,0), WH=c(1,1)*WH[2])
+# svg.rhs<-list( XY=c(.5,.1)*WH, WH=c(.8,.8)*WH[2])
+
+svg.lhs<-list( XY=c(0,0),     WH=c(1,1)*WH[2])
+svg.rhs<-list( XY=c(.5,0)*WH, WH=c(1,1)*WH[2])
+r<-40
+r.wh<-c(2,2)*r   # dim of viewbox
+r.xy<-c(120,120) # relative pos of viewbox relative 
+
+
+v<-cbind(
+  expand.grid(split(cbind(svg.rhs$XY+r.xy,
+                          svg.rhs$XY+r.xy + r.wh), 1:2)),
+  expand.grid(split(cbind(svg.lhs$XY, svg.lhs$XY+svg.lhs$WH), 1:2))
+)
+vv<-split(v,1:length(v))
+
+tmp<-
+svgR(wh=WH, 
+  symbol(
+    g(id=cid,
+      circle( cxy=r.xy, fill="#FFDDDD", r=r),
+      graphPaper(svg.lhs$WH, dxy=r*c(.5,.5), labels=FALSE),
+      rect(xy=r.xy, wh=r.wh, fill="blue", opacity=.2)
+    )
+  ),
+  svg(xy=svg.lhs$XY, wh=svg.lhs$WH, viewBox=c(r.xy, r.wh), #lhs
+    use(xlink.href=paste0("#",cid))
+  ),
+  svg(xy=svg.rhs$XY,  wh=svg.rhs$WH, #viewBox=c(c(0,0), WH), #rhs
+    use(xlink.href=paste0("#",cid))
+  ),
+  rect(xy=svg.lhs$XY+2, wh=svg.lhs$WH-4, fill='none',stroke='green', stroke.width=4),
+  rect(xy=svg.rhs$XY+r.xy, wh=r.wh, fill='none',stroke='blue', stroke.width=4),
+  text("viewPort", stroke='green', font.size=26, 
+       cxy=svg.lhs$XY+svg.lhs$WH/2
+  ),
+  text("viewBox", stroke='blue', font.size=16, 
+       cxy=svg.rhs$XY+svg.rhs$WH/2
+  ),
+  lapply(1:4, function(i){
+     line(
+       xy1=vv[[i]][1:2], 
+       xy2=vv[[i]][3:4], 
+       stroke='blue')
+  })
+  
+)
+
+write(as.character(tmp), "tmp.svg")
+```
+![alt text](./tmp.svg)
+
+
+##  Specifying the Viewport and the Viewbox
+
+When the **svgR** function is called, it generates an SVG tree of nodes, with to top most node being an **svg** element.  
+(For more details see ???)
+
+The dimensions of the viewPort is determined by the **wh** attributes supplied in the call to **svgR**.  Thus a larger **wh** produces a larger display area on the screen.  
+
+The dimensions of our viewPort are given by the wh in the svgR call, for example seting wh=c(100,50) we have 
+
+```{r, echo=FALSE, results="asis"}
+svgR(wh=c(100,50), 
+     use(filter=filter( feFlood(flood.color='lightblue') )) #flood svg with lightBlue
+)
+```
+
+Here the c(100,50) are measured in "pixels" of the "user space".  Other units available are: **em, ex, px, pt, pc, cm, mm, in,** and **percentages**.
+
+For example
+
+```{r, echo=FALSE, results="asis"}
+svgR(wh=c("2in","1in"), 
+     use(filter=filter( feFlood(flood.color='lightblue') )) #flood svg with lightBlue
+)
+```
+
+produces a 2 inch by 1 inch image on the screen.
+
+Coordinates are layed out  with x increasing to the right, y increasing down.
+
+```{r, echo=TRUE, results="asis"}
+WH<-c(300,300)
+svgR(wh=WH, 
+  graphPaper(WH, dxy=c(50,50), labels=TRUE)
+)
+```
+
+Here the *Viewport* is 400 by 300 pixels, which was determined by the attribute assignment *wh=c(300,300)*. Additionally, there is
+an implict viewBox=c(0,0,400,300). When not specified, the viewBox is assumed to have a xy=c(0,0) and a width and height equal to it's corresponding viewPort (wh=c(300,300 in this case). 
+
+**Note:** We are using our graphPaper utilitiy, which starts drawing lines and coordinates at c(0,0) and continues to WH in steps of (50,50).
+
+In order to see better what happens when using a different viewport,modify the above example by adding a circle in the left-hand corner and some text.
+
+```{r, echo=TRUE, results="asis"}
+WH<-c(300,300)
+svgR(wh=WH, 
+  graphPaper(WH, dxy=c(50,50), labels=TRUE),
+  circle(cxy=c(0,0),r=100, fill="pink", stroke='red'),
+  text('Big  Data', xy=c(-40, 50), font.size=20),
+  text('Small Data', xy=c(50, 50), font.size=10)
+)
+```
+
+Again the viewPort is 400 by 300 pixels and the **viewBox** is also 400 by 300 with the upper left corner at c(0,0). 
+
+Nexe we reset the viewBox.  The region viewed is changes, but  the size of the display area (viewPort) remains the same.
+
+```{r, echo=TRUE, results="asis"}
+WH<-c(300,300)
+svgR(wh=WH, viewBox=c(-WH,2*WH),
+  #use(filter=filter( feFlood(flood.color='blue') )),
+  graphPaper(WH, dxy=c(50,50), labels=TRUE),
+  circle(cxy=c(0,0),r=100, fill="pink", stroke='red'),
+  text('Big  Data', xy=c(-40, 50), font.size=20),
+  text('Small Data', xy=c(50, 50), font.size=10)
+)
+```
+
+Now we can see the entire circle (and the grid). Also, since the viewBox has become now larger, the image appears smaller. This is because the image in the viewBox is compressed to fit inside the viewPort. 
+
+And here is another more example, this time the image size increases.
+
+
+```{r, echo=TRUE, results="asis"}
+WH<-c(300,300)
+svgR(wh=WH, viewBox=c(.1*WH,.5*WH),
+  #use(filter=filter( feFlood(flood.color='blue') )),
+  graphPaper(WH, dxy=c(50,50), labels=TRUE),
+  circle(cxy=c(0,0),r=100, fill="pink", stroke='red'),
+  text('Big  Data', xy=c(-40, 50), font.size=20),
+  text('Small Data', xy=c(50, 50), font.size=10)
+)
+```
+
+Summarizing
+
+- Decreasing the view box zooms out
+- Conversley inceasing the viewport zooms in.
+
+
+
+
+## Nesting svgs
+
+Svg's can be nested: The simplest example being a single child svg, (the root svg is implict in svgR). Here is such an example:
+
+
+```{r, echo=TRUE, results="asis"}
+WH<-c(400,300)
+WH2<-WH/2
+id=newId()
+svgR(wh=WH, 
+     use(filter=filter( feFlood(flood.color='blue') )),
+     g( id=id,
+        graphPaper(WH, dxy=c(50,50), labels=TRUE),
+        circle(cxy=c(0,0),r=r, fill="yellow")
+     ),
+     svg(xy=WH/4, wh=WH/2, 
+           use(filter=filter( feFlood(flood.color='red') )),
+           use(xlink.href=paste0("#",id))
+    )
+)
+```
+
+
+**Note:** The viewBox of the child svg is c(0,0,200,150). 
+When not specified the **viewBox** defaults to: 
+
+-  an origin  c(0,0)
+-  with dimensions identical to the corresponding viewPort  
+
+In this example, the parent svg was flooded withblue, and the child svg with red. The parent contains the group consisting of some graphPaper and a circle. The child svg uses the same graphPaper and circle by using a reference link. The only difference between the child and parent are the flood colors and the viewPorts. In both cases, the circle is clipped so that only 1/4 of it si visible.
+
+Summarizing:
+
+- svgs contain their own coordinate system (viewBox)
+- svgs clip the the source to their own viewPort
+
+**Note** We specified the location of the child with the attribute xy=c(x,y). However, for the svg root element, the xy coordinates will always be xy=c(0,0).
+
+Finally we go a step further and provide a viewbox when embeding a child svg.
+
+```{r, echo=TRUE, results="asis"}
+WH<-c(800,300)
+id=newId()
+XY2<-c(600,40)
+WH2<-c(180,200)
+svgR(wh=WH, 
+  g( id=id,
+    graphPaper(WH, dxy=c(50,50), labels=TRUE),
+    lapply(1:15, function(i){
+      text("Running R Really Rocks", xy=i*c(20,20), stroke=rrgb(), font.size=10)
+    })
+  ),
+  rect(xy=XY2, wh=WH2, stroke='blue', stroke.width=2, fill='#FFDDDD'),
+  svg(xy=XY2, wh=WH2, viewBox=c(.1*WH,.1*WH),
+      use(xlink.href=paste0('#',id))
+  )
+)
+```
+

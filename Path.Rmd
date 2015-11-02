@@ -1,0 +1,323 @@
+---
+title: "Path Element"
+output:
+  html_document:
+    toc: true
+    theme: united
+---
+
+
+
+
+```{r, echo=FALSE}
+stopifnot(require(svgR, quietly=TRUE))
+```
+
+```{r, echo=FALSE}
+if(!exists("newId")){
+  source('Util.R')
+}
+```
+
+
+
+
+## The Path Data Attribute
+
+The path element is used to specify a curve. The path may be rendered directly by the setting the stroke attribute or used by other elements such as textPath. 
+
+The curve of a path may consist of any combination of lines, Bézier curves (cubic and quadratic), and ellisoid arcs. The exact combination specified in the **d** atttribue as a sequence of commands and points, summarized by the following table
+
+
+
+Command  | Points |  Interpretation
+----|---------- | -------------
+M,m  | (x y)+ | Move the current point to a new location (without drawing) 
+L,l |  (x, y)+ | Draw a line from the current point to x,y
+H,h | x+ | Draw a vertical line from the current
+V,v | y+ | Draw a horizontal line from the current point
+C,c | (x1 y1 x2 y2 x y)+ | Draw a cubic Bézier curve to x,y using x1,y1; x2,y2 as control pts
+S,s | (x2 y2 x y)+ | Draw a cubic Bézier to  x,y using  x2,y2 as the second control pt (inheriting the first control point from a preceding  Bézier)
+Q,q | (x1 y1 x y)+ | Draw a quadratic Bézier curve  to x,y using  x1,y1 as control pts
+T,t | (x y)+ | Draw a quadratic Bézier curve to x,y (inheriting the first control from a preceding  Bézier)
+A,a | (rx ry x-axis-rotation large-arc-flag sweep-flag x y)+ | Draw an elliptical arc to x, y
+Z   | | closes the path
+
+Capital lettered commands interpret the points as absolute coordinates, lowercase interprets the points as relative point to the current (starting) point.
+
+The following illustrates the basics  of each command.
+
+
+### Lines
+
+Using absolute coordinates (Note: we graphPaper background to illustrate the coordinates)
+
+```{r, echo=T, results="asis"}
+WH<-c(600,200)
+svgR( wh=WH, 
+      graphPaper(WH, dxy=c(20,20), labels=TRUE),
+      path(d=c("M", 180,90, "L", 150,142,90,142,60,90,90,38,150,38) , stroke='red', fill='none') )
+```
+
+Using relative coordinates
+```{r, echo=T, results="asis"}
+WH<-c(600,200)
+svgR( wh=WH, 
+      graphPaper(WH, dxy=c(20,20), labels=TRUE),
+      path(d=c("m", 180,90, "l", -30,52,-60,0,-30,-52,30,-52,60,0 ) , stroke='green', fill='none') )
+```
+
+Closing the path.
+To close the path add Z at the end
+```{r, echo=T, results="asis"}
+WH<-c(600,200)
+svgR( wh=WH, 
+      graphPaper(WH, dxy=c(20,20), labels=TRUE),
+      path(d=c("m", 180,90, "l", -30,52,-60,0,-30,-52,30,-52,60,0, "Z" ) , stroke='blue', fill='none') )
+```
+
+
+## The Elliptic Arc Curve
+
+An elliptic Arc is an arc formed from fragment of an ellipse which has possibly been rotated. 
+
+To specify that
+arc, we specify the end points of the arc and 
+then the ellipse from which the arc is formed, 
+and a flag to indicate which portion of the ellipse contains the arc.
+
+To specify a general ellipse, we need 5 numbers, 
+for example a rotational angle $\theta$, (called *x-axis-rotation*), 
+the major and minor radii *rx, ry* and something equivalent to the center of the ellipse. 
+However, we note that rx, ry, rotation together with endpoints of the arc, 
+determine the center to be of one of two locations. So we need only one additional 
+parameter, called the *large-arc-flag*
+ 
+```{r, echo=T, results="asis"}
+theta=20
+startPt=c(300,75)
+endPt<-startPt+c(0,50)
+rxy=c(100,50)
+laf0=0
+laf1=1
+sf0=0
+sf1=1
+WH<-c(600, 200)
+svgR( wh=WH, fill="none",
+      graphPaper(WH),
+      stroke.width=3,
+      path(d=c("M", startPt, "A", rxy, theta, laf0, sf0, endPt ) , stroke='red') ,
+      path(d=c("M", startPt, "A", rxy, theta, laf0, sf1, endPt ) , stroke='blue') ,
+      path(d=c("M", startPt, "A", rxy, theta, laf1, sf0, endPt ) , stroke='green') ,
+      path(d=c("M", startPt, "A", rxy, theta, laf1, sf1, endPt ) , stroke='orange'),
+      line( xy1=startPt, xy2=startPt-c(0,40), stroke.width=1, stroke='black'),
+      line( xy1=endPt, xy2=endPt+c(0,40), stroke.width=1, stroke='black'),
+      text("start pt", cxy=startPt-c(0,50), font.size=12, stroke='black', stroke.width=1),
+      text("end pt",   cxy=endPt+c(0,50), font.size=12, stroke='black', stroke.width=1),
+      text("sf=0 on this side", xy=c(WH[1]-100,50), font.size=12, stroke='black', stroke.width=1),
+      text("sf=1 on this side", xy=c(50,WH[2]-50),  font.size=12, stroke='black', stroke.width=1)
+
+)
+```
+ 
+ 
+## Q: The Quadratic Bézier
+
+A  Quadratic Bézier is a parametric curve whose coodinates are given by quadratic expressions in a parameter t. The most common formulation is given points $P_0$, $P_1$, $C_0$, a point on the curve is given by
+$$ P= (1-t)^2 P_0 + 2(1-t)t C_0 +t^2 P_1$$ for $0 \leq t \leq1$
+
+
+
+
+Thus Quadratic Bézier requires three points: $P_0$,  the starting point, $P_1$ the ending point, and $C_0$, a  control point. One can easliy verify that the control point lies on the intersection of the the lines tangent to the end points. 
+
+
+This is illustrated in the following example
+
+```{r, echo=T, results="asis"}
+P0=c(200,50)
+P1=c(300,150)
+C0<-c(100,100)
+WH<-c(600,200)
+svgR( wh=WH, 
+  graphPaper(wh=WH, dxy=c(20,20), labels=TRUE), 
+  path(d=c("M",P0, "Q", C0,  P1) , stroke='red',
+  stroke.width=3, fill='none') ,
+  g( 
+    stroke='blue',
+    line(xy1=P0,xy2=C0),
+    line(xy2=P1,xy1=C0)
+  ),
+  g(
+    stroke="black",
+    text("P0",cxy=P0 ),
+    text("C0",cxy=C0),
+    text("P1", cxy=P1)
+  )
+)
+```
+
+
+## T: Extending a  Bézier with a Quadratic Bézier
+
+Using the T command, we can append to a given Bézier a Quadratic Bézier without specifying an additional control point. The control point that is used will be the reflection of the control point of the previous Bézier. That is, $$C_{i+1}= 2 \times P_i + C_i$$ where $C_i$ is the control point of the previous Bézier. Thus,we ensure continuity of the deriverative of the beginning endpoint of the appended Bézier.
+
+We demonstarte this
+in the following example
+
+```{r, echo=T, results="asis"}
+Pt0=c(200,50)
+Pt1=c(300,150)
+C0<-c(100,100)
+C1<-2*Pt1 -C0
+Pt2=c(400,50)
+svgR( wh=c(600, 250), 
+      graphPaper(c(600,250)),
+      path(d=c("M",Pt0, "Q", C0,  Pt1 , "T", Pt2) , stroke='red', stroke.width=3, fill='none') ,
+      #path(d=c("T", endPt2) , stroke='green', fill='none') ,
+      g( 
+        stroke='blue',
+        line(xy1=Pt0,xy2=C0),
+        line(xy2=Pt1,xy1=C0),
+        line(xy1=Pt1,xy2=C1),
+        line(xy2=Pt2,xy1=C1)
+      ),
+      g(
+        stroke="black",
+        text("P0",cxy=Pt0 ),
+        text("C0",cxy=C0),
+        text("C1",cxy=C1),
+        text("P2",cxy=Pt2),
+        text("P1", cxy=Pt1)
+      )
+    )
+```
+
+### C: The Cubic Bézier
+
+The **Cubic Bézier** is similar to the Quadratic Bézier, but has a higher degree allowing for a S-shaped curve. The Quadratic Bézier requires four points, $P_0$ the start point, $P_1$ the end point and 
+two control points $C_0$, $C_1$ . 
+$$ P(t)=(1-t)^3 P_0 + 3 (1-t)^2 t C_0 + 3 (1-t)t^2 C_1 + t^3 P_p $$ 
+for $0 leq t leq 1$
+
+The first control point,  $C_0$,  together with the starting point, $P_0$,  determines a vector, $C_0-P_0$ which is tangent to the  curve at $P_0$. Similarly, the second control point, $C_1$,  together with ending point, $P_1$, determine a vector, $P_1-C_1$ which is tangent to the curve at $P_1$. The magnititude of the vectors $C_0 - p_0$, and $P_1 -C_1$ determine the intermediate shape.
+
+The current location is considerd to be the start point ($P_0$), so we  usually begin a path specification with an **M** command. This is followed by a **C** command. (or a lower case c if we are using relative coordinates) and the control points,  $C_0$, $C_1$, and the ending point $P_1$.
+
+This is illustrated by the following:
+
+```{r, echo=T, results="asis"}
+P0=c(200,50)
+P1=c(300,150)
+C0<-c(100,100)
+C1<-c(400,100)
+svgR( wh=c(600, 200), 
+      graphPaper(c(600,200)),
+      path(d=c("M",P0, "C", C0, C1, P1) , stroke='red', stroke.width=3, fill='none') ,
+      g( 
+        stroke='blue',
+        line(xy1=P0,xy2=C0),
+        line(xy2=P1,xy1=C1)
+      ),
+      g(
+        stroke="black",
+        text("P0",cxy=P0 ),
+        text("C0",cxy=C0),
+        text("C1",cxy=C1),
+        text("P1", cxy=P1)
+      )
+    )
+```
+
+Interchanging ctrlPt2 with the end point gives 
+
+```{r, echo=T, results="asis"}
+P0=c(200,50)
+C1=c(300,150)
+C0<-c(100,100)
+P1<-c(400,100)
+svgR( wh=c(600, 200), 
+      graphPaper(c(600,200)),
+      path(d=c("M",P0, "C", C0, C1, P1) , stroke='red', stroke.width=3, fill='none') ,
+      g( 
+        stroke='blue',
+        line(xy1=P0,xy2=C0),
+        line(xy2=P1,xy1=C1)
+      ),
+      g(
+        stroke="black",
+        text("P0",cxy=P0 ),
+        text("C0",cxy=C0),
+        text("C1",cxy=C1),
+        text("P1", cxy=P1)
+      )
+    )
+```
+
+
+## S: Extending a  Bézier with a Cubic Bézier
+
+
+Just as with the quadratic case, we can extend a Bézier with a Cubic Bézier while specifying one less control point, i.e. we take as the first control point,the last control point of the previous Bézier, thus ensuring continuity of the first derivative.
+
+We illustrate this with the following example. 
+
+
+
+```{r, echo=T, results="asis"}
+P0<-c(350,30)
+P1<-c(400,150)
+P2<-c(200,250)
+  
+C0<-P0+c(-100,50)  
+C1<-P1+c(100,-50) 
+C2<-P2+c(-80,-100)
+
+R2<-2*P1-C1 #used only to display the reflected control point
+
+svgR( wh=c(600, 300), 
+      graphPaper(c(600,300)),
+      #The path of interest
+      path(d=c("M",P0, "C", C0, C1, P1, "S", C2, P2) , stroke='red', stroke.width=3, fill='none') ,
+      
+      g( # lines to illustrate control points
+        stroke='blue',
+        line(xy1=P0,xy2=C0),
+        line(xy2=P1,xy1=C1),
+        line(xy1=P1,xy2=R2),
+        line(xy2=P2,xy1=C2)
+      ),
+      g( # labeling of control points
+        stroke="black",
+        text("P0",cxy=P0 ),
+        text("C0",cxy=C0),
+        text("C1",cxy=C1),
+        text("P1", cxy=P1),
+        text("C2",cxy=C2),
+        text("R2",cxy=R2),
+        text("P2", cxy=P2)
+      )
+    )
+```
+
+
+**Note**, the control points for the $P_1-P_2$ portions
+of the path are $R_2$, $C_2$, where $C_2$ is specified in the path, but $R_2$ is implicitly defined
+as the reflection of $C_1$ insidet the path data description attribute *d*. That is "S" uses the $P_1$ and $C_1$ defined to it's left to compute $R_2=2 \times P_1 - C_1$.
+
+
+## More  Bezier Examples
+
+```{r, echo=T, results="asis"}
+svgR( wh=c(800, 200), 
+      graphPaper(c(800,200)),
+      g( stroke.width=3, fill="transparent",
+        path(d = c("M",100, 0, "C", 100, 100, 200, 0, 200, 100), stroke='red' ), 
+        path(d = c("M",200, 0, "c", 0, 100, 100, 0, 100, 100),  stroke='pink'), 
+        path(d = c("M",300, 0, "c", 0, 100, 100, 0, 100, 100),  stroke='purple'), 
+        path(d = c("M",400, 0, "c", 0, 100, 100, 0, 100, 200),  stroke='green'), 
+        path(d = c("M",500, 0, "c", 0, 100, 100, 0, 100, 200),  stroke='blue'), 
+        path(d = c("M",600, 0, "c", 0, 300, 100, -100, 100, 200),  stroke='orange')
+      )
+ )
+```

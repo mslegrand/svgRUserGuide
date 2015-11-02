@@ -1,0 +1,193 @@
+---
+title: "Mask"
+output:
+  html_document:
+    toc: true
+    theme: united
+---
+
+
+```{r, echo=FALSE}
+stopifnot(require(svgR, quietly=TRUE))
+```
+
+```{r, echo=FALSE}
+if(!exists("newId")){
+  source('Util.R')
+}
+```
+
+Using explicit defs
+
+```{r, echo=T, results="asis"}
+
+WH=c(600, 100) # window rect
+svgR( wh=WH,
+  defs(
+    mask(
+      id="mask0",
+      rect(cxy= WH/2, wh=c(600,40), fill='white'),
+      rect(cxy= WH/2, wh=c(600,10), fill='black')
+    )
+  ),
+  g(
+    circle( cxy=c(50,50), r=30, fill='darkblue'),
+    circle( cxy=c(150,50), r=30, fill='red'),
+    mask="url(#mask0)"
+  )
+)
+```
+
+Using implied defs
+```{r, echo=T, results="asis"}
+WH=c(600, 100) # window rect
+svgR( wh=WH,
+    g( 
+      circle( cxy=c(50,50), r=30, fill='darkblue'),
+      circle( cxy=c(150,50), r=30, fill='red'),
+      mask=mask(
+        rect(cxy= WH/2, wh=c(600,40), fill='white'),
+        rect(cxy= WH/2, wh=c(600,10), fill='black')
+        )
+    )
+)
+```
+
+
+```{r, echo=T, results="asis"}
+#```{r, echo=T}
+WH=c(600, 100) # window rect
+svgR( wh=WH,
+    defs(
+        mask(
+        id="mask1", 
+        xy=c(0,0), wh=c(100,100),
+        text(xy=c(0,50),'hello all you brilliant data scientists', 
+             stroke='white',fill='black')
+        )
+    ),
+    #rect(xy=c(0,0), wh=WH, fill='yellow'),
+    circle( cxy=c(50,50), r=30, fill='darkblue', mask="url(#mask1)"),
+    circle( cxy=c(150,50), r=30, fill='red',     mask="url(#mask1)")
+)
+```
+
+```{r, echo=T, results="asis"}
+#```{r, echo=T}
+WH=c(600, 100) # window rect
+svgR( wh=WH,
+    defs(
+        mask(
+        id="mask2", xy=c(0,0), wh=c(100,100),
+        rect( xy=c(0,0),  wh=c(50,100), fill='white', stroke='none'),
+        rect( xy=c(50,0), wh=c(50,100), fill='grey', stroke='none')
+        )
+    ),
+    #rect(xy=c(0,0), wh=WH, fill='yellow'),
+    text(xy=c(0,50),'hello all you brilliant data scientists', stroke='red',fill='white'),
+    circle( cxy=c(50,50), r=39, fill='darkblue', mask="url(#mask2)"
+             )
+)
+```
+
+
+```{r, echo=T, results="asis"}
+#```{r, echo=T}
+WH=c(600, 100) # window rect
+svgR( wh=WH,   
+    mask(
+    id="mask2-5", xy=c(0,0), wh=c(100,100),
+    rect( xy=c(0,0),  wh=c(50,100), fill='white', stroke='none'),
+    rect( xy=c(50,0), wh=c(50,100), fill='grey', stroke='none')
+    ),
+    #rect(xy=c(0,0), wh=WH, fill='yellow'),
+    text(xy=c(0,50),'hello all you brilliant data scientists', stroke='red',fill='white'),
+    circle( cxy=c(50,50), r=39, fill='darkblue', mask="url(#mask2-5)"
+             )
+)
+```
+
+
+```{r, echo=T, results="asis"}
+#```{r, echo=T}
+WH=c(600, 100) # window rect
+svgR( wh=WH,
+    defs(
+        mask(
+        id="mask3", xy=c(0,0), wh=c(100,100),
+        rect( xy=c(0,0),  wh=c(50,100), fill='rgb(190,190,130)', stroke='none'),
+        rect( xy=c(50,0), wh=c(50,100), fill='grey', stroke='none')
+        )
+    ),
+    #rect(xy=c(0,0), wh=WH, fill='yellow'),
+    text(xy=c(0,50),'hello all you brilliant data scientists', stroke='red',fill='white'),
+    circle( cxy=c(50,50), r=39, fill='darkblue', mask="url(#mask3)"
+             )
+)
+```
+
+
+```{r, echo=T, results="asis"}
+#```{r, echo=T}
+WH=c(600, 100) # window rect
+svgR( wh=WH,
+  mask(
+    id="mask4", xy=c(0,0), wh=c(100,100),
+    rect( xy=c(0,0),  wh=c(50,100), fill='rgb(190,190,130)', stroke='none'),
+    rect( xy=c(50,0), wh=c(50,100), fill='grey', stroke='none')
+  ),
+  #rect(xy=c(0,0), wh=WH, fill='yellow'),
+  text(xy=c(0,50),'hello all you brilliant data scientists', stroke='red',fill='white'),
+  circle( cxy=c(50,50), r=39, fill='darkblue', mask="url(#mask4)"
+           )
+)
+```
+
+
+```{r, echo=T, results="asis"}
+#```{r, echo=T}
+WH=c(600, 100) # window rect
+svgR( wh=WH,
+  pattern(
+    id="pattern2", xy=c(5,5), wh=c(10,10), patternUnits="userSpaceOnUse" ,
+    circle(cxy=c(5,5), r=5, fill='white')
+  ),  
+  mask( id="mask5", xy=c(0,0), wh=WH,
+    rect(xy=c(0,0), wh=WH, fill="black"),
+    rect(xy=c(0,0), wh=WH, fill="url(#pattern2)")
+  ),
+  text(xy=c(0,50),'hello all you brilliant data scientists', stroke='black',font.size=30,
+        mask="url(#mask5)"
+       )
+)
+```
+
+
+```{r, echo=T, results="asis"}
+#```{r, echo=T}
+WH=c(600, 100) # window rect
+svgR( wh=WH,
+  mask( id="mask5", xy=c(0,0), wh=WH,
+    rect(xy=c(0,0), wh=WH, fill="black"),
+    lapply(seq(1,90,5), function(i){rect(xy=c(0,i), wh=c(600,3), fill='white')})
+  ),
+  text(xy=c(0,50),'hello all you brilliant data scientists', stroke='black',font.size=30,
+        mask="url(#mask5)"
+       )
+)
+```
+
+```{r, echo=T, results="asis"}
+#```{r, echo=T}
+WH=c(600, 200) # window rect
+svgR( wh=WH,
+  pattern(
+      id="pattern3", xy=c(10,10), wh=c(20,20), patternUnits="userSpaceOnUse" ,
+      circle(cxy=c(10,10), r=10, fill='green')
+  ),
+  g(
+    rect(xy=c(0,0), wh=WH, fill='orange'),
+    ellipse( cxy=c(55,60), rxy=c(55,25), fill="url(#pattern3)")
+    )
+)
+```

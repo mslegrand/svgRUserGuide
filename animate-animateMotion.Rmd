@@ -1,0 +1,278 @@
+---
+title: "Animate-AnimateMotion"
+output:
+  html_document:
+    toc: true
+    theme: united
+---
+
+
+```{r, echo=FALSE}
+stopifnot(require(svgR, quietly=TRUE))
+```
+
+```{r, echo=FALSE, results="asis"}
+if(!exists("newId")){
+  source('Util.R')
+}
+```
+
+<a name="animateMotion"></a> 
+
+## AnimateMotion
+
+Animate motion is used to move a shape along a path
+
+This first example illustrates using from and to.
+```{r, echo=T, results="asis"}
+WH<-c(800,150)
+svgR( 
+    playBar(wh=WH),
+     text("Straight line", xy=c(30,30), font.size=25, fill="blue", font='black'),
+     circle( cxy=c(20,WH[2]/2-15), r=10, stroke="black", fill="yellow",
+      animateMotion(from=c(0,0), to=c(WH[1]-40,0), 
+                    begin=playButton.click, dur=2, fill="remove") 
+    )
+)
+```
+
+**Note**: The from, to produces a relative effect: cxy is moved to the right.
+
+
+<a name="animate-along-path-flat" /> 
+
+### Animating Text Along a Path Using Animate Motion with Fixed Text Orientation
+
+This  example illustrates text being moved along a path while maintaining
+text orientation. Here the path *d* is specified using *absolute coordinates*.
+
+#### Using absolute coordinates
+
+```{r, echo=T, results="asis"}
+WH<-c(800,150)
+y0<-WH[2]/2
+r <-WH[2]/4
+x = seq(100,800, by=20)
+y = y0 + r*sin((x-100/40))
+pts<-rbind('T',x,y)
+d<-c('M', c(60,y0),"Q",c(70,y0), c(80,y0), pts)
+dur=10
+svgR( 
+    playBar(wh=WH),
+     text("Flat", xy=c(30,30), font.size=25, fill="blue", font='black'),
+     path(d=d , stroke='lightblue', stroke.width=3, fill='none'), 
+     text("data", cxy=c(0,0),  
+        stroke="black", 
+      animateMotion(path=d,  
+                    begin=playButton.click, dur=dur, fill="remove") 
+    )
+)
+```
+
+**Note** In the above, text *data*  is located at cxy=c(0,0) and then moved to the path. 
+Thus, when the animation completes, the text position is restored to c(0,0). To have the
+initail text postion on the path, we set *circle* parameter *cxy=(60,y0)*, and then
+use relative coordinates instead. This is illustrated in the next example
+
+#### Using Relative Coordinates
+
+```{r, echo=T, results="asis"}
+WH<-c(800,150)
+y0<-WH[2]/2
+r <-WH[2]/4
+x = seq(100,800, by=20)
+y = y0 + r*sin((x-100/40))
+pts<-rbind('t',diff(x),diff(y) )
+d<-c('m', c(0,0),"q",c(10,0), c(20,0), pts)
+dur=10
+svgR( 
+    playBar(wh=WH),
+     text("Flat", xy=c(30,30), font.size=25, fill="blue", font='black'),
+     path(d=c('M', c(60,y0),d) , 
+     stroke='lightblue', stroke.width=3, fill='none'), 
+     text("data", cxy=c(60,y0),  
+        stroke="black", 
+      animateMotion(path=d,  
+                    begin=playButton.click, dur=dur, fill="remove") 
+    )
+)
+```
+
+
+
+
+
+### Animating Text Along a Path Using Animate Motion with Auto Text Orientation
+
+
+The key to allowing the the text rotate is to set the *rotate* attribute to *auto*. In addition, 
+we use absolute coordinates with the path beginning at c(0,0) and the text at c(0,0). Then we put 
+both in a group and use
+a *translate transform* to relocate to c(60,y0).
+
+```{r, echo=T, results="asis"}
+WH<-c(800,150)
+y0<-WH[2]/2
+r <-WH[2]/4
+x = seq(100,800, by=20)
+y = y0 + r*sin((x-100/40))
+pts<-rbind('T',x-60,y-y0)
+d<-c('M', c(0,0),"Q",c(10,0), c(20,0), pts)
+svgR( 
+    playBar(wh=WH),
+    text("Auto", xy=c(30,30), font.size=25, fill="blue", font='black'),
+    g(
+      path(d=d , stroke='lightblue', stroke.width=3, fill='none'), 
+      text("data", cxy=c(0,0),  
+        stroke="black", 
+        animateMotion(path=d,  
+                      begin=playButton.click, dur=10, fill="remove", rotate='auto') 
+      ),
+      transform=list(translate=c(60,y0))
+    )
+)
+```
+
+### A Bouncing Ball
+
+Here we use *path* to provide the trajectory of a bouncing ball.
+
+```{r, echo=T, results="asis"}
+WH<-c(800,300)
+rxy<-c(50,250)
+startPt<-c(0, 0)
+NumberOfJumps<-4
+da<-sapply(1:NumberOfJumps,function(i){
+  endPt<-c(rxy[1]*2*i, 0)+startPt
+  c( "A", rxy, 0, 0, 1, endPt )
+})
+d<-c("M",startPt,da)
+ani.id<-newId()
+splat.id<-newId()
+splat.dur<-.1
+svgR( 
+    playBar(wh=WH),
+    ellipse( cxy=c(20,280), rxy=c(10,10), stroke="black", fill="yellow",
+      animateMotion(id=ani.id, path=d, 
+                    begin=playButton.click, dur=3, fill="freeze"),
+      animate(attributeName="rx",from=10,to=50,begin=paste0(ani.id,".end"), dur=splat.dur, fill="freeze"),
+      animate(id=splat.id, attributeName="ry",from=10,to=2, begin=paste0(ani.id,".end"), dur=splat.dur, fill="freeze" ),
+      set(attributeName="cx", to="20",  begin=playButton.click, fill='freeze'),
+      set(attributeName="cy", to="280", begin=playButton.click, fill='freeze'),
+      set(attributeName="rx", to="10",  begin=playButton.click, fill='freeze'),
+      set(attributeName="ry", to="10",  begin=playButton.click, fill='freeze')
+    ),
+    text('Splat', font.size=90, cxy=c(650,200), stroke='red', fill='red', visibility='hidden',
+      set(attributeName='visibility', to="visible",  begin=paste0(ani.id,".end"), fill='freeze'),
+      set(attributeName='visibility', to="hidden",  begin=playButton.click, fill='freeze')
+    )
+)
+```
+Although not too bad, the speed of the ball is constant.  We can easily alter 
+that using keySplines. See [Bouncing Ball With KeySplines](#bouncingBallWithKeySplines) 
+
+
+## Variable Speed with Animation Motion
+
+
+### Linear
+
+```{r, echo=T, results="asis"}
+WH<-c(800,150)
+d<-c("m", WH*c(0,.0), "l", WH*c(1,0))
+aniMotion<-newId()
+svgR( 
+    playBar(wh=WH),
+    rect(xy=c(0,0),wh=WH, fill="#AAFFAA"),
+    rect(xy=c(0,0),wh=WH*c(0.2,1), fill="#FFAAAA"),  
+    text("animateMotion of Path with CalcMode='linear'", xy=c(30,30), font.size=25, fill="blue", font='black'),
+    text("Slow", xy=c(30,WH[2]-30), font.size=20, fill="red", font='black'),
+    text("Fast", xy=c(WH[1]/2,WH[2]-30), font.size=20, fill="green", font='black'),
+        
+    circle( cxy=c(0,.5)*WH, r=10, stroke="black", fill="yellow",
+      animateMotion(id= aniMotion, path=d, 
+                    keyTimes=c(0,0.95,1), keyPoints=c(0,0.2,1), calcMode="linear",
+                    begin=playButton.click, dur=5), 
+      animateMotion(path=c("M", WH*c(.1,.5), 
+                    begin=paste0("on.load;",aniMotion,".onend"), dur=0, fill="freeze"))
+    )
+)
+```
+
+**Note** The default calcMode for **animateMotion** is *paced* which results in the values of *keyTimes* and *keySplines* 
+being ignored
+
+
+
+### Spline
+```{r, echo=T, results="asis"}
+WH<-c(800,150)
+d<-c("m", WH*c(0,.0), "l", WH*c(1,0))
+aniMotion<-newId()
+svgR( 
+    playBar(wh=WH),
+    rect(xy=c(0,0),wh=WH, fill=linearGradient(x12=c(0,1),colors=c("lightgreen","pink"))),
+    text("animateMotion of Path with CalcMode='spline'", xy=c(30,30), font.size=25, fill="blue", font='black'),
+    text("Fast", xy=c(30,WH[2]-30), font.size=20, fill="green", font='black'),
+    text("Slow", xy=c(WH[1]-70,WH[2]-30), font.size=20, fill="red", font='black'),
+        
+    circle( cxy=c(0,.5)*WH, r=10, stroke="black", fill="yellow",
+      animateMotion(id= aniMotion, path=d, calcMode="spline",
+                    keyPoints=c(0,1),
+                    keyTimes=c(0,1), keySplines="0 0.75 0.25 1",
+                    begin=playButton.click, dur=5), 
+      animateMotion(path=c("M", WH*c(.1,.5), 
+                    begin=paste0("on.load;",aniMotion,".onend"), dur=0, fill="freeze"))
+    )
+)
+```
+<a name="bouncingBallWithKeySplines" />
+
+### A Bouncing Ball with keySplines
+
+Here we use *path* to provide the trajectory of a bouncing ball.
+
+```{r, echo=T, results="asis"}
+WH<-c(800,300)
+rxy<-c(50,250)
+startPt<-c(0, 0)
+NumberOfJumps<-4
+da<-sapply(1:NumberOfJumps,function(i){
+  endPt<-c(rxy[1]*2*i, 0)+startPt
+  c( "A", rxy, 0, 0, 1, endPt )
+})
+d<-c("M",startPt,da)
+ani.id<-newId()
+splat.id<-newId()
+splat.dur<-.1
+svgR( 
+    playBar(wh=WH),
+    ellipse( cxy=c(20,280), rxy=c(10,10), stroke="black", fill="yellow",
+      animateMotion(id=ani.id, path=d, 
+                    calcMode="spline",
+                    keyPoints=seq(0,1,length.out=1+NumberOfJumps),
+                    keyTimes=seq(0,1,length.out=1+NumberOfJumps), 
+                    keySplines=rep( c(0,.6,1,.4), NumberOfJumps),
+                    begin=playButton.click, dur=3, fill="freeze"),
+      animate(attributeName="rx",from=10,to=50,begin=paste0(ani.id,".end"), dur=splat.dur, fill="freeze"),
+      animate(id=splat.id, attributeName="ry",from=10,to=2, begin=paste0(ani.id,".end"), dur=splat.dur, fill="freeze" ),
+      set(attributeName="cx", to="20",  begin=playButton.click, fill='freeze'),
+      set(attributeName="cy", to="280", begin=playButton.click, fill='freeze'),
+      set(attributeName="rx", to="10",  begin=playButton.click, fill='freeze'),
+      set(attributeName="ry", to="10",  begin=playButton.click, fill='freeze')
+    ),
+    text('Splat', font.size=90, cxy=c(650,200), stroke='red', fill='red', visibility='hidden',
+      set(attributeName='visibility', to="visible",  begin=paste0(ani.id,".end"), fill='freeze'),
+      set(attributeName='visibility', to="hidden",  begin=playButton.click, fill='freeze')
+    )
+)
+```
+
+
+
+
+
+
+
+
+

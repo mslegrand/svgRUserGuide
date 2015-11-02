@@ -1,0 +1,216 @@
+---
+title: "Shapes"
+output:
+  html_document:
+    toc: true
+    theme: united
+---
+
+
+
+```{r, echo=FALSE}
+stopifnot(require(svgR, quietly=TRUE))
+```
+
+```{r, echo=FALSE}
+if(!exists("newId")){
+  source('Util.R')
+}
+```
+
+In this section we discuss shapes.
+Shapes are circles, ellipses, lines, paths, polygons, polylines, rectangles. 
+
+##The Line
+We begin with the most basic of shapes, a simple line segment
+from a point xy1 to xy2
+
+```{r, echo=T, results="asis"}
+WH<-c(600, 100) # window rect
+svgR( wh=WH,
+      line( xy1=c(50,50), xy2=c(500,50), stroke='black')
+)
+```
+
+Changing the color is easy to do, simply assign a color to the stroke parameter of line.
+
+
+```{r, echo=T, results="asis"}
+WH<-c(600, 100) # window rect
+svgR( wh=WH,
+      line( xy1=c(50,50), xy2=c(500,50), stroke='red')
+)
+```
+
+This color can also be specified as #FF0000 or
+rgb(255,0,0)
+
+To change the line width simply set 
+```{r, echo=T, results="asis"}
+WH<-c(600, 100) # window rect
+svgR( wh=WH,
+      line( xy1=c(50,50), xy2=c(500,50), stroke='#00FF00', stroke.width=10)
+)
+```
+
+To create a dashed line set the stroke.dasharray attribute
+```{r, echo=T, results="asis"}
+WH<-c(600, 100) # window rect
+svgR( wh=WH,
+      line( xy1=c(50,50), xy2=c(500,50), stroke='rgb(0,0,255)', stroke.dasharray=8 )
+)
+```
+
+## The polyline
+
+To produce a sequence of connected line segments use 
+polyline. The points are specified with the points attribute.
+Points can be specified in any of the following ways:
+
+- a list of n vectors of length 2
+- a n by 2 matrix
+- a vector of the form $(x_1,y_1,x_2,y_2 ...x_n,y_n)$
+
+Other attributes can be set as before.
+
+```{r, echo=T, results="asis"}
+WH<-c(600, 100) # window rect
+svgR( wh=WH,
+      polyline( 
+        points=rbind(seq(from=20, to=500, by=50),c(20,80)), 
+        stroke='#FF00AA', stroke.dasharray=8, fill='none' )
+)
+```
+
+
+Note: we added an additional attribute fill='none'. If we don't, most browser will fill this with a black color. 
+
+## The polygon
+
+For closed figures, we use the polygon element. We have the same options to specify points as we did with the polyline.
+
+
+```{r, echo=T, results="asis"}
+WH<-c(600, 100) # window rect
+points<-lapply((0:7)*(2*pi)/8, function(theta){
+  c(100,50)+40*c(cos(theta),sin(theta))
+} )
+svgR( wh=WH,
+      polygon( 
+        points=points, stroke='red', fill='none' )
+)
+```
+
+Additionally, we can supply a color to the fill variable:
+
+```{r, echo=T, results="asis"}
+WH<-c(600, 100) # window rect
+points<-lapply(0:7, function(i){
+  theta<-i*(2*pi)/8
+  c(100,50)+20*(1+i%%2)*c(cos(theta),sin(theta))
+} )
+svgR( wh=WH,
+      polygon( 
+        points=points, stroke='blue', fill='pink' )
+)
+```
+
+And remove the stroke
+
+```{r, echo=T, results="asis"}
+WH<-c(600, 100) # window rect
+points<-lapply(0:15, function(i){
+  theta<-i*2*pi/16
+  c(100,50)+20*(1+i%%2)*c(cos(theta),sin(theta))
+} )
+svgR( wh=WH,
+      polygon( points=points, fill='orange' )
+)
+```
+
+
+## The rectangle, 
+For a rectangle, (a four sided polygon) we use the rect element. We can specify the position of the upper-left corner of the rectangle in 2 ways:
+
+- one at a time, for example: x=50, y=20 
+- as a vector, for example: xy=c(50,20)
+
+Alternative we can specify the center of the rectangle
+
+- as a vector, for example cxy=c(100,40)
+
+Also we can specify the dimensions in 2 ways:
+
+- one at a time, for example: w=100, h=40 
+- as a vector, for example:  wh=c(100,40)
+```{r, echo=T, results="asis"}
+WH<-c(600, 100) # window rect
+svgR( wh=WH,
+      rect( xy=c(50,20), wh=c(100,40), stroke='blue', fill='none' )
+)
+```
+
+## The circle 
+For a circle, we specify the center and the radius r. The center can be specified in 2 ways:
+
+- one at a time, for example: cx=100, cy=60 
+- as a vector, for example: cxy=c(100,60)
+
+
+```{r, echo=T, results="asis"}
+WH<-c(600, 150) # window rect
+svgR( wh=WH,
+  circle( cxy=c(120,60), r=25, stroke='blue', fill='none' )
+)
+```
+
+Moreover, we can compose with rect using cxy to create concentric rectangles and circles:
+```{r, echo=T, results="asis"}
+WH<-c(600, 150) # window rect
+cxy<-c(120,60)
+dx<-10
+svgR( wh=WH,
+  circle( cxy=cxy, r=1*dx*sqrt(2), stroke='blue', fill='none' ),
+  circle( cxy=cxy, r=2*dx*sqrt(2), stroke='blue', fill='none' ),
+  circle( cxy=cxy, r=3*dx*sqrt(2), stroke='blue', fill='none' ),
+  rect(cxy=cxy, wh=1*dx*c(2,2), stroke='red',fill='none'),
+  rect(cxy=cxy, wh=2*dx*c(2,2), stroke='red',fill='none'),
+  rect(cxy=cxy, wh=3*dx*c(2,2), stroke='red',fill='none')
+)
+```
+
+However, a better way is to use lapply and iterate
+```{r, echo=T, results="asis"}
+WH<-c(600, 200) # window rect
+cxy<-c(120,100)
+dx<-10
+n<-6
+svgR( wh=WH,
+  lapply(1:n, function(i)circle( cxy=cxy, r=i*dx*sqrt(2), stroke='blue', fill='none' )),
+  lapply(1:n, function(i)rect(cxy=cxy, wh=i*dx*c(2,2), stroke='red',fill='none'))
+)
+```
+
+
+
+
+## The ellipse
+
+An ellipse is similar to a circle, but instead of r, we specify a pair rx and ry. This can be done in two ways:
+
+- one at a time, for example: rx=50, ry=30 
+- as a vector, for example:  rxy=c(50,30)
+
+We demonstrate this with a filled ellipse inside a filled rect
+
+```{r, echo=T, results="asis"}
+WH<-c(600, 150) # window rect
+cxy=c(200,75)
+rxy<-c(50,30)
+svgR( wh=WH,
+  rect(cxy=cxy, wh=2*rxy, stroke='blue', fill='yellow'),
+  ellipse(cxy=cxy, rxy=rxy, stroke='green', fill='orange' )
+)
+```
+
+

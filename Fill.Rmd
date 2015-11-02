@@ -1,0 +1,247 @@
+---
+title: "Fill"
+output:
+  html_document:
+    toc: true
+    theme: united
+---
+
+
+```{r, echo=FALSE}
+stopifnot(require(svgR, quietly=TRUE))
+```
+
+```{r, echo=FALSE}
+if(!exists("newId")){
+  source('Util.R')
+}
+```
+
+*Fill'er up*
+
+At this point, we have seen several shapes, with the fill attribute specified either as 
+
+- "none"
+- a color, such as 'red', or '#FF0000' or "rgb(255,0,0)"
+
+However, we can also fill with
+
+- a linear gradient
+- a radial gradient
+- a pattern
+
+
+## Fill with a Linear Gradient
+
+As  first example, we take an ellipse to fill with a linear gradient.
+```{r, echo=T, results="asis"}
+colors=c('blue','green','white','orange','red')
+svgR( 
+  wh=c(600, 200), 
+  ellipse(cxy=c(250,100), rxy=c(200,80), 
+          fill=linearGradient( xy1=c(0,0), xy2=c(1,0), colors=colors)     
+  )
+)
+```
+
+The above example invokes the svgR quick approach with fill=lineargradient(...), but this is not standard svg. Standard svg requires a reference to a gradient to be assigned to the fill attribute, i.e. fill="url(#id)" and usually the
+gradient definition is placed inside a defs element, as illustrated in the following.
+
+
+```{r, echo=T, results="asis"}
+colors<-c('green','white','orange')
+svgR( 
+   wh=c(600, 200), 
+  defs(
+    linearGradient(id='grad1', xy1=c(0,0), xy2=c(1,0), colors=colors)
+  ),
+  ellipse(cxy=c(250,100), rxy=c(200,80), fill="url( #grad1 )") 
+)
+```
+
+In the second approach, we can reuse the gradient definition
+multiple times referencing the url for each use
+
+```{r, echo=T, results="asis"}
+color<-c('green','white','orange')
+svgR( 
+   wh=c(600, 200), 
+  defs(
+    linearGradient(id='grad1', xy1=c(0,0), xy2=c(1,0),colors=colors)
+  ),
+  ellipse(cxy=c(50,100), rxy=c(20,80), fill="url( #grad1 )"),
+  ellipse(cxy=c(100,100), rxy=c(20,80), fill="url( #grad1 )"),   
+  ellipse(cxy=c(150,100), rxy=c(20,80), fill="url( #grad1 )"), 
+  ellipse(cxy=c(200,100), rxy=c(20,80), fill="url( #grad1 )"),
+  ellipse(cxy=c(250,100), rxy=c(20,80), fill="url( #grad1 )") 
+)
+```
+
+
+However, if we explicity assign an id to the fill=lineargrad(id=...), for the first ellipse, we can also refer to that gradient in the subsequent ellipses
+
+```{r, echo=T, results="asis"}
+colors<-c('blue','green','white','orange','red')
+svgR( 
+  wh=c(600, 200), 
+  ellipse(cxy=c(50,100), rxy=c(20,80), 
+          fill=linearGradient( id="grad2", xy1=c(0,0), xy2=c(1,0), colors=colors)), 
+  ellipse(cxy=c(100,100), rxy=c(20,80), fill="url( #grad2 )"),
+  ellipse(cxy=c(150,100), rxy=c(20,80), fill="url( #grad2 )"),
+  ellipse(cxy=c(200,100), rxy=c(20,80), fill="url( #grad2 )"),
+  ellipse(cxy=c(250,100), rxy=c(20,80), fill="url( #grad2 )") 
+)
+```
+
+Of course, an elegant approach is to put the ellipses in a group and iterate
+```{r, echo=T, results="asis"}
+colors<-c('blue','green','yellow','white','orange','red','purple')
+svgR( 
+  wh=c(600, 200),
+  g(
+    lapply(seq(50,550,by=50), function(x)ellipse(cxy=c(x,100), rxy=c(20,80))),
+    fill=linearGradient( xy1=c(0,0), xy2=c(1,0), colors=colors)
+  )
+)
+```
+
+## Filling with a radial gradient
+
+Filling radial gradient is essentially the same as with a linear gradient
+
+```{r, echo=T, results="asis"}
+colors=c('blue','green','white','orange','red')
+svgR( 
+  wh=c(600, 200), 
+  ellipse(cxy=c(250,100), rxy=c(200,80), 
+          fill=radialGradient(
+            colors=colors)     
+  )
+)
+```
+
+##### Radial Gradient fill with center offset
+```{r, echo=T, results="asis"}
+colors=c('white', 'green', 'blue')
+WH=c(600, 200)
+S=190 # Size of square
+svgR( 
+  wh=WH, 
+  rect(cxy=WH/2, wh=c(190,190), stroke='black', stroke.width=3,
+      fill=radialGradient( 
+        cxy=c(.5,.5), 
+        r=.5,
+        fxy=c(.6,.6)+c(0,0),
+        colors=colors)     
+  )
+)
+```
+
+Here the attributes of the radialGradient are:
+
+- cxy The center of the outer circle
+- r The radius of the outer circe
+- fxy The center of the gradient focus
+- colors, an array of gradient colors
+
+All the above units are in relative to the bounding box, which in this case is the dimensions of the rectangle.
+
+Alternativly, we can set the units via
+filterUnits="userSpaceOnUse",
+
+##### Radial Gradient fill with center offset
+```{r, echo=T, results="asis"}
+colors=c('white', 'green', 'blue')
+WH=c(600, 200)
+S=190 # Size of square
+svgR( 
+  wh=WH, 
+  rect(cxy=WH/2, wh=c(S,S), stroke='black', stroke.width=3,
+    fill=radialGradient( gradientUnits="userSpaceOnUse",
+            cxy=WH/2, 
+            r=.5*S,
+            fxy=WH/2+.1*S,
+            colors=colors)     
+  )
+)
+```
+
+## Fill with Patterns
+
+We can also fill with a pattern (Although, depending on the your system, you may need to refresh after scrolling)
+
+```{r, echo=T, results="asis"}
+WH=c(600, 200) # window rect
+svgR( wh=WH,
+  ellipse( cxy=c(250,100), rxy=c(200,80), 
+    fill=pattern( xy=c(10,10), wh=c(40,40), patternUnits="userSpaceOnUse",
+                  circle(cxy=c(10,10), r=10, fill='blue')
+         )
+  )
+)
+```
+
+
+Or using defs for the fill
+
+```{r, echo=T, results="asis"}
+WH=c(600, 200) # window rect
+svgR( wh=WH,
+  g(
+    pattern(
+        id="pattern2", xy=c(10,10), wh=c(40,40), patternUnits="userSpaceOnUse" ,
+        circle(cxy=c(10,10), r=10, fill='red')
+    ),
+    ellipse( cxy=c(250,100), rxy=c(200,80), fill="url(#pattern2)")
+  )
+)
+```
+
+And we can compose pattern with gradients:
+
+```{r, echo=T, results="asis"}
+WH=c(600, 200) # window rect
+colors=c('white','yellow','orange','green', 'blue','black')
+svgR( wh=WH,
+  ellipse( cxy=c(250,100), rxy=c(200,80), 
+    fill=pattern( xy=c(10,10), wh=c(40,40), patternUnits="userSpaceOnUse",
+                  rect(cxy=c(20,20), wh=c(40,40), 
+                       fill=radialGradient(  colors=colors)
+                  )
+         )
+  )
+)
+```
+
+## Filling text
+
+We can also fill text with gradients and patterns
+
+```{r, echo=T, results="asis"}
+WH=c(600, 300) # window rect
+colors1=c('white','yellow','orange','green', 'blue','black')
+colors2=c('blue','green','orange','yellow','orange', 'green','blue')
+svgR( wh=WH,
+  text( cxy=c(150,100), font.size=300, "R", stroke='green',
+        fill=pattern( xy=c(0,0), wh=c(20,20), patternUnits="userSpaceOnUse",
+                  text("R", cxy=c(10,10), stroke='red')
+        )
+  )
+)
+```
+
+```{r, echo=T, results="asis"}
+WH=c(600, 300) # window rect
+svgR( wh=WH,
+  text( cxy=c(150,100), font.size=300, "R",
+        fill=radialGradient( colors=colors1)
+  ),
+  text( cxy=c(420,50), font.size=60, "Programming",
+        fill=linearGradient(colors=colors2)
+  )
+)
+```
+
+
+
+

@@ -1,0 +1,129 @@
+---
+title: "Filter-Coordinates"
+output:
+  html_document:
+    toc: true
+    theme: united
+---
+
+
+```{r, echo=FALSE}
+stopifnot(require(svgR, quietly=TRUE))
+```
+
+```{r, echo=FALSE}
+if(!exists("newId")){
+  source('Util.R')
+}
+```
+
+
+## Understanding the Filter Coordinates
+
+We begin by illustrating a simple filter.
+
+### A Minimal Example: feOffset
+```{r, echo=T, results="asis"}
+WH=c(800, 160) # window rect
+svgR( wh=WH,
+  graphPaper(WH, dxy=c(40,40), labels=TRUE), 
+  rect( xy=c(40,40), wh=c(120,40), stroke="black", fill="blue", fill.opacity=0.5,
+         filter=filter(  wh=c(2,2), 
+           feOffset(  dxy=c(80, 20), in1="SourceGraphic")
+         )
+  )
+)
+```
+
+### Dissecting the filter Coordinates
+
+Examining the above example we note 
+
+- The rectangle is declared to have an upper-left corner to be located at xy=c(40,40)
+- The rectange is rendered with the upper-left corner at xy=c(120,60)
+- The filter is assigned using the filter attribute filter=.
+- The filter is constructed using the filter(...), element.
+- The filter has one component feOffset
+- The feOffset has 2 attributes, dxy, in1
+  + dxy is the displacement of dxy=c(80,20), causing the final location of the upper-left hand corner to be c(120,60)=c(40,40)+c(120,60)
+  + in1 is assigned "SourceGraphics", indicating that the input to feOffset is the original source.
+- The filter is assigned a wh=c(2,2)=c("200%","200%") 
+
+This last point is significant: the filter region must large enough to include the image to be rendered. Any portion outside will be clipped. By default, the wh is the size of the bounding box of the SourceGraphic. This means that we may need to resize the wh and xy filter attributes accordingly. 
+
+### The Bounding Box
+
+We can visualize this as
+```{r, echo=F, results="asis"}
+WH=c(800, 160) # window rect
+svgR( wh=WH,
+  graphPaper(WH, dxy=c(40,40), labels=TRUE), 
+  rect(xy=c(40,40), wh=c(120,40), stroke="green", fill="green", fill.opacity=0.2 ), 
+  rect(xy=c(40,40), wh=c(200,60), stroke="red",   fill="none"),
+  rect( xy=c(40,40), wh=c(120,40), stroke="blue", fill="blue", fill.opacity=0.5,
+         filter=filter(  wh=c(2,2), 
+           feOffset(  dxy=c(80, 20), in1="SourceGraphic")
+         )
+  ),
+  text("xy", cxy=c(27,27), stroke='green'),
+  text("w", xy=c(122,120), stroke='red'),
+  text("h", xy=c(245,80), stroke='red')
+)
+```
+
+The filter wh attribute is the width and height of the smallest rect containg  both the original image (green) and the displaced image (blue). We call that rectangle the ***filter Boundingbox***. The units for wh are called **filterUnits** and by default are expressed relative to ***"object BoundingBox"***. That is, the **filterUnits** attribute is **filterUnits=objectBoundingBox**. The  ***"object BoundingBox"*** is the smallest rectangle containing the ***SourceGraphic***. 
+When the filter attributes **xy, wh** are not specified, the default is assumed to be that of the ***"object BoundingBox"*** , that is wh=c(1,1) and xy=(0,0). 
+In our case, this makes wh=c(2,2), and the xy=c(0,0). 
+
+An Alternative to filterUnits="objectBoundingBox" is filterUnits="userSpaceOnUse". In that case,
+the filter coordintate attributes become xy=c(40,40), wh=c(200,80).
+```{r, echo=T}
+```
+
+This is show as follows:
+
+```{r, echo=T, results="asis"}
+WH=c(800, 120) # window rect
+svgR( wh=WH,
+  graphPaper(WH, dxy=c(40,40), labels=TRUE), 
+  rect( xy=c(40,40), wh=c(120,40), stroke="black", fill="none"), 
+  rect( xy=c(40,40), wh=c(120,40), stroke="black", fill="blue", fill.opacity=0.2 ,
+         filter=filter( wh=c(200,80), xy=c(40,40), 
+                        filterUnits="userSpaceOnUse",
+           feOffset(  dxy=c(80, 20), in1="SourceGraphic")
+         )
+  )
+)
+```
+
+As a final illustration, consider the case when dxy is negative, for example, dxy=-c(40,20). 
+For **filterUnits="userSpaceOnUse"**, we need to set filter wh=c(160,60), xy=c(0,20) in order to cover both the  both the original SourceGraphic and the final feOffset graphic result.
+
+```{r, echo=T, results="asis"}
+WH=c(800, 120) # window rect
+svgR( wh=WH,
+  graphPaper(WH, dxy=c(40,40), labels=TRUE), 
+  rect( xy=c(40,40), wh=c(120,40), stroke="black", fill="none"), 
+  rect( xy=c(40,40), wh=c(120,40), stroke="black", fill="blue", fill.opacity=0.2 ,
+         filter=filter( wh=c(160,60), xy=c(0,20), 
+                        filterUnits="userSpaceOnUse",
+           feOffset(  dxy=c(-40, -20), in1="SourceGraphic")
+         )
+  )
+)
+```
+
+For  filterUnits="objectBoundingBox", we set wh=c(4/3,3/2), xy=(-1/3, -1/2)
+```{r, echo=T, results="asis"}
+WH=c(800, 120) # window rect
+svgR( wh=WH,
+  graphPaper(WH, dxy=c(40,40), labels=TRUE), 
+  rect( xy=c(40,40), wh=c(120,40), stroke="black", fill="none"), 
+  rect( xy=c(40,40), wh=c(120,40), stroke="black", fill="blue", fill.opacity=0.2 ,
+         filter=filter( wh=c(4/3,3/2), xy=c(-1/3, -1/2), 
+                        filterUnits="objectBoundingBox",
+           feOffset(  dxy=c(-40, -20), in1="SourceGraphic")
+         )
+  )
+)
+```

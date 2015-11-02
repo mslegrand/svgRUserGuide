@@ -1,0 +1,345 @@
+---
+title: "Animate"
+output:
+  html_document:
+    toc: true
+    theme: united
+---
+
+
+```{r, echo=FALSE}
+stopifnot(require(svgR, quietly=TRUE))
+```
+
+```{r, echo=FALSE}
+if(!exists("newId")){
+  source('Util.R')
+}
+```
+
+## Animation Technique Overview
+In this chapter we discuss animation using the following:
+
+- [**set**](#setAnimation): an animation element providing a simple way for setting a single attribute value for a specified duration.
+- [**animate**](#animateAnimation): an animation element used to animate over time a single attribute or a single CSS property
+- [**animateMotion**](#animateMotion): an animation element used to move an element along a path.
+- **animateColor**: specifies a color transformation over time. This is a deprecated element, since animate does the same. Do not use it !
+- [**animateTransform**](#animateTransform): an animation element used to animate the transformation attribute on a target element, thereby allowing animations to control translation, scaling, rotation and / or inclination.
+
+However each animation must be triggered by some event. 
+For ease of presentation, most of the examples in this document are triggered by some canned functions. 
+However, in practice one may want to employ custom trigges. 
+Thus the first topic we will explore is [Animation Events](#animatonEvents)
+
+Animation Events. In that section only set elements will be used.
+
+
+<a name="animatonEvents"></a> 
+
+## Animation Events
+
+Except for the examples contained in this section and the teasers section , all animations are triggered using a button at the bottom right hand corner of the svg. That button and the frame containing it are constructed by invocating either the toggle or playBar function. The code for both functions are provided in the utilities section.
+
+This section explains triggering animation events. By examining this section, one can discover how to create custom event triggers.
+
+### Onload
+<a name="Onload"></a> 
+
+The simplest animation triggering is to trigger the animation  upon loading the document (web page).  This was illustrated in the short teasers section, however I repeat the code here.  
+
+```
+# not run
+svgR( wh=c(600, 100), 
+  line( xy1=c(0,50), xy2=c(600,50), 
+    stroke.width=20, stroke.dasharray=8, stroke.dashoffset=16, stroke="lightblue",   
+    animate(attributeName="stroke.dashoffset", from=16, to=0 , dur=0.5,   repeatCount="indefinite")
+  )
+)
+```
+
+
+As second illustration, consider the problem of filling a circle with an orange color 10 seconds after loading,. We do this by simply setting the **begin** attribute to 10. For the circle to revert back to green, we can provide ***either***
+
+-  a **dur** attribute to indicate the duration (how long the orange is to remain)
+-  a **stop** attribute to indicate when to stop ( when the orange is to terminate)
+
+This is an examle of the **set** animation which is discussed in the [Set Animation Section](#setAnimation)
+
+setAnimation
+
+
+```{r, echo=T, results="asis"}
+WH<-c(800,280)
+txt<-c(
+  "All circles will turn orange after 10 seconds",
+  "The first will go back to green after 1 second",
+  "The second will go back to green after 2 seconds",
+  "The third will remain green"
+)
+labs<-c("orange 1 sec","orange 2 sec","forever orange")
+cxy<-rbind(WH[1]*c(.3,.5,.7), WH[2]*c(.7,.7,.7))
+svgR( wh=WH,
+      text("RELOAD BROWSER:", xy=c(0,40), font.size=25),
+      lapply(1:4, function(i){ text(txt[i], xy=c(250,i*20), font.size=16)}),
+      circle(id="setCir1e1", r=70, fill='lightgreen', cxy=cxy[,1],
+          set( attributeName="fill", to="orange", begin=10, dur=1 )),
+      circle(id="setCir1e1", r=70, fill='lightgreen', cxy=cxy[,2],
+          set( attributeName="fill", to="orange", begin=10, end=12 )),
+      circle(id="setCir1e1", r=70, fill='lightgreen', cxy=cxy[,3],
+          set( attributeName="fill", to="orange", begin=10 )),
+      lapply(1:3, function(i)text( labs[i], cxy=cxy[,i], font.size=16 ))
+)
+```
+
+However, for performance reasons, it is unwise to have too many animations are running concurrently. For that reason, all animations in this section are initiated using the mouse or chaining. 
+
+### MouseOver
+
+```{r, echo=T, results="asis"}
+WH<-c(800,200)
+svgR( wh=WH,
+    text("Circle turns orange on mouse over", xy=c(20,20), font.size=20),
+    circle( cxy=WH/2, r=70, stroke="black", fill="lightgreen",
+      set( attributeName="fill", 
+           to="orange", begin="mouseover", end="mouseout") 
+    )
+)
+```
+
+### MouseOut
+
+```{r, echo=T, results="asis"}
+WH<-c(800,200)
+svgR( wh=WH,
+    text("Circle turns orange on mouse out", xy=c(20,20), font.size=20),
+         circle( cxy=WH/2, r=70, stroke="black", fill="lightgreen",
+      set( attributeName="fill", 
+           to="orange", begin="mouseout", end="mouseover") 
+    )
+)
+```
+
+### MouseClick
+
+```{r, echo=T, results="asis"}
+WH<-c(800,200)
+svgR( wh=WH,
+    text("Circle turns orange for 1 second on mouse click", xy=c(20,20), font.size=20),
+    circle( cxy=WH/2, r=70, stroke="black", fill="lightgreen",
+      set( attributeName="fill", 
+           to="orange", begin="click", dur=1) 
+    )
+)
+```
+
+
+
+### A Simple Mouse Button
+
+
+```{r, echo=T, results="asis"}
+WH<-c(800,200)
+svgR( wh=WH,
+  text("Circle turns orange for 1 second on button press", xy=c(20,20), font.size=20),
+  g( id='greenButton',
+    rect( cxy=c(60,WH[2]/2), wh=c(100,20) , stroke="black", fill="green", 
+    set(  attributeName="fill", 
+           to="lightgreen", begin="greenButton.click", dur=.25) 
+    ),
+    text('Press Me', cxy=c(60,WH[2]/2), stroke="white")
+  ),
+    #
+    circle( cxy=WH/2, r=70, stroke="black", fill="lightgreen",
+      set( attributeName="fill", 
+           to="orange", begin="greenButton.click", dur=1) 
+    )
+)
+```
+
+
+
+
+
+<a name="chainingEvents"></a> 
+
+### Chaining Events 
+
+```{r, echo=T, results="asis"}
+WH<-c(800,200)
+svgR( wh=WH,
+   circle( cxy=c(.1,.5)*WH, r=20, stroke="black", fill="lightgreen",
+      set( id = 'circEvent0', attributeName="fill", 
+           to="orange", begin="click", dur=.1) 
+    ),
+   circle( cxy=c(.3,.5)*WH, r=20, stroke="black", fill="lightgreen",
+      set( id = 'circEvent1', attributeName="r", 
+           to="50", begin="circEvent0.end", dur=.1) 
+    ),
+   circle( cxy=c(.5,.5)*WH, r=20, stroke="black", fill="lightgreen",
+      set( id = 'circEvent2', attributeName="r", 
+           to="50", begin="circEvent1.end", dur=.1) 
+    ),
+   circle( cxy=c(.7,.5)*WH, r=20, stroke="black", fill="lightgreen",
+      set( id = 'circEvent3', attributeName="r", 
+           to="50", begin="circEvent2.end", dur=.1) 
+    ),
+    text("Click left most circle to start chain reaction", xy=c(20,20), font.size=20
+    )
+     
+
+)
+```
+
+
+
+```{r, echo=T, results="asis"}
+WH<-c(800,200)
+svgR( wh=WH,
+    text("Click circle to start chain reaction", xy=c(20,20), font.size=20),
+    circle( cxy=c(.1,.5)*WH, r=20, stroke="black", fill="lightgreen",
+      set( id = 'eventchain0', attributeName="fill", 
+           to="orange", begin="click", dur=.05) 
+    ),
+    lapply( 1:20, function(i){
+    polygon(
+      points=c(0,20, 20,0, 0,-20),
+      transform=paste0("translate(", 80+i*30,",100)"),
+      fill="lightblue",stroke="black",
+      set( id=paste0("eventchain",i),attributeName="fill", 
+           to="red",  dur=.05,
+           begin=paste0("eventchain",i-1,".end")
+      )      
+    )})
+
+)
+```
+
+### Java Script
+
+#### Alert on Button Press
+
+```{r, echo=T, results="asis"}
+WH<-c(800,200)
+rectid<-newId()
+svgR( wh=WH,
+  script(
+paste0(
+'function showColor() {
+                  alert("Color of the Rectangle is: "+
+                  document.getElementById("',rectid,'").getAttributeNS(null,"fill"));
+               }
+'      
+)),
+  text("Alert on button press", xy=c(20,20), font.size=20),
+  g( 
+    circle(id=rectid, cxy=c(60,WH[2]/2), r=60 , stroke="black", fill="brown"),
+    text('Press Me', cxy=c(60,WH[2]/2), stroke="white", fill='white', font.size=20),
+    onClick="showColor()"
+  )
+)
+```
+
+#### Animation Start-Stop on Button Press
+
+```{r, echo=T, results="asis"}
+WH<-c(800,200)
+goStopCirAni<-newId()
+goStopButton<-newId()
+textStart<-newId()
+textStop<-newId()
+scriptGS<-paste0(
+'var gsOn=false; ',
+'function goStop() {
+  var animation=document.getElementById("',goStopCirAni,'");
+  var button=document.getElementById("',goStopButton,'");
+  var textStart=document.getElementById("',textStart,'");
+  var textStop=document.getElementById("',textStop,'");
+  if(gsOn){
+    gsOn=false;
+    animation.endElement();
+    button.setAttribute("fill","green");
+    textStart.setAttribute("visibility","visible");
+    textStop.setAttribute("visibility","hidden");
+  } else{
+    gsOn=true;
+    animation.beginElement();
+    button.setAttribute("fill","red")
+    textStart.setAttribute("visibility","hidden");
+    textStop.setAttribute("visibility","visible");
+  }
+};
+')
+svgR( wh=WH,
+  script(scriptGS),
+  text("Controling Animation by a Single Button Press", xy=c(20,20), font.size=20),
+  g( # button
+    rect( id=goStopButton, cxy=c(.2,.5)*WH, wh=c(140,60), rxy=c(30,30), 
+          stroke="black", fill="green"),
+    rect(  cxy=c(.2,.5)*WH, wh=c(130,50), rxy=c(30,30), 
+          stroke="black", fill="white", opacity=.3),
+    text('Start', id=textStart,
+         cxy=c(.2,.5)*WH, fill="white", font.size=24, visibility='visible'),
+    text('Stop',  id=textStop,
+         cxy=c(.2,.5)*WH, fill="white", font.size=24, visibility='hidden'),
+    onClick="goStop()"
+  ),
+  g(
+      rect(cxy=WH/2, wh=WH/6, fill='lightblue', stroke='blue', stroke.width=3),
+      animateTransform( id=goStopCirAni, attributeName="transform", 
+                        type="rotate", from=c(0,WH/2), to=c(360,WH/2), 
+                        dur=1, begin='indefinite', repeatCount="indefinite") 
+  )
+)
+```
+
+#### Animation Start-Stop on Button Press
+
+```{r, echo=T, results="asis"}
+WH<-c(800,200)
+startButton<-newId()
+stopButton<-newId()
+
+button<-function( ...){
+  args<-list(...)
+  stopifnot("id" %in% names(args) & "text" %in% names(args))
+  defaults<-list( cxy=c(100,100), wh=c(140,60), rxy=c(30,30), font.size=24, text.fill='white', fill='green')
+  args<-c(args, defaults[sapply(args[names(defaults)], is.null)])
+  indx<-c("id","wh","cxy", "rxy", "font.size","fill","text", "text.fill") 
+  sargs<-args[indx]
+  args[indx]<-NULL
+  g( id=sargs$id,
+    rect(  cxy=sargs$cxy, wh=sargs$wh, rxy=sargs$rxy, 
+          stroke="black", fill=sargs$fill),
+    rect(  cxy=sargs$cxy, wh=sargs$wh-c(10,10), rxy=sargs$rxy,
+          stroke="black", fill="white", opacity=.3),
+    text(sargs$text,
+         cxy=sargs$cxy, fill=sargs$text.fill, font.size=sargs$font.size),
+    args
+  )
+}
+
+svgR( wh=WH,
+  script(scriptGS),
+  text("Controling Animation by a Single Button Press", xy=c(20,20), font.size=20),
+  button(id=startButton, text='start', fill='green',
+      set(attributeName="visibility", to="hidden",  
+          begin=paste0(startButton,".click"),
+          end  =paste0(stopButton,".click" ))
+  ),
+  button(id=stopButton, text='stop', fill='red', visibility='hidden',
+       set(attributeName="visibility", to="visible", 
+           begin=paste0(startButton,".click" ),
+           end  =paste0(stopButton,".click" ))
+  ),
+  rect(cxy=WH/2, wh=WH/6, fill='lightblue', stroke='blue', stroke.width=3,
+      animateTransform( attributeName="transform", 
+                        type="rotate", from=c(0,WH/2), to=c(360,WH/2), 
+                        dur=1, 
+                        begin=paste0(startButton,".click" ),
+                        end  =paste0(stopButton,".click" ),
+                        repeatCount="indefinite"
+                        )
+  )
+)
+```
+

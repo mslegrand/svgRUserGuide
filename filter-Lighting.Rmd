@@ -1,0 +1,1517 @@
+---
+title: "Lighting Elements"
+output:
+  html_document:
+    toc: true
+    theme: united
+---
+
+
+```{r, echo=FALSE}
+stopifnot(require(svgR, quietly=TRUE))
+```
+
+```{r, echo=FALSE}
+if(!exists("newId")){
+  source('Util.R')
+}
+```
+
+### Lighting Overview
+
+<table ><tr><td>
+```{r, echo=F, results='asis'}
+library(svgR)
+WH=c(400, 300) # window rect
+elevation<-20 #seq(10,30, length.out=4) # in degrees
+azimuth<-180 #seq(0,270, length.out=4) # in degrees
+WH2<-WH-c(100,0)
+fill<-"#400088"
+font.size<-300
+cxy<-WH2/2
+cxy2= c(.5,.9)*WH2
+std<-4
+svgR( wh=WH,
+    rect(xy=c(0,0),wh=WH2, fill='black'),
+    text( "R",   cxy=cxy, font.size=font.size,  stroke="none", 
+        fill = fill,
+        filter=filter(
+          feComposite( operator="arithmetic", k1234=c(0, 1, 1, 0),
+            in1=feComposite( 
+              operator="arithmetic", k1234=c(0, .8, 1,0),
+              in1=feDiffuseLighting( lighting.color="white", diffuseConstant=.2,
+                  in1=feGaussianBlur( stdDeviation=std),
+                  specularExponent=30,
+                  feDistantLight(elevation=elevation, azimuth=azimuth)
+              ),
+              in2= "SourceGraphic"
+            ),
+            in2=feSpecularLighting( lighting.color="white",  surfaceScale=10,
+                  in1=feGaussianBlur( stdDeviation=std),
+                  specularExponent=30,
+                  feDistantLight(elevation=elevation, azimuth=azimuth)
+            )
+          )
+        ),
+        clip.path=clipPath( text( "R",   cxy=cxy, font.size=font.size) )
+    )
+)
+```
+</td><td width="350">
+To produce 3-D effect using lighting/shading, such as seem in the above letter,  involves
+specifying the following three ingredients:
+
+- **The Geometry**, a 3-D representation of the objects to display.
+- **The Reflectivity Properties**, how shiny (or flat) is the object.
+- **The Light Sources**, the type and or location of the lights.
+
+Each in turn, will be describe in this section. This will be followed
+by examples illustrating some of the differences.
+</td></tr></table>
+
+#### Geometry
+
+In this section we describe how we represent repesent a shape as 3-dimensional
+object.
+
+Now *SVG* shape specifications naturally provide the x and y coordinates.
+To specify a z coordinate, a small trick is used, namely use the alpha 
+channel of the pixel at the point x,y.  
+
+Specifically
+
+$$ z(x,y)= surfaceScale \times I_\alpha(x,y) $$
+
+
+This produces a 3-Dimensional surface.  
+(Recall, each pixel consists of 4 coordinates, the first 3 being Red, Green, Blue
+and the last being $\alpha$ which is value between 0 and 1 repesenting the opacity
+of the pixel.) 
+
+As an example consider the gradient fill where we set the opacity:
+```{r, echo=T, results='asis'}
+library(svgR)
+WH=c(800, 400) # window rect
+R<-150
+svgR( wh=WH, 
+    circle( cxy=WH/2, r= R,  stroke="black" , stroke.width=5, 
+        fill = radialGradient( fxy=c(.5,.5), r=1, spreadMethod='pad',
+          stop( offset=1/6,    stop.opacity=1),
+          stop( offset=1/3,    stop.opacity=0)
+        )
+    )
+ )
+```
+
+Then  profile of this surface going through the center would look like
+
+```{r, echo=F, results='asis'}
+library(svgR)
+WH=c(800, 200) # window rect
+R<-150
+Y<-WH[2]-20
+ss<-50
+sw<-5
+X<-WH[1]
+
+points<-c(
+c(0,Y),
+c(X/2-R-sw/2,Y), c(X/2-R-sw/2,ss), c(X/2-R+sw/2,ss), c(X/2-R+sw/2,Y),
+c(X/2-2*R/3,Y ), c(X/2-R/3,ss ), c(X/2+R/3,ss ), c(X/2+2*R/3, Y ), 
+c(X/2+R-sw/2,Y), c(X/2+R-sw/2,ss), c(X/2+R+sw/2,ss), c(X/2+R+sw/2,Y),
+c(X,Y)
+)
+
+svgR( wh=WH, 
+    brace(c(X/2+R+50,(ss+Y)/2), c(X/2+R+sw/2,ss), c(X/2+R+sw/2,Y)),
+    text('surfaceScale', xy=c(X/2+R+50,(ss+Y)/2)+c(20,4), font.size=16 ),
+    polyline(points=points, fill="lightblue"),
+    line(xy1=c(0,Y), xy2=c(X,Y) , stroke='black')
+ )
+```
+
+Since a Gaussion blur creates it's effect by adjusting opacity, it too can be use
+to create a surface.
+
+```{r, echo=T, results='asis'}
+library(svgR)
+WH=c(800, 400) # window rect
+R<-150
+svgR( wh=WH, 
+    circle( cxy=WH/2, r= R/2,  
+      filter=filter( xy=c(-20,-20), wh=c(R,R)+40, feGaussianBlur( stdDeviation=20 ))
+    )
+)
+```
+
+The profile is then
+```{r, echo=F, results='asis'}
+library(svgR)
+WH=c(800, 200) # window rect
+R<-130
+Y<-WH[2]-20
+ss<-50
+sw<-5
+X<-WH[1]
+sd<-30
+d<-c(
+"M", c(X/2-R/2-sd,Y), 
+"C", c(X/2-R/2, Y), c(X/2-R/2, ss), c(X/2-R/2+sd, ss),
+"L", c(X/2+R/2-sd, ss),
+"C", c(X/2+R/2,ss), c(X/2+R/2,Y), c(X/2+R/2+sd,Y), 
+"Z"
+)
+
+svgR( wh=WH, 
+    brace(c(X/2+R+50,(ss+Y)/2), c(X/2+R+sw/2,ss), c(X/2+R+sw/2,Y)),
+    text('surfaceScale', xy=c(X/2+R+50,(ss+Y)/2)+c(20,4), font.size=16 ),
+    path(d=d, fill="lightblue", stroke="lightblue"),
+    line(xy1=c(0,Y), xy2=c(X,Y) , stroke='black')
+ )
+```
+
+So specifying a surfaceScale together with an alpha channel of an image together provides
+a way to describe a surface in 3 dimensions. 
+
+The next step is to compute a unit normal vector $\hat n$ at each point $(x,y)$. This is needed to compute 
+reflectivity as described in the next section. 
+The normal vector is approximated at a point $(x,y)$ by fitting a plane through
+a set of points in a neighborhood of (x,y).  The set of points used 
+generated from the grid $(x-dx, x, x+dx) \times (y-dy, y, y+dy)$. The values
+of $dx, dy$ are specified through the *kernelUnitLength* attribute. The value
+can be either be specifed as *kernelUnitLength=c(dx, dy)* or *kernelUnitLength=dd*.
+In the later case dx, dy are both set to dd. If no *kernelUnitLength* is specified,
+then a small value is chosen as a default.
+
+
+Both surfaces can be combined into a single image
+
+```{r, echo=T, results='asis'}
+library(svgR)
+WH=c(800, 300) # window rect
+R<-70
+elevation<-40 #in degrees
+azimuth<-270 # in degrees
+svgR( wh=WH,
+  g(
+    rect(cxy=WH/2, wh=WH, opacity=0),
+    circle( cxy=c(.35,.5)*WH, r= R,  stroke="black" , stroke.width=1, 
+      fill = radialGradient( fxy=c(.5,.5), r=1, spreadMethod='pad',
+        stop( offset=1/6,    stop.opacity=1),
+        stop( offset=1/3,    stop.opacity=.0)
+      )
+    ),
+    circle( cxy=c(.65,.5)*WH, r= R/2,  
+      filter=filter( xy=c(-20,-20), wh=c(R,R)+40, feGaussianBlur( stdDeviation=20 ))
+    ),
+    filter=filter(
+            feComposite( 
+              operator="arithmetic", k1234=c(0,.9,1,0),
+              in1=feSpecularLighting( lighting.color="white",  surfaceScale=15,
+                  in1="SourceGraphic",
+                  specularExponent=10,
+                  feDistantLight(elevation=elevation, azimuth=azimuth)
+              ),
+              in2=  feFlood( flood.color='#357A55')
+            )
+    )
+  ),
+  text('Combining to create a single surface', cxy=c(.5,.1)*WH, font.size=25),
+  text('Portion made using a Radial Gradient',cxy=c(.25,.9)*WH),
+  text('Portion made using a Gaussian Blur',  cxy=c(.75,.9)*WH)
+)
+```
+
+
+
+
+
+
+#### Summarizing 
+
+The geometry of the surface requires
+
+- A specification of an alpha channel (opacity describing the surface)
+- A specification of a *surfaceScale* value
+- A *kernelUnitLength* specification (optional)
+
+
+
+### Reflective Properties for lighting/shading
+
+Reflective properties are the second piece of the lighting/shading construction. 
+Objects, such as a coffee cup, a book, or a dog, ar visible because of light
+reflected off of them. The light produced by these reflections can be
+decomposed into 3 types:
+
+Type |  Description | Main Assumption
+----------------|--------------|-----------------------------------------------
+Ambient Light | Uniform | Light is constant at all points  
+Diffused Light | Flat | Light reflected in all directions at a given point
+Specular Light | Shinny |Light is reflected in a direction depending on source
+
+In practice, a combination of all three components may be applied. 
+Combining these can be accomplished by using **feComposite**, usually 
+with *operator=arithmetic*.
+
+```{r, echo=F, results='asis',  LightTypesxx}
+library(svgR)
+WH=c(800, 300) # window rect
+R<-70
+elevation<-20 #seq(10,30, length.out=4) # in degrees
+azimuth<-180 #seq(0,270, length.out=4) # in degrees
+opacities=c(1,1,0,0)
+WH2<-c(.2,1)*WH
+rid<-newId()
+fill<-"#400088"
+font.size<-270
+cxy<-c(.5,.4)*WH2
+cxy2= c(.5,.9)*WH2
+std<-4
+svgR( wh=WH, 
+  symbol(
+    text(id= rid, "R",  cxy=c(.5,.35)*WH2, font.size=font.size,  stroke="none" , 
+    font.face='bold', fill = fill, font.name="sans-serif") 
+  ),
+  rect(xy=c(0,0), wh=WH, fill='black'),
+  svg(  xy=c(0,0), wh=WH2,
+    text( "R",  cxy=cxy, font.size=font.size, font.name="sans-serif",  stroke="none" , font.face='bold', fill = fill),
+    text('Ambient', cxy= cxy2, font.size=18, fill='white')
+  ),  
+  svg(  xy=c(200,0), wh=WH2,
+    text( "R",   cxy=cxy, font.size=font.size,  stroke="none", 
+        fill = fill,
+        filter=filter(
+            feComposite( 
+              operator="arithmetic", k1234=c(0, .8, 1,0),
+              in1=feDiffuseLighting( lighting.color="white", diffuseConstant=.8,
+                  in1=feGaussianBlur( stdDeviation=std),
+                  specularExponent=30,
+                  feDistantLight(elevation=elevation, azimuth=azimuth)
+              ),
+              in2= "SourceGraphic"
+            )
+        ),
+        clip.path=clipPath( text( "R", cxy=cxy, font.size=font.size) )
+    ),
+    text('Diffuse', cxy= cxy2, font.size=18, fill='white')
+  ),
+  svg(  xy=c(400,0), wh=WH2,
+    text( "R",   cxy=cxy, font.size=font.size,  stroke="none", 
+        fill = fill,
+        filter=filter(
+          feSpecularLighting( lighting.color="white",  surfaceScale=10,
+                  in1=feGaussianBlur( stdDeviation=std),
+                  specularExponent=30,
+                  feDistantLight(elevation=elevation, azimuth=azimuth)
+            )
+        ),
+        clip.path=clipPath( text( "R",   cxy=cxy, font.size=font.size) )
+    ),
+    text('Pure Specular', cxy= cxy2, font.size=18, fill='white')
+  ),
+  svg(  xy=c(600,0), wh=WH2,
+    text( "R",   cxy=cxy, font.size=font.size,  stroke="none", 
+        fill = fill,
+        filter=filter(
+          feComposite( operator="arithmetic", k1234=c(0, 1, 1, 0),
+            in1=feComposite( 
+              operator="arithmetic", k1234=c(0, .8, 1,0),
+              in1=feDiffuseLighting( lighting.color="white", diffuseConstant=.8,
+                  in1=feGaussianBlur( stdDeviation=std),
+                  #specularExponent=30,
+                  feDistantLight(elevation=elevation, azimuth=azimuth)
+              ),
+              in2= "SourceGraphic"
+            ),
+            in2=feSpecularLighting( lighting.color="white",  surfaceScale=10,
+                  in1=feGaussianBlur( stdDeviation=std),
+                  specularExponent=30,
+                  feDistantLight(elevation=elevation, azimuth=azimuth)
+            )
+          )
+        ),
+        clip.path=clipPath( text( "R",   cxy=cxy, font.size=font.size) )
+    ),
+    text('Combined', cxy= cxy2, font.size=18, fill='white')
+  )
+)->doc
+cat("'",as.character(doc),"'")
+```
+
+Now since ambient light is uniform, simply assigning a color to an object produces the ambient effect.
+So we only need to consider diffuse and specular.
+
+
+#### Diffuse Reflection
+
+The main assumption for diffuse lighting is that light from any direction is 
+reflected uniformly in all directions.  
+Thus the only thing that affects the amount light 
+recieved is how light is recieved by the surface of 
+the object at that location.
+As an illustration, suppose we have a uniformly distribute collection of 
+L parallel light rays (or photons if you prefer)
+impinging on flat surface 
+at a fixed angle $\theta$. 
+The intensity of this source is simply the denisty, ie L/A where A is the
+area cross section  perpendicular to the path of the incoming rays.
+The reflected output is uniform across the flat surface. The area of the
+flat surface is $A cos(\theta)$, so the density impinging 
+on the surface is $\frac{L cos(\theta) }{A}$. 
+ 
+
+```{r, echo=F, results='asis'}
+library(svgR)
+WH=c(800, 300) # window rect
+
+R<-4*40
+S<-3*40
+Y<-WH[2]-20
+ss<-50
+sw<-5
+X<-WH[1]
+
+
+triangle<-c(
+c(X/2,Y),
+c(X/2+R,Y), c(X/2+R,Y-S)
+)
+mid<-newId()
+murl<-paste0('url(#',mid,')')
+mid2<-newId()
+murl2<-paste0('url(#',mid2,')')
+
+svgR( wh=WH, 
+    #brace(c(X/2+R+50,(ss+Y)/2), c(X/2+R+sw/2,ss), c(X/2+R+sw/2,Y)),
+    #text('surfaceScale', xy=c(X/2+R+50,(ss+Y)/2)+c(20,4), font.size=16 ),
+    defs(
+      marker( id=mid,
+          stroke.width=2, viewBox=c(0,0,10,10), 
+          refXY=c(1,5), markerWidth=6, markerHeight=6, orient="auto", 
+          path( d=c("M", 0, 0, "L", 10, 5, "L", 0, 10, "z") ) 
+      ),
+      marker( id=mid2,
+          stroke.width=2, viewBox=c(0,0,10,10), fill="orange", stroke='orange',
+          refXY=c(1,5), markerWidth=2, markerHeight=2, orient="auto", 
+          path( d=c("M", 0, 0, "L", 10, 5, "L", 0, 10, "z") ) 
+      )
+    ),
+    polygon(points=triangle, fill="lightblue"),
+    lapply(seq(Y,Y-S, length.out=10), function(y){
+      line(xy1=c(200,y), xy2=c(X/2+4*(Y-y)/3, y), stroke='orange', stroke.dasharray=2,
+      fill='orange', stroke.width=4,
+      marker.end=murl2)
+    }),
+    brace(c(X/2+R+100,Y-S/2), c(X/2+R,Y-S), c(X/2+R,Y)),
+    #line(xy1=c(X/2,Y), xy2=c(X/2,Y-S), stroke='black'),
+    text("A", xy=c(X/2+R+120,Y-S/2), font.size=16, stroke="black"),
+    
+    #top entry
+    #brace(c(X/2+R/2,Y-S-80), c(X/2,Y-S), c(X/2+R,Y-S), stroke='black'),
+    brace(c(X/2+R/2,Y-S/2)-20*c(3,4), c(X/2+R,Y-S), c(X/2,Y), stroke='blue'),
+    text( paste0("I=K cos(", mathSymbol("\\theta"), ")/A" ),
+           cxy=c(X/2+R/2,Y-S/2)-22*c(3,4), font.size=16, stroke="blue"),
+
+    brace(c(150,Y-S/2), c(200,Y-S), c(200,Y), stroke="orange"),
+    text("I=K/A", xy=c(10,Y-S/2), font.size=16, stroke="orange"),
+    line(xy1=c(X/2,Y), xy2=c(X/2-48,Y-64) , stroke='black', marker.end= murl, stroke.width=2),
+    line(xy1=c(X/2,Y), xy2=c(X/2-5*16,Y) , stroke='black', marker.end=murl, stroke.width=2),
+    text("l", cxy=c(X/2-16*5, Y-10), stroke='black'),
+    text("n", cxy=c(X/2-16*4, Y- 16*4), stroke='black'),
+    text(mathSymbol("\\theta"), cxy=c(X/2-10 + R, Y +20 -S), stroke='black'),
+    text(mathSymbol("\\theta"), cxy=c(X/2-20, Y-10), stroke='black')
+    
+ )
+```
+
+And since, by the main assumption, the reflection is uniform
+in all directions, at the observation point (the eyeball of the viewer)
+the reflected amount observed will be some constant $\kappa$ fraction of  
+$\frac{L cos(\theta) }{A}$. Thus $I_{reflect}= cos(\theta)I_{source}$.
+Thus we have
+$$I= \kappa \times \max (0, \hat n \cdot \hat l ) L$$
+where $\hat n$ is a unit normal to the surface, $\hat l$ is a unit vector point at the light source
+and $L$ is the intensity of the light source. Note: $\kappa \in [0,1]$, where $\kappa==0$ means no light
+is reflected.
+
+In practice, a pixel has 4 components: Red, Green, Blue, Alpha. (Recall Alpha is opacity)
+So the above becomes 
+
+$$
+I_x = \left\{
+\begin{array}{ll}
+ \kappa_x \times \max (0,   \hat n \cdot \hat l) L_x & \text{ if } x \in  RGB \\
+1                               & \text{ if } x = \alpha
+\end{array}
+\right.
+$$
+
+Thus for $\vec \kappa=(1,0,0)$ we have red light is reflected, green and blue are completely absorbed.
+
+The attributes specific to **feDiffuseLighting** element are
+
+Attribute | Value | Default| Description
+------------------|--------------|------|----------------------------------
+surfaceScale| numeric | 1 | height of surface when $\alpha_{in}=1$
+diffuseConstant | numeric | 1 | $\kappa_s$ 
+kernelUintLength| numeric vector of length 1 or 2 | small | granularity of facets
+
+
+#### feDiffuseLighting: surface scale
+```{r, echo=T, results='asis'}
+library(svgR)
+WH<-c(800, 300) # window rect
+N=5
+R<-50
+elevation<-40 # in degrees
+azimuth<-270 # in degrees
+WH2<-c(1/N,1)*(WH-c(0,25)-c(N*10,0))
+surfaceScale<-seq(10,90, length.out=5)
+svgR(wh=WH,
+    text("Varying surface scale for feDiffuseLighting (light at 0,0,90)", font.size=20, cxy=c(WH[1]/2,30)),
+    lapply(1:5, function(i){
+      xy=(i-1)*c(WH2[1]+10,0)
+      svg(  xy=xy, wh=WH2,
+        circle( cxy=WH2/2, r= R,  stroke="black" , stroke.width=5, 
+            fill = "darkgreen",
+            filter=filter(
+                feComposite( 
+                  operator="arithmetic", k1234=c(0,.4,1,0),
+                  in1=feDiffuseLighting( lighting.color="white",  surfaceScale=surfaceScale[i],
+                      in1=feGaussianBlur( stdDeviation=10),
+                      fePointLight( xyz= c(0,0,90) ) 
+                  ),
+                  in2=  "SourceGraphic"
+                )
+            )
+        ),
+        text(paste("surfaceScale=",surfaceScale[i]), cxy=c(WH2[1]/2,WH2[2]-30),  font.size=14)
+      )
+    })
+)->doc
+cat("'",as.character(doc),"'")
+```
+
+To eliminate the backGround shadowing, simply add a clipPath to the circle.
+
+```{r, echo=T, results='asis'}
+library(svgR)
+WH<-c(800, 300) # window rect
+N=5
+R<-50
+elevation<-40 # in degrees
+azimuth<-270 # in degrees
+WH2<-c(1/N,1)*(WH-c(0,25)-c(N*10,0))
+surfaceScale<-seq(10,90, length.out=5)
+svgR(wh=WH,
+    text("Varying surface scale for feDiffuseLighting (clipping)", font.size=20, cxy=c(WH[1]/2,30)),
+    lapply(1:5, function(i){
+      xy=(i-1)*c(WH2[1]+10,0)
+      svg(  xy=xy, wh=WH2,
+        circle( cxy=WH2/2, r= R,  stroke="black" , stroke.width=5, 
+            fill = "darkgreen",
+            filter=filter(
+                feComposite( 
+                  operator="arithmetic", k1234=c(0,.4,1,0),
+                  in1=feDiffuseLighting( lighting.color="white",  surfaceScale=surfaceScale[i],
+                      in1=feGaussianBlur( stdDeviation=10),
+                      fePointLight( xyz= c(0,0,90) ) 
+                  ),
+                  in2=  "SourceGraphic"
+                )
+            ),
+            clip.path=clipPath(circle(cxy=WH2/2,r=R))
+        ),
+        text(paste("surfaceScale=",surfaceScale[i]), cxy=c(WH2[1]/2,WH2[2]-30),  font.size=14)
+      )
+    })
+)->doc
+cat("'",as.character(doc),"'")
+```
+
+
+#### feDiffuseLighting: diffusionConstant
+```{r, echo=T, results='asis'}
+library(svgR)
+WH<-c(800, 300) # window rect
+N=5
+R<-50
+elevation<-40 # in degrees
+azimuth<-270 # in degrees
+WH2<-c(1/N,1)*(WH-c(0,25)-c(N*10,0))
+diffuseConstant<-seq(0,2, length.out=5)
+svgR(wh=WH,
+    text("feDiffuseLighting Varying diffusion constant", font.size=20, cxy=c(WH[1]/2,30)),
+    lapply(1:5, function(i){
+      xy=(i-1)*c(WH2[1]+10,0)
+      svg(  xy=xy, wh=WH2,
+        circle( cxy=WH2/2, r= R,  stroke="black" , stroke.width=5, 
+            fill = "darkgreen",
+            filter=filter(
+                feComposite( 
+                  operator="arithmetic", k1234=c(0,.4,1,0),
+                  in1=feDiffuseLighting( lighting.color="white",  surfaceScale=50, 
+                      diffuseConstant=diffuseConstant[i],
+                      in1=feGaussianBlur( stdDeviation=10),
+                      fePointLight( xyz= c(0,0,90) ) 
+                  ),
+                  in2=  "SourceGraphic"
+                )
+            ),
+            clip.path=clipPath(circle(cxy=WH2/2,r=R))
+        ),
+        text(paste("diffuseConstant=",diffuseConstant[i]), cxy=c(WH2[1]/2,WH2[2]-30),  font.size=14)
+      )
+    })
+)->doc
+cat("'",as.character(doc),"'")
+```
+
+#### Specular Reflection (The Blin-Phong Model)
+
+
+Recall from Phyics, for a perfect mirror, 
+*the angle of incidence equals the angle for reflection*, where angle is measured from 
+a vector normal vector to the surface. Now consider a single ray of light 
+striking the surface at point p with angle $\theta$ from the normal. 
+
+```{r, echo=F, results='asis'}
+library(svgR)
+WH=c(800, 300) # window rect
+
+R<-100
+S<-50
+Y<-WH[2]-S
+X<-WH[1]
+mid<-newId()
+murl<-paste0('url(#',mid,')')
+eta<-.5*(pi/2-pi/3)
+theta<-pi/2-pi/6
+dX<-Y*tan(theta)
+lightPath<-c(  c(X/2-dX, 0), c(X/2, Y), c(X/2+dX,0) )
+normVecs=c(
+c(X/2,Y), c(X/2,Y) - R*c(-sin(theta), cos(theta)),
+c(X/2,Y), c(X/2,Y) - R*c(0,1),
+c(X/2,Y), c(X/2,Y) - R*c(sin(theta), cos(theta)),
+c(X/2,Y), c(X/2,Y) - R*c(-sin(eta), cos(eta))
+)
+tcxy<-matrix(
+c(
+c(X/2,Y) - 1.2*R*c(-sin(theta), cos(theta)),
+c(X/2,Y) - 1.2*R*c(0,1),
+c(X/2,Y) - 1.2*R*c(sin(theta), cos(theta)),
+c(X/2,Y) - 1.2*R*c(-sin(eta), cos(eta))
+),2,4
+)
+txt<-c("r","n","i","v")
+svgR( wh=WH, 
+rect(xy=c(0,Y),wh=c(X,S/2), fill='lightblue'),
+polyline(points=lightPath, stroke.width=4, fill='none', stroke='orange', stroke.dasharray=2),
+text(xy=c(20,20), "source", stroke="orange"),
+text(xy=c(X-80,20), "reflection", stroke="orange"),
+#viewer
+line(xy1=c(X/2,Y ), xy2=c(X/2,Y) + .8*Y*c(sin(eta), -cos(eta) ), stroke.width=4,  stroke='grey', stroke.dasharray=6, opacity=.5),
+text( cxy=c(X/2,Y) + .9*Y*c(sin(eta), -cos(eta) ), "eye of viewer", stroke='grey', opacity=.5  ),
+
+# half circle
+pie( cxy=c(X/2,Y), theta1=pi/2-theta, theta2=pi/2+theta, r=R/3, stroke="red", stroke.width=2, opacity=.5, fill="pink"),
+# unit normal
+matrix2Arrows(normVecs, stroke='black'),
+lapply(1:4, function(i){
+  text(txt[i],cxy=tcxy[,i], stroke='black')
+})
+# unit to light
+# unit to reflection
+# label angle from normal
+#sun?
+#eye?
+)
+
+```
+
+
+Here, $\hat l$ is a unit vector in the direction of the light source,
+$\hat r$ is the unit vector in the direction of the reflected light at point p, 
+$\hat n$ is the unit normal vector to the surface, and $\hat v$ is a unit vector pointing
+to the viewer. 
+With a little algebra, we see
+$$ \hat r = (2 \hat n \cdot \hat l ) \hat n - \hat l$$
+
+But according to this model, the point p will appear dark unless $\hat v == \hat r$ precisely.
+i.e.
+$$
+I = \left\{
+\begin{array}{ll}
+ \kappa \times  L & \text{ if } \hat v = \hat r \\
+0                               & otherwise
+\end{array}
+\right.
+$$
+
+In practice, this  is too restrictive,
+what is needed is to spread out the reflection. 
+One approach is to consider the vector
+$$ \hat h = \frac{ \hat v + \hat l}{ \| \hat v + \hat l \| } $$
+Note,  $\hat h=\hat n$ if and only if $\hat v = \hat r$. This suggests that we
+use a similarity measure  of $\hat h$ to $\hat n$ as a coeffienct in our model. One such measure
+is the dot product, $\hat h \cdot \hat n$.  In practice, we use the dot product raised to a power s.
+
+i.e.
+$$I = \kappa \times ( \hat h \cdot \hat n )^s  L $$
+
+```{r, echo=F, results='asis'}
+library(svgR)
+WH=c(800, 300) # window rect
+
+R<-100
+S<-50
+Y<-WH[2]-S
+X<-WH[1]
+mid<-newId()
+murl<-paste0('url(#',mid,')')
+eta<-.3*(pi/2-pi/3)
+theta<-pi/2-pi/8
+beta<-(eta-theta)/2
+dX<-Y*tan(theta)
+lightPath<-c(  c(X/2-dX, 0), c(X/2, Y), c(X/2+dX,0) )
+normVecs=c(
+c(X/2,Y), c(X/2,Y) - R*c(-sin(theta), cos(theta)),
+c(X/2,Y), c(X/2,Y) - R*c(0,1),
+c(X/2,Y), c(X/2,Y) - R*c(sin(theta), cos(theta)),
+c(X/2,Y), c(X/2,Y) - R*c(-sin(eta), cos(eta)),
+c(X/2,Y), c(X/2,Y) - R*c(-sin(beta), cos(beta))
+)
+tcxy<-matrix(
+c(
+c(X/2,Y) - 1.2*R*c(-sin(theta), cos(theta)),
+c(X/2,Y) - 1.2*R*c(0,1),
+c(X/2,Y) - 1.2*R*c(sin(theta), cos(theta)),
+c(X/2,Y) - 1.2*R*c(-sin(eta), cos(eta)),
+c(X/2,Y) - 1.2*R*c(-sin(beta), cos(beta))
+),2,5
+)
+txt<-c("r","n","i","v", "h")
+svgR( wh=WH, 
+rect(xy=c(0,Y),wh=c(X,S/2), fill='lightblue'),
+polyline(points=lightPath, stroke.width=4, fill='none', stroke='orange', stroke.dasharray=2),
+text(xy=c(20,20), "source", stroke="orange"),
+text(xy=c(X-80,20), "reflection", stroke="orange"),
+#viewer
+line(xy1=c(X/2,Y ), xy2=c(X/2,Y) + .8*Y*c(sin(eta), -cos(eta) ), stroke.width=4,  stroke='grey', stroke.dasharray=6, opacity=.5),
+text( cxy=c(X/2,Y) + .9*Y*c(sin(eta), -cos(eta) ), "eye of viewer", stroke='grey', opacity=.5  ),
+
+# half circle
+pie( cxy=c(X/2,Y), theta1=pi/2-theta, theta2=pi/2+theta, r=R/3, stroke="red", stroke.width=2, opacity=.5, fill="pink"),
+# unit normal
+matrix2Arrows(normVecs, stroke='black'),
+lapply(1:5, function(i){
+  text(txt[i],cxy=tcxy[,i], stroke='black')
+}),
+
+polygon(
+ points=c( c(X/2,Y), c(X/2,Y) + R*c(sin(beta), -cos(beta) ), c(X/2,Y) + R*c(0, -cos(beta) )), fill='lightgreen', opacity=.5),
+ brace(
+ c(.55*X,Y) + .5*R*c(0, -cos(beta) ),
+ c(X/2,Y) + R*c(0, -cos(beta) ),
+ c(X/2,Y)   ,
+ stroke='green'
+ ),
+ text("h.n", xy= c(.55*X,Y) + .5*R*c(0, -cos(beta) ), stroke='lightgreen')
+# unit to light
+# unit to reflection
+# label angle from normal
+#sun?
+#eye?
+)
+
+```
+
+
+The exponent s allows us to control the degree of shininess, i.e. 
+$s=0$ is essentially ambient light,
+and as $s$ approaches $\infty$ the reflection becomes more mirror like.
+
+Implict in our argument is the assumption that the viewer is at infinity in the z direction 
+(i.e., the unit vector in the eye direction is (0,0,1) everywhere).
+
+In terms of the  4 pixel components: Red, Green, Blue, Alpha.
+This  becomes 
+
+$$
+\begin{array}{ll}
+I_R & = \kappa_R \times ( \hat n \cdot \hat h )^s \times L_R \\
+I_G & = \kappa_G \times ( \hat n \cdot \hat h )^s \times L_G \\
+I_B & = \kappa_B \times ( \hat n \cdot \hat h )^s \times L_B \\
+I_\alpha & = \max ( I_R, I_G, I_B)
+\end{array}
+$$
+
+The result of a specular filter is meant to be added (
+possibly to a textured image), so the $\alpha$ channel depends
+on the max intensity of components reflected. In particular,
+if IR,IG,IB is black at a given point, then the specular filter result is
+transparent at that point. If IR,IG,IB is white , then the specular filter result opaque.
+In this way we can layer the specular result on top to
+produce the desired shiny highlights without destroying the image.
+
+
+The **feSpecularLighting** filter can be used to provide shinyness to an object.
+
+The attributes specific to **feSpecularLighting** element are
+
+Attribute | Value | Default| Description
+------------------|--------------|------|----------------------------------
+surfaceScale| numeric | 1 | height of surface when $\alpha_{in}=1$
+specularConstant| numeric | 1 | $\kappa_s$ from the Phong model
+specularExponent| numeric in range 1-128 |1 | Exponent of specular term
+kernelUintLength| numeric vector pair | small | granularity of facets
+
+#### feSpecularLighting: surfaceScale
+
+```{r, echo=T, results='asis'}
+library(svgR)
+WH<-c(800, 300) # window rect
+N=5
+R<-50
+elevation<-40 # in degrees
+azimuth<-270 # in degrees
+WH2<-c(1/N,1)*(WH-c(0,25)-c(N*10,0))
+surfaceScale<-seq(5,25, length.out=5)
+svgR(wh=WH,
+    text("Varying surface scale for feSpecularLighting", font.size=20, cxy=c(WH[1]/2,30)),
+    lapply(1:5, function(i){
+      xy=(i-1)*c(WH2[1]+10,0)
+      svg(  xy=xy, wh=WH2,
+        circle( cxy=WH2/2, r= R,  stroke="black" , stroke.width=5, 
+            fill = "darkgreen",
+            filter=filter(
+                feComposite( 
+                  operator="arithmetic", k1234=c(0,1,1,0),
+                  in1=feSpecularLighting( lighting.color="white",  
+                      surfaceScale=surfaceScale[i],
+                      specularExponent=4,
+                      in1=feGaussianBlur( stdDeviation=10),
+                      fePointLight( xyz= c(0,0,90) ) 
+                  ),
+                  in2=  "SourceGraphic"
+                )
+            ),
+            clip.path=clipPath(circle(cxy=WH2/2,r=R))
+        ),
+        text(paste("surfaceScale=",surfaceScale[i]), cxy=c(WH2[1]/2,WH2[2]-30),  font.size=14)
+      )
+    })
+)->doc
+cat("'",as.character(doc),"'")
+```
+
+#### feSpecularLighting: specularConstant
+
+```{r, echo=T, results='asis'}
+library(svgR)
+WH<-c(800, 300) # window rect
+N=5
+R<-50
+elevation<-40 # in degrees
+azimuth<-270 # in degrees
+WH2<-c(1/N,1)*(WH-c(0,25)-c(N*10,0))
+specularConstant<-seq(.1,1, length.out=5)
+svgR(wh=WH,
+    text("Varying specularConstant for feSpecularLighting", font.size=20, cxy=c(WH[1]/2,30)),
+    lapply(1:5, function(i){
+      xy=(i-1)*c(WH2[1]+10,0)
+      svg(  xy=xy, wh=WH2,
+        circle( cxy=WH2/2, r= R,  stroke="black" , stroke.width=5, 
+            fill = "darkgreen",
+            filter=filter(
+                feComposite( 
+                  operator="arithmetic", k1234=c(0,1,1,0),
+                  in1=feSpecularLighting( lighting.color="white",  
+                      surfaceScale=15,
+                      specularExponent=4,
+                      specularConstant=specularConstant[i],
+                      in1=feGaussianBlur( stdDeviation=10),
+                      fePointLight( xyz= c(0,0,90) ) 
+                  ),
+                  in2=  "SourceGraphic"
+                )
+            ),
+            clip.path=clipPath(circle(cxy=WH2/2,r=R))
+        ),
+        text(paste("specularConstant=",specularConstant[i]), cxy=c(WH2[1]/2,WH2[2]-30),  font.size=14)
+      )
+    })
+)->doc
+cat("'",as.character(doc),"'")
+```
+ 
+#### feSpecularLighting: specularExponent
+
+```{r, echo=T, results='asis'}
+library(svgR)
+WH<-c(800, 300) # window rect
+N=5
+R<-50
+elevation<-40 # in degrees
+azimuth<-270 # in degrees
+WH2<-c(1/N,1)*(WH-c(0,25)-c(N*10,0))
+specularExponent<-seq(.5,5, length.out=5)
+svgR(wh=WH,
+    text("Varying specularExponent for feSpecularLighting", font.size=20, cxy=c(WH[1]/2,30)),
+    lapply(1:5, function(i){
+      xy=(i-1)*c(WH2[1]+10,0)
+      svg(  xy=xy, wh=WH2,
+        circle( cxy=WH2/2, r= R,  stroke="black" , stroke.width=5, 
+            fill = "darkgreen",
+            filter=filter(
+                feComposite( 
+                  operator="arithmetic", k1234=c(0,1,1,0),
+                  in1=feSpecularLighting( lighting.color="white",  
+                      surfaceScale=15,
+                      specularExponent=specularExponent[i],
+                      specularConstant=.6,
+                      in1=feGaussianBlur( stdDeviation=10),
+                      fePointLight( xyz= c(0,0,90) ) 
+                  ),
+                  in2=  "SourceGraphic"
+                )
+            ),
+            clip.path=clipPath(circle(cxy=WH2/2,r=R))
+        ),
+        text(paste("s=",specularExponent[i]), cxy=c(WH2[1]/2,WH2[2]-30),  font.size=14)
+      )
+    })
+)->doc
+cat("'",as.character(doc),"'")
+```
+ 
+#### Summary
+ 
+ The feDiffuseLighting and feSpecularLighting filters will often be applied together. 
+An implementation may detect this and calculate both maps in one pass, instead of two.
+
+- feDiffuseLighting and feSpecularLighting
+    + often applied togther
+    + surfaceScale is required for both to provide the depth for the image
+    + both use a constant to regulate the intensity, but with different names
+- feDiffuseLighting creates non-glossy effects
+    + diffuseConstant (a single number) regulates the intensity of the diffuse light
+    + produces an opaque results
+- feSpecularLighting creates glossy effects
+    + specularConstant (a single number) regulates the intensity of the specular light
+    + produces an non-opaque results, where  the specular light is zero, no additional coverage is added to the image and a fully  white highlight will add opacity
+    
+
+
+### Light Sources
+
+
+There are 3 possible of light sources:
+
+- **feDistantLight**, which emulates a distant light source
+- **fePointLight** which emulates a point light source
+- **feSpotLight** which emulates a spot light. 
+
+```{r, echo=T, results='asis'}
+library(svgR)
+WH<-c(800, 200) # window rect
+cxy<-rbind(seq(0,WH[1],length.out=2*4+1)[2*(1:4)],WH[2]/2)
+txt<-c("No Light","feDistantLight","fePointLight","feSpotLight")
+lighting<-function(lightsource){
+  filter( feComposite( operator="arithmetic", k1234=c(1,0,0,0),
+    in1="SourceGraphic",
+    in2=feDiffuseLighting(in1="SourceGraphic", light.color="white", lightsource)
+  ))
+}
+svgR( wh=WH,
+    circle(cxy=cxy[,1], r=50, fill="green"), 
+    circle(cxy=cxy[,2], r=50, fill="green", 
+      filter=lighting(feDistantLight(azimuth=240, elevation=20) )
+    ),     
+    circle(cxy=cxy[,3], r=50, fill="green", 
+      filter=lighting(fePointLight( xyz=20*c(-1,-1,1)+ c(cxy[,3],0) ) )
+    ),     
+    circle(cxy=cxy[,4], r=50, fill="green", 
+      filter=lighting( feSpotLight(  xyz=20*c(-1,-1,1) + c(cxy[,4],0), 
+        limitingConeAngle=20,pointsAtXYZ=20*c(1,1,0) + c(cxy[,4],0)
+      ))
+    ),
+    lapply(1:4, function(i)text(txt[i], cxy=c(cxy[1,i], WH[2]-20)))
+)
+```
+
+#### feDistantLight
+
+A distant light is assumed to be very bright and distant, so that the light rays striking the
+surface are essentially parallel. In particular, it is assumed that the location of the light source
+spherical coordinates has a large fixed value for $\rho$.  Thus to specify the location
+of a distant light source only two coordinates, $\theta$, $\phi$ are required. However, instead of  standard
+mathematical terminology, it was 
+decided **feDistantLight** to use *azimuth* (=$\theta$) and *elevation* (=$\pi/2 -\phi$). Also, in
+deference to the Babylonians, degrees are used instead of radians. 
+
+Thus the attributes for **feDistantLight** are
+
+Attribute | Value |Description
+------------|---------|-----------------------------------------------------
+elevation| numeric | angle in degrees from the xy-plane
+azimuth | numeric | 1 | angle in degrees from the x-axis in a clockwise direction
+
+
+##### Varying DistantLight Positions: Diffuse 
+```{r, echo=T, results='asis'}
+library(svgR)
+WH<-c(800, 1100) # window rect
+Gdim=c(5,5) # num cols abd cil
+marg<-c(10,40)# spaceing between
+XY<-expand.grid(
+  seq(marg[1],WH[1],length.out=Gdim[1]+1)[1:Gdim[1]], 
+  seq(marg[2],WH[2],length.out=Gdim[2]+1)[1:Gdim[2]] 
+)
+WH2<-XY[Gdim[1]+2,]-XY[1,]-marg*c(1,0)
+ccxy<-c(.5,.4)*WH2
+R<-70
+diffuseConstant<-1
+ea<-expand.grid(
+  seq(0,  75, length.out=Gdim[1]), #elevation
+  seq( 0, 330, length.out=Gdim[2]) #azimuth
+)
+svgR(wh=WH,
+    text("Varying feDistantLight Position with feDiffuseLighting", font.size=20, cxy=c(WH[1]/2,30)),
+    lapply(1:nrow(XY), function(i){
+      svg(  xy=XY[i,], wh=WH2,
+        circle( cxy=ccxy, r= R,  stroke="black" , stroke.width=5, 
+            fill = "darkgreen",
+            filter=filter(
+                feComposite( 
+                  operator="arithmetic", k1234=c(0,.4,1,0),
+                  in1=feDiffuseLighting( lighting.color="white",  surfaceScale=50, 
+                      diffuseConstant=diffuseConstant,
+                      in1=feGaussianBlur( stdDeviation=10),
+                      feDistantLight( elevation= ea[i,1], azimuth=ea[i,2] ) 
+                  ),
+                  in2=  "SourceGraphic"
+                )
+            ),
+            clip.path=clipPath(circle(cxy=ccxy,r=R+3))
+        ),
+        text(paste("elevation=", ea[i,1] ), xy=c(.1,.85)* WH2,  font.size=14),
+        text(paste("azimuth=",   ea[i,2] ), xy=c(.1, .95)* WH2,  font.size=14)
+      )
+    })
+)->doc
+cat("'",as.character(doc),"'")
+```
+
+#### Varying DistantLight Positions: Specular
+```{r, echo=T, results='asis'}
+library(svgR)
+WH<-c(800, 1100) # window rect
+Gdim=c(5,5) # num cols abd cil
+marg<-c(10,40)# spaceing between
+XY<-expand.grid(
+  seq(marg[1],WH[1],length.out=Gdim[1]+1)[1:Gdim[1]], 
+  seq(marg[2],WH[2],length.out=Gdim[2]+1)[1:Gdim[2]] 
+)
+WH2<-XY[Gdim[1]+2,]-XY[1,]-marg*c(1,0)
+ccxy<-c(.5,.4)*WH2
+R<-70
+specularConstant<-1
+specularExponent<-5
+ea<-expand.grid(
+  seq(0,  55, length.out=Gdim[1]), #elevation
+  seq( 0, 330, length.out=Gdim[2]) #azimuth
+)
+#xyz<-expand.grid(-1:1, 1:0, 1:3)
+svgR(wh=WH,
+    text("Varying feDistantLight Position with feSpecularLighting", font.size=20, cxy=c(WH[1]/2,30)),
+    lapply(1:nrow(XY), function(i){
+      svg(  xy=XY[i,], wh=WH2,
+        circle( cxy=ccxy, r= R,  stroke="black" , stroke.width=5, 
+            fill = "darkgreen",
+            filter=filter(
+                feComposite( 
+                  operator="arithmetic", k1234=c(0,.4,1,0),
+                  in1=feSpecularLighting( lighting.color="white",  surfaceScale=50,
+                      specularExponent=specularExponent,
+                      specularConstant=specularConstant,
+                      in1=feGaussianBlur( stdDeviation=10),
+                      feDistantLight( elevation= ea[i,1], azimuth=ea[i,2] ) 
+                  ),
+                  in2=  "SourceGraphic"
+                )
+            ),
+            clip.path=clipPath(circle(cxy=ccxy,r=R+3))
+        ),
+        text(paste("elevation=", ea[i,1] ), xy=c(.1,.85)* WH2,   font.size=14),
+        text(paste("azimuth=",   ea[i,2] ), xy=c(.1, .95)* WH2,  font.size=14)
+      )
+    })
+)->doc
+cat("'",as.character(doc),"'") 
+```
+
+
+#### PointLight
+
+A point light is a light source located at a single point in space. As a result, the light rays are not
+parallel, but rather spread out. Hence, even across a flat surface, the light is not distributed uniformly.
+
+Three coordinates are required to locate a point light source, x, y, z.
+
+
+##### Varying PointLight  Positions: Diffuse
+```{r, echo=T, results='asis'}
+library(svgR)
+W<-800
+NXYZ<-c(4,2,3)
+GDIM=c(NXYZ[1], NXYZ[2]* NXYZ[3]) # = num cols , num rows
+WH=c(W, 40+1.3*W*GDIM[2]/GDIM[1])  # compute WH of svg
+R<-.5*(W/GDIM[1])
+X<-seq(0, WH[1], length.out=GDIM[1]+1)
+Y<-seq(40,WH[2], length.out=GDIM[2]+1)
+CXY<-expand.grid( 
+  apply(rbind(X[1:(length(X)-1)], X[2:length(X)] ), 2, mean),
+  apply(rbind(Y[1:(length(Y)-1)], Y[2:length(Y)] ), 2, mean)
+)
+XYZ<-expand.grid(
+  seq(-R,R, length.out=NXYZ[1]), # X coords
+  seq(-R,0, length.out=NXYZ[2]), #Y coords
+  seq(1.2*R, 1.5*R, length.out=NXYZ[3]) #Z occords
+)
+svgR(wh=WH+c(0,60),
+    text("Varying fePointLight Position with feDiffuseLighting", font.size=20, cxy=c(WH[1]/2,30)),
+    text("(Coordinates of light source relative to object center)", font.size=16, cxy=c(WH[1]/2,55)),
+    lapply(1:nrow(CXY), function(i){
+      xyz=XYZ[i,,]
+      g( transform=list(translate=CXY[i,]),
+        circle( cxy=c(0,0), r= R-20,  stroke="black" , stroke.width=5, 
+            fill = "darkgreen",
+            filter=filter(
+                feComposite( 
+                  operator="arithmetic", k1234=c(0,.4,1,0),
+                  in1=feDiffuseLighting( lighting.color="white",  surfaceScale=R, 
+                      diffuseConstant=diffuseConstant,
+                      in1=feGaussianBlur( stdDeviation=10),
+                      fePointLight( xyz= xyz) 
+                  ),
+                  in2=  "SourceGraphic"
+                )
+            ),
+            clip.path=clipPath(circle(cxy=c(0,0),r=R-18))
+        ),
+        lapply(1:3, function(i){ 
+          text(sprintf(c("x= %.1f", "y= %.1f", "z= %.1f")[i], xyz[i]), cxy=c(0, R+i*16),  font.size=14)
+        })
+      )
+    })
+)
+```
+
+
+##### Varying PointLight  Positions: Diffuse , constant dist.
+
+Here we repeat, but with a constant distance from the center
+
+##### Varying PointLight Positions: Diffuse
+
+```{r, echo=T, results='asis'}
+library(svgR)
+W<-800
+GDIM=c(5,3) # = num cols , num rows
+vMargin<-90 #spacing for Title, and spaceing at bottom
+WH=c(W, 2*vMargin + 1.3*W*GDIM[2]/GDIM[1])  # compute WH of svg
+R<-.5*(W/GDIM[1]) 
+X<-seq(0, WH[1], length.out=GDIM[1]+1)
+Y<-seq(vMargin,WH[2]-vMargin, length.out=GDIM[2]+1)
+diffuseConstant<-.6
+CXY<-expand.grid( 
+  apply(rbind(X[1:(length(X)-1)], X[2:length(X)] ), 2, mean),
+  apply(rbind(Y[1:(length(Y)-1)], Y[2:length(Y)] ), 2, mean)
+)
+phitheta<-expand.grid(
+  seq( pi/6,  pi/2, length.out=GDIM[1]),  # phi
+  seq( 0, -pi/2,  length.out=GDIM[2])    # theta
+)
+rho<-2*R
+svgR(wh=WH,
+    text("Varying fePointLight Position with feDiffuseLighting", font.size=22, cxy=c(WH[1]/2,40)),
+    text("(Spherical Coord, angles in radians, origin at object center)", font.size=16, cxy=c(WH[1]/2,65)),
+    text(paste0("(diffuseConstant=",diffuseConstant, ")"), font.size=12, cxy=c(WH[1]/2,85)),
+    lapply(1:nrow(CXY), function(i){
+      xyz=rho*c(
+        sin(phitheta[i,1])*cos(phitheta[i,2]), 
+        sin(phitheta[i,1])*sin(phitheta[i,2]), 
+        cos(phitheta[i,1])
+      )
+      g( transform=list(translate=CXY[i,]),
+        circle( cxy=c(0,0), r= R-10,  stroke="black" , stroke.width=5, 
+            fill = "darkgreen",
+            filter=filter(
+                feComposite( 
+                  operator="arithmetic", k1234=c(0,1,1,0),
+                  in1=feDiffuseLighting( lighting.color="white",  surfaceScale=(5/7)*R, 
+                      diffuseConstant=diffuseConstant,
+                      in1=feGaussianBlur( stdDeviation=10),
+                      fePointLight( xyz= xyz) 
+                  ),
+                  in2=  "SourceGraphic"
+                )
+            ),
+            clip.path=clipPath(circle(cxy=c(0,0),r=R-8))
+        ),
+        lapply(1:3, function(j){ 
+          text(
+            paste0( mathSymbol(c("\\phi", "\\theta", "\\rho")[j]), '= ',
+            format(c(phitheta[i,], rho)[j],digits=3)), cxy=c(0, R-14+j*16),  font.size=12
+          )
+        })
+      )
+    })
+)
+```
+
+##### Varying PointLight Positions: Specular
+
+```{r, echo=T, results='asis'}
+library(svgR)
+W<-800
+GDIM=c(5,3) # = num cols , num rows
+vMargin<-90 #spacing for Title, and spaceing at bottom
+WH=c(W, 2*vMargin + 1.3*W*GDIM[2]/GDIM[1])  # compute WH of svg
+R<-.5*(W/GDIM[1]) 
+X<-seq(0, WH[1], length.out=GDIM[1]+1)
+Y<-seq(vMargin,WH[2]-vMargin, length.out=GDIM[2]+1)
+specularConstant<-.6
+specularExponent<-10
+CXY<-expand.grid( 
+  apply(rbind(X[1:(length(X)-1)], X[2:length(X)] ), 2, mean),
+  apply(rbind(Y[1:(length(Y)-1)], Y[2:length(Y)] ), 2, mean)
+)
+phitheta<-expand.grid(
+  seq( pi/6,  pi/2, length.out=GDIM[1]),  # phi
+  seq( 0, -pi/2,  length.out=GDIM[2])    # theta
+)
+rho<-2*R
+svgR(wh=WH,
+    text("Varying fePointLight Position with feSpecularLighting", font.size=22, cxy=c(WH[1]/2,40)),
+    text("(Spherical Coord, angles in radians, origin at object center)", font.size=16, cxy=c(WH[1]/2,65)),
+    text(paste0("(specularConstant=",specularConstant,", specularExponent=",specularExponent), font.size=12, cxy=c(WH[1]/2,85)),
+    lapply(1:nrow(CXY), function(i){
+      xyz=rho*c(
+        sin(phitheta[i,1])*cos(phitheta[i,2]), 
+        sin(phitheta[i,1])*sin(phitheta[i,2]), 
+        cos(phitheta[i,1])
+      )
+      g( transform=list(translate=CXY[i,]),
+        circle( cxy=c(0,0), r= R-10,  stroke="black" , stroke.width=5, 
+            fill = "darkgreen",
+            filter=filter(
+                feComposite( 
+                  operator="arithmetic", k1234=c(0,1,1,0),
+                  in1=feSpecularLighting( lighting.color="white",  surfaceScale=(5/7)*R, 
+                      specularExponent=specularExponent,
+                      specularConstant=specularConstant,
+                      in1=feGaussianBlur( stdDeviation=10),
+                      fePointLight( xyz= xyz) 
+                  ),
+                  in2=  "SourceGraphic"
+                )
+            ),
+            clip.path=clipPath(circle(cxy=c(0,0),r=R-8))
+        ),
+        lapply(1:3, function(j){ 
+          text(
+            paste0( mathSymbol(c("\\phi", "\\theta", "\\rho")[j]), '= ',
+            format(c(phitheta[i,], rho)[j],digits=3)), cxy=c(0, R-14+j*16),  font.size=12
+          )
+        })
+      )
+    })
+)
+```
+
+
+#### feSpotLight
+
+<table >
+<tr><td width="300">
+A spot light is a directed light source. 
+It is modeled as a point light source whose rays a restricted to a cone.
+Thus light resulting on a surface will be either an elliptic or a parabola.
+
+The feSpotLight consists of a source position, a 
+a target position, and an a limiting cone.
+
+</td>
+<td width="40"></td>
+<td>
+```{r, echo=F, results='asis'}
+library(svgR)
+R<-100
+W<-400
+H<-200
+WH=c(W,H)  # compute WH of svg
+PtAt<- WH*c(.5,.75)
+L.wh<-(H/5)*c(4,-3)
+L0<-PtAt + L.wh
+theta<-pi/6
+alpha<-atan(L.wh[1]/L.wh[2])
+
+A<-L0- L.wh[2] * c( tan(alpha+theta/2), 1 )
+B<-L0- L.wh[2] * c( tan(alpha-theta/2), 1 )
+rxy<-L.wh[2] * tan(alpha+theta/2)*c(1,.1)
+
+svgR(wh=WH,
+  g(  
+    rect(xy=c(0,0), wh=c(W,H), fill='grey', stroke='black'),
+    #azis
+    line(xy1=c(0,PtAt[2]), xy2=c(W,PtAt[2]), stroke='black', stroke.width=2, stroke.dasharray=6),
+    line(xy1=PtAt, xy2=c(1,0)*PtAt, stroke='black', stroke.width=2, stroke.dasharray=6),
+    line(xy1=PtAt ,xy2=PtAt+.25*H*c(-1,1), stroke='black', stroke.width=2, stroke.dasharray=6),
+    text("X", xy=c(W-20,PtAt[2]-5) ),
+    text("Y", xy=PtAt+.25*H*c(-1,1)+c(30,-10) ),
+    text("Z", xy=PtAt*c(1,0)+c(10,20) ),
+    # pole 
+    line(xy1=L0-c(0,L.wh[2]) , xy2=L0, stroke='black', stroke.width=1),
+    circle(cxy=L0 , r=3,  fill='white'),
+    # center of light beam
+    line(xy1=PtAt, xy2=L0, stroke='white', stroke.width=3),
+    # light beam
+    polygon(points=c(L0,A,B) ,fill="white", opacity=.3),
+
+    g( transform=list(translate=(A+B)/2),
+      ellipse(cxy=c(0,0), rxy=rxy, fill="white", opacity=.5)
+    )
+  )
+  
+)
+```
+</td></tr></table>
+
+
+
+
+The revelant attributes for feSpotLight are:
+
+Attribute | Value | Description
+------------------|--------------|-----------------------------------
+xyz| numeric |   x, y, z  postions of light source
+pointsAtXYZ | numeric |position of where the light source is pointing
+limitingConeAngle| numeric | value in degrees describing the limiting cone
+
+
+
+The spotlight is best understood by observing it's behaviour on a flat surface.
+
+##### Diffuse SpotLight on Flat surface Rotated About Boundry, Pointing at Center
+
+Here we move a spot light about a circle while keeping the the spotlight
+pointed at the circles center. 
+
+```{r, echo=T, results="asis"}
+library(svgR)
+WH=c(800, 300) # window rect
+N=4
+sp<-20
+X=seq(sp, WH[1], length.out=N+1)
+SWH<-c(X[2]-X[1]-sp, WH[2]-30)
+R<-.4*SWH[1]
+theta<-seq(-pi,0, length.out=N)
+phi<-seq(.2*pi,.4*pi, length.out=N)
+lightPos<-.8*R*cbind( sin(phi)*cos(theta), sin(phi)*sin(theta), cos(phi) )
+
+svgR(wh=WH, 
+  lapply(1:4, function(i){
+    svg( wh=SWH, x=X[i], y=0,
+      circle( cxy=SWH/2, r= R, fill="green", stroke="black",  stroke.width=5,
+        filter=filter(
+          feComposite( 
+            operator="arithmetic", k1234=c(0,1,1,0),
+            in1="SourceGraphic",
+            in2= feDiffuseLighting( lighting.color="white", diffuseConstant=1.2,
+                in1="SourceGraphic",
+                feSpotLight( limitingConeAngle=20, #this is in degrees
+                             xyz=lightPos[i,]+.5*c(SWH,0), #spotLightPos,
+                             pointsAtXYZ=.5*c(SWH,0) #ptAtPos[[i]]
+                             ) 
+            )
+           )
+        )
+      ),
+      text(paste(mathSymbol("\\phi"), '=',format(phi[i], digits=3)), xy=c(10,SWH[2]-80), fill='white'),
+      text(paste(mathSymbol("\\theta"), '=',format(theta[i], digits=3)), xy=c(10,SWH[2]-60), fill="white")
+    )
+  }),
+  text('Diffuse: SpotLight point at c(0,0,0)', cxy=c(400,250), font.size=20)
+)->doc
+cat("'",as.character(doc),"'")
+```
+
+### Diffuse Spot Light Located Above Center, Point Along Boundry
+
+Here we the light source  as spot light centered at c(0,0,R) and move the focus (where it points to)
+
+```{r, echo=T, results="asis"}
+library(svgR)
+WH=c(800, 300) # window rect
+N=4
+sp<-20
+X=seq(sp, WH[1]+sp, length.out=N+1)
+SWH<-c(X[2]-X[1]-sp, WH[2]-30)
+R<-.4*SWH[1]
+theta<-seq(-pi,0, length.out=N)
+lightPos<-.5*c(SWH,20)
+pointsAt<-R*cbind(cos(theta), sin(theta))
+svgR(wh=WH, 
+  lapply(1:4, function(i){
+    svg( wh=SWH, x=X[i], y=0,
+      circle( cxy=SWH/2, r= R, fill="green", stroke="black",  stroke.width=5,
+        filter=filter(
+          feComposite( 
+            operator="arithmetic", k1234=c(0,1,1,0),
+            in1="SourceGraphic",
+            in2= feDiffuseLighting( lighting.color="white", diffuseConstant=1.2,
+                in1="SourceGraphic",
+                feSpotLight( limitingConeAngle=20, #this is in degrees
+                             xyz=lightPos, #spotLightPos,
+                             pointsAtXYZ=c(pointsAt[i,]+SWH/2, 0) #ptAtPos[[i]]
+                             ) 
+            )
+           )
+        )
+      ),
+      text(paste("x", '=',format(pointsAt[i,1], digits=3)), xy=c(10,SWH[2]-80), fill='white'),
+      text(paste("y", '=',format(pointsAt[i,2], digits=3)), xy=c(10,SWH[2]-60), fill="white")
+    )
+  }),
+  text('Diffuse: SpotLight point at c(0,0,0)', cxy=c(400,280), font.size=20)
+)->doc
+cat("'",as.character(doc),"'")
+```
+
+##### Varying feSpotLight Positions: Diffuse
+
+```{r, echo=T, results='asis'}
+library(svgR)
+W<-800
+GDIM=c(5,3) # = num cols , num rows
+vMargin<-90 #spacing for Title, and spaceing at bottom
+WH=c(W, 2*vMargin + 1.3*W*GDIM[2]/GDIM[1])  # compute WH of svg
+R<-.5*(W/GDIM[1]) 
+X<-seq(0, WH[1], length.out=GDIM[1]+1)
+Y<-seq(vMargin,WH[2]-vMargin, length.out=GDIM[2]+1)
+diffuseConstant<-.6
+CXY<-expand.grid( 
+  apply(rbind(X[1:(length(X)-1)], X[2:length(X)] ), 2, mean),
+  apply(rbind(Y[1:(length(Y)-1)], Y[2:length(Y)] ), 2, mean)
+)
+phitheta<-expand.grid(
+  seq( pi/6,  pi/4, length.out=GDIM[1]),  # phi
+  seq( 0, -pi/2,  length.out=GDIM[2])    # theta
+)
+rho<-2*R
+surfaceScale<-(5/7)*R
+svgR(wh=WH,
+    text("Varying feSpotLight Position with feDiffuseLighting", font.size=22, cxy=c(WH[1]/2,40)),
+    text("(Spherical Coord, angles in radians, origin at object center)", font.size=16, cxy=c(WH[1]/2,65)),
+    text(paste0("(diffuseConstant=",diffuseConstant, ") pointing at center"), font.size=12, cxy=c(WH[1]/2,85)),
+    lapply(1:nrow(CXY), function(i){
+      xyz=rho*c(
+        sin(phitheta[i,1])*cos(phitheta[i,2]), 
+        sin(phitheta[i,1])*sin(phitheta[i,2]), 
+        cos(phitheta[i,1])
+      )
+      g( transform=list(translate=CXY[i,]),
+        circle( cxy=c(0,0), r= R-10,  stroke="black" , stroke.width=5, 
+            fill = "darkgreen",
+            filter=filter(
+                feComposite( 
+                  operator="arithmetic", k1234=c(0,1,1,0),
+                  in1=feDiffuseLighting( lighting.color="white",  surfaceScale=surfaceScale, 
+                      diffuseConstant=diffuseConstant,
+                      in1=feGaussianBlur( stdDeviation=10),
+                      feSpotLight( xyz= xyz, pointsAtXYZ= -c(1,1,0)*xyz, #+
+                      #c(0,0,surfaceScale), 
+                      limitingConeAngle=15 ) 
+                  ),
+                  in2=  "SourceGraphic"
+                )
+            ),
+            clip.path=clipPath(circle(cxy=c(0,0),r=R-8))
+        ),
+        lapply(1:3, function(j){ 
+          text(
+            paste0( mathSymbol(c("\\phi", "\\theta", "\\rho")[j]), '= ',
+            format(c(phitheta[i,], rho)[j],digits=3)), cxy=c(0, R-14+j*16),  font.size=12
+          )
+        })
+      )
+    })
+)
+```
+
+##### Varying feSpotLight Positions: Specular
+
+```{r, echo=T, results='asis'}
+library(svgR)
+W<-800
+GDIM=c(5,3) # = num cols , num rows
+vMargin<-90 #spacing for Title, and spaceing at bottom
+WH=c(W, 2*vMargin + 1.3*W*GDIM[2]/GDIM[1])  # compute WH of svg
+R<-.5*(W/GDIM[1]) 
+X<-seq(0, WH[1], length.out=GDIM[1]+1)
+Y<-seq(vMargin,WH[2]-vMargin, length.out=GDIM[2]+1)
+specularConstant<-.6
+specularExponent<-10
+CXY<-expand.grid( 
+  apply(rbind(X[1:(length(X)-1)], X[2:length(X)] ), 2, mean),
+  apply(rbind(Y[1:(length(Y)-1)], Y[2:length(Y)] ), 2, mean)
+)
+phitheta<-expand.grid(
+  seq( pi/6,  pi/4, length.out=GDIM[1]),  # phi
+  seq( 0, -pi/2,  length.out=GDIM[2])    # theta
+)
+rho<-2*R
+surfaceScale<-(5/7)*R
+svgR(wh=WH,
+    text("Varying feSpotLight Position with feSpecularLighting", font.size=22, cxy=c(WH[1]/2,40)),
+    text("(Spherical Coord, angles in radians, origin at object center)", font.size=16, cxy=c(WH[1]/2,65)),
+    text(paste0("(specularConstant=",specularConstant,", specularExponent=",specularExponent), font.size=12, cxy=c(WH[1]/2,85)),
+    lapply(1:nrow(CXY), function(i){
+      xyz=rho*c(
+        sin(phitheta[i,1])*cos(phitheta[i,2]), 
+        sin(phitheta[i,1])*sin(phitheta[i,2]), 
+        cos(phitheta[i,1])
+      )
+      g( transform=list(translate=CXY[i,]),
+        circle( cxy=c(0,0), r= R-10,  stroke="black" , stroke.width=5, 
+            fill = "darkgreen",
+            filter=filter(
+                feComposite( 
+                  operator="arithmetic", k1234=c(0,1,1,0),
+                  in1=feSpecularLighting( lighting.color="white",  surfaceScale=surfaceScale, 
+                      specularExponent=specularExponent,
+                      specularConstant=specularConstant,
+                      in1=feGaussianBlur( stdDeviation=10),
+                      feSpotLight( xyz= xyz, pointsAtXYZ= -c(1,1,0)*xyz, limitingConeAngle=15) 
+                  ),
+                  in2=  "SourceGraphic"
+                )
+            ),
+            clip.path=clipPath(circle(cxy=c(0,0),r=R-8))
+        ),
+        lapply(1:3, function(j){ 
+          text(
+            paste0( mathSymbol(c("\\phi", "\\theta", "\\rho")[j]), '= ',
+            format(c(phitheta[i,], rho)[j],digits=3)), cxy=c(0, R-14+j*16),  font.size=12
+          )
+        })
+      )
+    })
+)
+```
+
+
+

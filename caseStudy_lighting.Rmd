@@ -1,0 +1,323 @@
+---
+title: "Case Study of Lighting"
+output:
+  html_document:
+    toc: true
+    theme: united
+---
+
+
+```{r, echo=FALSE}
+stopifnot(require(svgR, quietly=TRUE))
+```
+
+```{r, echo=FALSE}
+if(!exists("newId")){
+  source('Util.R')
+}
+```
+
+
+
+### A case study in combining Light Sources
+
+#### Step 1
+
+Gaussian blur to create depth
+```{r, echo=T, results='asis'}
+library(svgR)
+WH=c(800,400)
+R<-.4*WH[2]
+svgR(wh=WH+c(0,30),
+    circle( cxy=WH/2, r= R,
+      filter=filter(
+        feGaussianBlur( in1="SourceAlpha", stdDeviation=R/2)
+      )
+    ),
+    text("Step 1: A Gaussian blur", cxy=c(.5,1)*WH-c(0,15), stroke='black')
+)
+```
+
+### Step 2
+
+Clip to circle
+
+```{r, echo=T, results='asis'}
+library(svgR)
+WH=c(800,400)
+R<-.4*WH[2]
+svgR(wh=WH+c(0,30),
+    circle( cxy=WH/2, r= R,
+      filter=filter(
+        feGaussianBlur( in1="SourceAlpha", stdDeviation=R/2)
+      ),
+      clip.path=clipPath(circle(cxy=WH/2, r=R))
+    ),
+    text("Step 2: Add clip path", cxy=c(.5,1)*WH-c(0,15), stroke='black')
+)
+```
+
+#### Step 3 Add diffuse colored light.
+
+
+```{r, echo=T, results='asis'}
+library(svgR)
+WH=c(800,400)
+R<-.4*WH[2]
+svgR(wh=WH,
+    circle( cxy=WH/2, r= R,  
+      filter=filter( 
+        feDiffuseLighting( lighting.color="#44BBFF",  
+          diffuseConstant=1,
+          surfaceScale=R,
+          in1=feGaussianBlur(in1="SourceAlpha", stdDeviation=.5*R),
+          feDistantLight( elevation= 60, azimuth=90 )
+        )
+      ),
+      clip.path=clipPath(circle(cxy=WH/2,r=R))
+    ),
+    text("Step 3: Add diffuse colored light", cxy=c(.5,1)*WH-c(0,15), stroke='black')
+  )
+```
+
+
+#### Step 4 Reset filter viewPort
+
+```{r, echo=T, results='asis'}
+library(svgR)
+WH=c(800,400)
+R<-.4*WH[2]
+svgR(wh=WH,
+    circle( cxy=WH/2, r= R,  
+      filter=filter( 
+        xy=-.4*c(1,1), wh=1.8*c(1,1), #in percentage
+        feDiffuseLighting( lighting.color="#44BBFF",  
+          diffuseConstant=1,
+          surfaceScale=R,
+          in1=feGaussianBlur(in1="SourceAlpha", stdDeviation=.5*R),
+          feDistantLight( elevation= 60, azimuth=90 )
+        )
+      ),
+      clip.path=clipPath(circle(cxy=WH/2,r=R))
+    ),
+    text("Step 4: Add diffuse colored light", cxy=c(.5,1)*WH-c(0,15), stroke='black')
+  )
+```
+
+
+#### Step 4
+But this is too grainy! so lets smooth it a little :)
+
+```{r, echo=T, results='asis'}
+library(svgR)
+WH=c(800,400)
+R<-.4*WH[2]
+svgR(wh=WH,
+    circle( cxy=WH/2, r= R,  
+      filter=filter( 
+        xy=-.4*c(1,1), wh=1.8*c(1,1), #in percentage
+        feGaussianBlur(
+          stdDeviation=5,
+          in1=feDiffuseLighting( lighting.color="#44BBFF",  
+            diffuseConstant=1,
+            surfaceScale=R,
+            in1=feGaussianBlur(in1="SourceAlpha", stdDeviation=.5*R),
+            feDistantLight( elevation= 60, azimuth=90 )
+          )        
+        )
+      ),
+      clip.path=clipPath(circle(cxy=WH/2,r=R))
+    ),
+    text("Step 4: Smooth with Gaussian Blur", cxy=c(.5,1)*WH-c(0,15), stroke='black')
+  )
+```
+
+
+#### Step 5
+
+Add a spot light with white light and  combine with feComposite
+
+```{r, echo=T, results='asis'}
+library(svgR)
+WH=c(800,400)
+R<-.4*WH[2]
+phi<-pi/4
+spot.xyz<- c(WH/2,0)+ 2*R*c(0,-sin(phi),cos(phi))
+spot.ptsAt<-c(WH/2,0)+ R*c(0,-sin(phi),cos(phi))
+svgR(wh=WH,
+    circle( cxy=WH/2, r= R,  stroke="none",  fill = "#000068",
+      filter=filter( 
+        xy=-.4*c(1,1), wh=1.8*c(1,1), #in percentage
+        feGaussianBlur(
+          stdDeviation=5,
+          in1=feComposite( operator="arithmetic", k1234=c(0,1,1,0),
+            in1=feDiffuseLighting( lighting.color="#44BBFF",  
+                diffuseConstant=1,
+                surfaceScale=R,
+                in1=feGaussianBlur(in1="SourceAlpha", stdDeviation=.5*R),
+                feDistantLight( elevation= 60, azimuth=90 )
+            ),
+            in2= feDiffuseLighting( lighting.color="#white",  
+                diffuseConstant=.8,
+                surfaceScale=R,
+                in1=feGaussianBlur(in1="SourceAlpha", stdDeviation=.5*R),
+                feSpotLight( xyz=spot.xyz, pointsAtXYZ=spot.ptsAt, limitingConeAngle=30 )
+            )
+          )
+        ) 
+      ),
+      clip.path=clipPath(circle(cxy=WH/2,r=R))
+    ),
+    text("Step 5: A Spot Light", cxy=c(.5,1)*WH-c(0,15), stroke='black')
+  )
+```
+
+#### Step 6 Add a shadow
+
+
+```{r, echo=T, results='asis'}
+library(svgR)
+WH=c(800,400)
+R<-.4*WH[2]
+phi<-pi/4
+spot.xyz<- c(WH/2,0)+ 2*R*c(0,-sin(phi),cos(phi))
+spot.ptsAt<-c(WH/2,0)+ R*c(0,-sin(phi),cos(phi))
+RXY<-c(1,.2)*R
+svgR(wh=WH,
+    ellipse(cxy=WH/2+c(0,R), rxy=RXY, opacity=.5,
+      filter=filter( feGaussianBlur(in1="SourceAlpha", stdDeviation=5))
+    ),
+    circle( cxy=WH/2, r= R,  stroke="none",  fill = "#000068",
+      filter=filter( 
+        xy=-.4*c(1,1), wh=1.8*c(1,1), #in percentage
+        feGaussianBlur(
+          stdDeviation=5,
+          in1=feComposite( operator="arithmetic", k1234=c(0,1,1,0),
+            in1=feDiffuseLighting( lighting.color="#44BBFF",  
+                diffuseConstant=1,
+                surfaceScale=R,
+                in1=feGaussianBlur(in1="SourceAlpha", stdDeviation=.5*R),
+                feDistantLight( elevation= 60, azimuth=90 )
+            ),
+            in2= feDiffuseLighting( lighting.color="#white",  
+                diffuseConstant=.8,
+                surfaceScale=R,
+                in1=feGaussianBlur(in1="SourceAlpha", stdDeviation=.5*R),
+                feSpotLight( xyz=spot.xyz, pointsAtXYZ=spot.ptsAt, limitingConeAngle=30 )
+            )
+          )
+        ) 
+      ),
+      clip.path=clipPath(circle(cxy=WH/2,r=R))
+    ),
+    text("Step 6: Shadow", cxy=c(.5,1)*WH-c(0,15), stroke='black')
+  )
+```
+
+#### Step 7 Add a Final Touch
+
+
+```{r, echo=T, results='asis'}
+library(svgR)
+WH=c(800,400)
+R<-.4*WH[2]
+phi<-pi/4
+spot.xyz<- c(WH/2,0)+ 2*R*c(0,-sin(phi),cos(phi))
+spot.ptsAt<-c(WH/2,0)+ R*c(0,-sin(phi),cos(phi))
+RXY<-c(1,.2)*R
+svgR(wh=WH,
+    ellipse(cxy=WH/2+c(0,R), rxy=RXY, fill="#888888", 
+      filter=filter( feGaussianBlur(in1="SourceGraphic", stdDeviation=5))
+    ),
+    circle( cxy=WH/2, r= R,  stroke="none",  fill = "#000068",
+      filter=filter( 
+        xy=-.4*c(1,1), wh=1.8*c(1,1), #in percentage
+        feGaussianBlur(
+          stdDeviation=5,
+          in1=feComposite( operator="arithmetic", k1234=c(0,1,1,0),
+            in1=feDiffuseLighting( lighting.color="#44BBFF",  
+                diffuseConstant=1,
+                surfaceScale=R,
+                in1=feGaussianBlur(in1="SourceAlpha", stdDeviation=.5*R),
+                feDistantLight( elevation= 60, azimuth=90 )
+            ),
+            in2= feDiffuseLighting( lighting.color="#white",  
+                diffuseConstant=.8,
+                surfaceScale=R,
+                in1=feGaussianBlur(in1="SourceAlpha", stdDeviation=.5*R),
+                feSpotLight( xyz=spot.xyz, pointsAtXYZ=spot.ptsAt, limitingConeAngle=30 )
+            )
+          )
+        ) 
+      ),
+      clip.path=clipPath(circle(cxy=WH/2,r=R))
+    ),
+    text("R",cxy=WH/2, stroke="white", font.size=200, fill="white")
+  )
+```
+
+
+#### An Alternate Approach
+
+One thing you might notice in the proceding sections
+was that we only used light filtering.
+The original shape was not even filled! 
+
+In practice, we get better results by first filling the shape.
+In this we 
+
+- first combine the SourceImage with the distantlight
+- then combine that result with the spotlight.
+  
+The following an example, where
+the shape is filled with a darkblue, the spotlight is white, and the distant light
+is lightgreen.
+
+```{r, echo=T, results='asis'}
+library(svgR)
+WH=c(800,300)
+R<-.4*WH[2]
+phi<-pi/4
+spot.xyz<- c(WH/2,0)+ 2*R*c(0,-sin(phi),cos(phi))
+spot.ptsAt<-c(WH/2,0)+ R*c(0,-sin(phi),cos(phi))
+svgR(wh=WH,
+    ellipse(cxy=WH/2+c(0,R), rxy=RXY, fill="#888888", 
+      filter=filter( feGaussianBlur(in1="SourceGraphic", stdDeviation=5))
+    ),
+    circle( cxy=WH/2, r= R,  stroke="none",  fill = "darkblue",
+      filter=filter(
+        xy=-.4*c(1,1), wh=1.8*c(1,1), #in percentage
+        feComposite( operator="arithmetic", k1234=c(0,1,1,0),
+          in1=feGaussianBlur(stdDeviation=2,
+                in1=feDiffuseLighting( lighting.color="white",  
+                  diffuseConstant=.75,
+                  surfaceScale=R,
+                  in1=feGaussianBlur( stdDeviation=.5*R),
+                  feSpotLight( 
+                    xyz=spot.xyz, 
+                    pointsAtXYZ=spot.ptsAt, 
+                    limitingConeAngle=30 
+                  )
+                )
+          ),
+          in2=feComposite( operator="arithmetic", k1234=c(0,1,1,0),
+            in2=feGaussianBlur(stdDeviation=10,
+              in1=feDiffuseLighting( lighting.color="lightgreen",  
+                diffuseConstant=1,
+                surfaceScale=R,
+                in1=feGaussianBlur( stdDeviation=.5*R),
+                feDistantLight( elevation= 20, azimuth=90 )
+              )
+            ),
+            in2="SourceGraphic"
+          )
+        )
+      ),
+    clip.path=clipPath(circle(cxy=WH/2,r=R))
+    ),
+    text("R",cxy=WH/2, stroke="white", font.size=R, fill="white")
+  )
+```
+
+
+

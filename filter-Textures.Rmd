@@ -1,0 +1,249 @@
+---
+title: "feComponentTransfer"
+output:
+  html_document:
+    toc: true
+    theme: united
+---
+
+
+```{r, echo=FALSE}
+stopifnot(require(svgR, quietly=TRUE))
+```
+
+```{r, echo=FALSE}
+if(!exists("newId")){
+  source('Util.R')
+}
+```
+
+## Textures, Marbleing effects 
+
+### Generating Turbulance
+
+Interesting effects can be generate using feTurbulence. A simple example is:
+
+
+A simple example is:
+
+```{r, echo=T, results="asis"}
+WH=c(800, 100) # window rect
+svgR( wh=WH,
+      use(
+        filter=filter(
+          feTurbulence(baseFrequency="0.1", numOctaves="2" ) 
+        )
+      )
+)
+```
+
+The effect of base frequence is seen here
+
+```{r, echo=T, results="asis"}
+WH=c(800, 880) # window rect
+N<-99
+bfreq<-1:N * .003
+svgR( wh=WH,
+  text('Base frequencey Effects', xy=c(WH[1]/2, 20)),
+  lapply( 1:N, function(i){
+    x<-((i-1)%%11)*70
+    y<-(floor((i-1)/11))*90+50
+    g(
+      use( filter=filter( xy=c(x,y), wh=c(60,60),
+          feTurbulence(baseFrequency=bfreq[i], numOctaves=2) 
+        ) ),
+      text(bfreq[i], xy=c(x,y-10))
+
+    )
+  })
+)
+```
+
+
+```{r, echo=T, results="asis"}
+WH=c(800, 880) # window rect
+N<-99
+bfreq<-1:N * .003
+svgR( wh=WH,
+  text('Base frequencey Effects', xy=c(WH[1]/2, 20)),
+  lapply( 1:N, function(i){
+    x<-((i-1)%%11)*70
+    y<-(floor((i-1)/11))*90+50
+    g(
+      use( filter=filter( xy=c(x,y), wh=c(60,60),
+          feTurbulence(baseFrequency=bfreq[i], numOctaves=2) 
+        ) ),
+      text(bfreq[i], xy=c(x,y-10))
+
+    )
+  })
+)
+```
+
+The base frequence can also be expressed along the x or y axis independently by seting baseFrequency=c(xFreq, yFreq)
+
+```{r, echo=T, results="asis"}
+WH=c(800, 800) # window rect
+baseFeqRng=1:6
+numOctRng=1:6
+indx<-expand.grid(baseFeqRng, numOctRng)
+xp<-function(i)(i-1)*130+50
+yp<-function(j)(j-1)*100+50
+svgR( wh=WH,
+    text("x-baseFrequency", xy=c(WH[1]/2,10)),
+    text("y-baseFrequency", xy=c(10,WH[2]/2), writing.mode='tb'),
+    lapply(baseFeqRng, function(i){text(0.005*(i-1), xy=c(xp(i),35))}),
+    lapply(numOctRng, function(j){text(0.005*(j-1), xy=c(20,yp(j)+50))}),
+    apply(indx, 1, function(z){
+      i=z[1];j=z[2]
+      use(filter=filter( xy=c(xp(i),yp(j)),  wh=c(120,90),
+            feTurbulence(baseFrequency=0.005*c(i-1,j-1), numOctaves=1) 
+          )
+        ) 
+      })
+)
+```
+
+
+To see the effect of baseFrequency vs numOctaves, we iterate
+
+
+```{r, echo=T, results="asis"}
+WH=c(800, 1200) # window rect
+baseFeqRng=1:5
+numOctRng=1:10
+indx<-expand.grid(baseFeqRng, numOctRng)
+xp<-function(i)(i-1)*140+50
+yp<-function(j)(j-1)*100+50
+svgR( wh=WH,
+    text("baseFrequency", xy=c(WH[1]/2,10)),
+    text("numOctaves", xy=c(10,WH[2]/2), writing.mode='tb'),
+    lapply(baseFeqRng, function(i){text(.02*i, xy=c(xp(i),35))}),
+    lapply(numOctRng, function(j){text(2*j-1, xy=c(20,yp(j)+50))}),
+    apply(indx, 1, function(z){
+      i=z[1];j=z[2]
+      use(filter=filter( xy=c(xp(i),yp(j)),  wh=c(130,90),
+            feTurbulence(baseFrequency=.02*i, numOctaves=2*j-1 )
+          )
+        ) 
+      })
+)
+```
+
+##### Types of feTurbulence
+
+The type attribute of feTurbulence can have one of two values:
+
+- turbulence (the default)
+- fractalNoise
+
+We have seen the turblance type in action, fractalNoise is similar, but the appears to be softer
+
+
+```{r, echo=T, results="asis"}
+WH=c(800, 150) # window rect
+svgR( wh=WH,
+      use(
+        filter=filter( xy=c(50,70),wh=c(150,60),
+          feTurbulence(type='turbulence', baseFrequency="0.1", numOctaves="2" ) 
+        )
+      ),
+            use(
+        filter=filter( xy=c(250,70),wh=c(150,60),
+          feTurbulence(type='fractalNoise', baseFrequency="0.1", numOctaves="2" ) 
+        )
+      ),
+      text("turbulence", xy=c(100,65)),
+      text("fractalNoise", xy=c(300,65))
+
+)
+```
+
+
+```{r, echo=T, results="asis"}
+WH=c(800, 100) # window rect
+svgR( wh=WH,
+     symbol(id='svgRaves', viewbox=c(0,0,100,100),
+            text('svgR', xy=c(0,30), stroke='red')),
+     use(filter( xy=c(0,0),wh=c("100%","100%"),
+            feTile( in1="svgRaves")
+          ))
+)
+```
+
+
+By using feTurbulance, feComponentTransfer and feColorMatrix we can discover some  effects.  For example, define the following filter
+
+```
+funkyFilter<-function(id, baseFrequency=.01, numOctaves=3, slope=c(4,4,4), seed=100){
+  filter( id=id, 
+    feTurbulence(baseFrequency=baseFrequency, numOctaves=numOctaves, seed=100),
+    feComponentTransfer(
+      feFuncR(type="linear", slope=slope[1], intercept=-1),
+      feFuncG(type="linear", slope=slope[2], intercept=-1),
+      feFuncB(type="linear", slope=slope[3], intercept=-1),
+      feFuncA(type="linear", slope=0, intercept=1)
+    ),
+    feColorMatrix(type="saturate") 
+  )
+} 
+```
+
+To see this filter function at work:
+```{r, echo=T, results='asis'}
+library(svgR)
+WH=c(800, 1200) # window rect
+N<-4
+dH<-WH[2]/(N+1)
+y<-0:(N-1)*dH
+ww<-WH[1]-40
+svgR( wh=WH,
+  lapply(1:N, function(i){
+    id=paste0("funky1-",i/N)
+    bf=.02/(i)
+    g(
+      text(paste0('funky filter base frequency=', bf), xy=c(20, y[i]+35) ),
+      rect(xy=c(20,y[i]+60), wh=c(ww, dH-60 ), 
+         filter = funkyFilter(id, baseFrequency = bf))
+    )      
+  })
+    
+)
+```
+
+##
+```{r, echo=T, results="asis"}
+library(svgR)
+WH=c(800, 400) # window rect
+svgR( wh=WH, 
+      symbol( 
+        rect( id="dispy", xy=c(0,0)*WH,  wh=WH, fill='blue',
+                filter = funkyFilter("funky2", baseFrequency = .005)
+        )
+      ),
+      g(  lapply(1:50, function(i)text("Data", cxy=runif(2)*.8*WH, 
+                          fill=rrgb(),  font.size=sample(10:30,1))),
+          filter=filter( xy=c(0,0), filterUnits='userSpaceOnUse',
+              feDisplacementMap(
+                in1="SourceGraphic",
+                in2=feImage( xlink.href='#dispy'),
+                scale=50,
+                yChannelSelector="R",
+                xChannelSelector="B"
+              )
+          )
+      ),
+      text("Data corruption", xy=c(20,30), font.size=26)
+)
+```
+
+
+
+
+
+<b>r<br>
+
+
+
+
+

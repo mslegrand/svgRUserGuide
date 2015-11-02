@@ -1,0 +1,23 @@
+---
+title: "Walking Through the Basics"
+output:
+  html_document:
+    toc: true
+    theme: united
+---
+
+```{r, echo=FALSE}
+stopifnot(require(svgR, quietly=TRUE))
+```
+
+```{r, echo=FALSE}
+if(!exists("newId")){
+  source('Util.R')
+}
+```
+
+In what follows are  three short lessons that walk 
+through some of the basics of svgR.  
+
+
+

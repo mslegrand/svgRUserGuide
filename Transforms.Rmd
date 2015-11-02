@@ -1,0 +1,622 @@
+---
+title: "Transforms"
+output:
+  html_document:
+    toc: true
+    theme: united
+---
+
+
+```{r set-options, echo=FALSE, cache=FALSE}
+#options(width = SOME-REALLY-BIG-VALUE)
+```
+
+```{r, echo=FALSE}
+stopifnot(require(svgR, quietly=TRUE))
+```
+
+```{r, echo=FALSE}
+if(!exists("newId")){
+  source('Util.R')
+}
+```
+
+## **Transform** is an Attribute 
+
+The transform attribute allows for multiple linear operations
+to be applied prior to rendering.
+
+SVG supports the composition 5 types transforms:
+
+- translate: Translates the orgin 
+- rotate: Rotates through a given angle about a given point
+- scale: 
+- skew
+- matrix
+
+We discus translate, rotate, scale, skew in this section and leave matrix to the next section.
+
+The transform attribute is assigned a value that consists
+of a named list. The name list entry name provides the type of operation, and list entry value give the amount.
+
+For example
+``
+transform=list(translate=c(20,30),scale=c(1,2))
+``
+translates and then scales.  The transorm is sensitive to the order of operations, that is, transform operations are seldom commute.
+
+
+In the remainging of this section we give some examples, but first we build a user defined element to illustrating those transforms. 
+
+**Remember** A *transform* is not an element, it is an attribute, like *xy*. 
+
+## The Tale of Two Circles, a Square and some Lines
+
+### The cirCirSqr element
+
+To illustrate the effects of transform we first create a custom element, for our illustration. It will consist of an ensemble of
+
+- a border cosnisting of dashed lines , colored red on the top, left, colored green on the bottom right
+- blue dash lines intersecting at the center
+- a semi-transparent blue rectangle with it's upper left corner in the center
+- a semi-transparent red circle centered on the upper left corner of the blue rectangle
+- a semi-transparent gree circle centered on the upper right corner of the blue rectangle
+```{r}
+# A function to tell the tale of two circles and a rectangle
+cirCirSqr<-function(...){
+  attrs<-list(...)
+  stopifnot("cxy" %in% names(attrs))
+  centerPt<-attrs[['cxy']]
+  attrs$cxy<-NULL
+  wh<-c(100,50) #sets the rectangle dimension
+  pt1<-centerPt+c(.5,0)*wh
+  pt2<-centerPt+c(-.5,0)*wh
+  g(
+    attrs,
+    line(xy1=c(0,0), xy2=c(WH[1],0), stroke='red', stroke.dasharray=10, stroke.width=4),
+    line(xy1=c(0,0), xy2=c(0,WH[2]), stroke='red', stroke.dasharray=10, stroke.width=4 ),
+    line(xy1=WH, xy2=c(WH[1],0), stroke='green', stroke.dasharray=15, stroke.width=4),
+    line(xy1=WH, xy2=c(0,WH[2]), stroke='green', stroke.dasharray=15, stroke.width=4 ),
+    line(xy1=c(0,WH[2]/2), xy2=c(WH[1],WH[2]/2), stroke='blue', stroke.dasharray=10),
+    line(xy1=c(WH[1]/2,0), xy2=c(WH[1]/2,WH[2]), stroke='blue', stroke.dasharray=10 ),
+    rect(xy=pt2, wh=wh,  stroke ='black', fill='blue',  opacity=.3),
+    circle(cxy=pt1, r=wh[2], stroke="black", fill="red",   opacity=.3),
+    circle(cxy=pt2, r=wh[2], stroke="black", fill="green", opacity=.3),
+    text(paste("(",centerPt[1],",",centerPt[2],")"), cxy=centerPt, font.size=12)
+  )
+}
+```
+
+And also for convenience we create a function for showing a background of graphPaper and and a title. 
+```{r, echo=T}
+# Utility to cover my back
+myBack<-function(WH, txt){
+  list(wh=WH, #sets the viewPort dimension
+      text(txt, xy=c(20,25), font.size=18),
+      graphPaper(wh=WH, dxy=c(50,50), labels=TRUE),
+      line(xy1=c(0,WH[2]/2), xy2=c(WH[1],WH[2]/2), stroke='blue' ),
+      line(xy1=c(WH[1]/2,0), xy2=c(WH[1]/2,WH[2]), stroke='blue' )
+  )
+} 
+```
+
+Ok, now let's see what this looks like
+
+#### Without Any Transform
+
+```{r, echo=T, results="asis"}
+WH=c(800, 400) # window rect
+svgR( 
+  myBack(WH, "Without any Transform"),
+  cirCirSqr(cxy=WH/2)
+)
+```
+
+
+### Translating
+
+We want: 
+  
+  - to transform the circles, square, lines in cirCirSqr
+  - not to transform the background in myBack
+
+This suggests grouping the circCirSqr with the transform.
+
+#### translate=c(100,40)
+
+```{r, echo=T, results="asis"}
+WH=c(800, 400) # window rect
+svgR(
+  myBack( WH, "With Transform translate=c(100,40)" ),
+  cirCirSqr(cxy=WH/2, transform=list(translate=c(100,40) ) ) 
+)
+```
+
+#### translate=c(-100,-40)
+
+```{r, echo=T, results="asis"}
+WH=c(800, 400) # window rect
+svgR( 
+  myBack(WH, "With Transform translate=c(-100,-40)"),
+  cirCirSqr(cxy=WH/2, transform=list(translate=c(-100,-40))) 
+)
+```
+
+
+### Scaling
+
+Scaling can be applied horizontally, vertically, or both. A factor of 1 leaves the figure unscaled. A facor greater than 1 magnifies and factor less that 1 reduces. In our examples, we use values less than 1, so that the entire image can be seen.
+
+
+#### Scaling about the Origin
+
+
+We begin by presenting two examples: 
+
+- The first scales by a factor of $\frac{1}{2}$ horizontally
+
+```{r, echo=T, results="asis"}
+WH=c(800, 400) # window rect
+svgR( 
+  myBack(WH, "With Transform scale=.5"),
+  cirCirSqr(cxy=WH/2, transform=list(scale=c(.5,1))) 
+)
+```
+
+- The seconds scales in both directions by a factor of $\frac{1}{2}$ 
+
+```{r, echo=T, results="asis"}
+WH=c(800, 400) # window rect
+svgR( 
+  myBack(WH, "With Transform scale=.5"),
+  cirCirSqr(cxy=WH/2, transform=list(scale=.5) ) 
+)
+```
+
+**Note:** The dimension of our figure have been reduce by $\frac{1}{2}$ and the distance to origin has been halved.  This is because scaling is scales using the origin as it's fixed point. (Other points change)
+
+#### Scaling about a Given Fixed Point
+
+To scale about a given point pt, we move pt p to the center, scale and then move back.
+More precicely, if p is the fixed point and $\alpha$ the scale factor, then 
+
+1. translate by -p
+2. scale by $\alpha$
+3. translate back by  $\frac{2p}{\alpha} -p$
+
+For example:
+
+```{r, echo=T, results="asis"}
+WH=c(800, 400) # window rect
+alpha<-.3
+svgR( 
+  myBack(WH, "Transform: scale=0.3 with center fixed"),
+  cirCirSqr(cxy=WH/2, transform=list(translate=-0.5*WH, scale=alpha, translate=WH*(1/alpha -1/2)))
+)
+```
+
+Above we scale with a fixed center, below we start with an image centered at c(.25,.25)*WH and
+scale with a value of .3, with a fixed point of c(.25,.25)*WH.
+
+```{r, echo=T, results="asis"}
+WH=c(800, 400) # window rect
+alpha<-.3
+pt<-c(.25,.25)
+svgR( 
+  myBack(WH, "With Transform scale=0.3 and fixed point c(.25,.25)"),
+  cirCirSqr(cxy=pt*WH, transform=list(translate=-pt*WH, scale=alpha, 
+                                  translate=WH*(2*pt/alpha - pt)))
+)
+```
+
+#### Reflections
+
+Reflections are a special case of scaling. Just use a negative as a scale factor. We give 2 examples:
+
+##### Vertical Reflection though the center, 
+```{r, echo=T, results="asis"}
+WH=c(800, 400) # window rect
+alpha<-c(1,-1)
+pt<-c(.5,.5)
+svgR( 
+  myBack(WH, "Reflection scale=c(1,-1) and fixed point=c(0,0)"),
+  cirCirSqr(cxy=pt*WH, transform=list(translate=-pt*WH, scale=alpha, 
+                                  translate=WH*(2*pt/alpha - pt)))
+)
+```
+
+
+### Rotations
+
+Like scaling, rotations default to having the origin be the fixed point.
+
+#### Rotation about the Origin: 
+
+This is simple rotate by 10 degrees (For those not familiar with degrees, thats $\frac{pi}{18}$)
+
+```{r, echo=T, results="asis"}
+WH=c(800, 400) # window rect
+degrees<-10
+svgR(  
+  myBack(WH, paste0("With Transform rotate=",degrees)),
+  g(cirCirSqr(cxy=WH/2),
+     transform=list(rotate=degrees)
+  )
+) 
+```
+
+**Observer:** Rotation is about the origin.
+
+#### Rotation about a Fixed Point
+
+
+##### transform=list(rotate=c(5,400,200))
+
+Althought we can try an approach similar to what was done for scaling, we fortunately have
+an easy alternative, simple supply the position of the fixed point as the second and third  coordinates:
+
+Here we rotated about the center of our viewPort.
+```{r, echo=T, results="asis"}
+WH=c(800, 400) # window rect
+svgR( 
+  myBack(WH, "With Transform rotate=c(5, WH/2)"),
+  g(cirCirSqr(cxy=WH/2),
+     transform=list(rotate=c(5, WH/2))
+  )
+)
+```
+
+
+### Skewing
+There are two skews available: skewX, skewY.
+They are illustrated as following:
+
+#### skewX=30
+
+SkewX (a shear stress) by an angle of $\frac{\pi}{6}$
+
+```{r, echo=T, results="asis"}
+WH=c(800, 400) # window rect
+svgR( 
+  myBack(WH, "With Transform skewX=30"),
+  g(cirCirSqr(cxy=WH/2),
+     transform=list(skewX=30)
+  )
+)
+```
+
+Now skewY (a shear stress) by an angle of $\frac{\pi}{36}$
+
+
+```{r, echo=T, results="asis"}
+WH=c(800, 400) # window rect
+svgR( 
+  myBack(WH, "With Transform skewY=5"),
+  g(cirCirSqr(cxy=WH/2),
+     transform=list(skewY=5)
+  )
+)
+```
+
+
+#### Combining Transforations
+
+We have already seen an example of combining transformations. However
+we a few more just to demonstrate order matters!
+
+```{r, echo=T, results="asis"}
+WH=c(800, 400) # window rect
+svgR( 
+  myBack(WH, "Order Matters: rotate, translate"),
+  g(cirCirSqr(cxy=WH/2),
+     transform=list(rotate=c(45,WH/2), translate=c(100,0))
+  )
+)
+```
+
+```{r, echo=T, results="asis"}
+WH=c(800, 400) # window rect
+svgR( 
+  myBack(WH, "Order Matters: translate, rotate"),
+  g(cirCirSqr(cxy=WH/2),
+     transform=list(translate=c(100,0), rotate=c(45,WH/2))
+  )
+)
+```
+
+### Tranform Attribute using Matrix as a Value
+
+
+In the previous section, we discussed using the transform with the operation types: tranlate, scale, rotate, and skew. In this section we discuss using matrix opertion.  
+
+The advantage to using matrix is two fold
+
+- we can combine several operations into one
+- we need only know the desired effect on 3 points to get our specification (less thinking involved) 
+
+But first some background
+
+#### Linear Algebra
+
+A basic result in linear algebra is any function mapping between vector spaces that satisifies
+$$T(\alpha \vec v_1 + \alpha \vec v_2)=\alpha T ( \vec v_1 + \vec v_2 ) $$
+can be represented by a matrix. Considering points (x,y) on the screen as elements in a 2 dimensional vector space we can easlily see that (rotations, scaling,  fit the criteria. However translation does not. But all is not lost. We can envision that our 2-d space is just the plane in 3-space defined by z=1. With trick, translation can be created (on that plane) using a shear stress, which does satisfy the above requirement. 
+
+Essentially the trick is sending (x,y) to (x,y,1). Then the effect on points using rotation, scaling, translation, and skewing can be constructed as simple matrix muliplication of the form:
+\[
+  \begin{pmatrix} x_{new} \\ y_{new} \\ 1 \end{pmatrix}
+  =
+  \begin{pmatrix} a & c & e \\ b & d & f \\ 0 & 0 & 1\end{pmatrix} 
+  \begin{pmatrix} x_{old} \\ y_{old} \\ 1 \end{pmatrix}
+\]
+
+For example, translation is performed by
+\[
+  \begin{pmatrix} x_{new} \\ y_{new} \\ 1 \end{pmatrix}
+  =
+  \begin{pmatrix} 1 & 0 & h \\ 0 & 1 & k \\ 0 & 0 & 1\end{pmatrix} 
+  \begin{pmatrix} x_{old} \\ y_{old} \\ 1 \end{pmatrix}
+\]
+
+and rotation (about the origin) is given by
+\[
+  \begin{pmatrix} x_{new} \\ y_{new} \\ 1 \end{pmatrix}
+  =
+  \begin{pmatrix} cos(\theta) & sin(\theta) & 0 \\ -sin(\theta) & cos(\theta) & 0 \\ 0 & 0 & 1\end{pmatrix} 
+  \begin{pmatrix} x_{old} \\ y_{old} \\ 1 \end{pmatrix}
+\]
+
+and scaling by
+\[
+  \begin{pmatrix} x_{new} \\ y_{new} \\ 1 \end{pmatrix}
+  =
+  \begin{pmatrix} S_x & 0 & 0 \\ 0 & S_y & 0 \\ 0 & 0 & 1\end{pmatrix} 
+  \begin{pmatrix} x_{old} \\ y_{old} \\ 1 \end{pmatrix}
+\]
+
+
+#### Scaling with a Given Fixed Point
+
+Now the transformation is always of the form
+\[
+  \begin{pmatrix} x_{new} \\ y_{new} \\ 1 \end{pmatrix}
+  =
+  \begin{pmatrix} a & c & e \\ b & d & f \\ 0 & 0 & 1\end{pmatrix} 
+  \begin{pmatrix} x_{old} \\ y_{old} \\ 1 \end{pmatrix}
+\]
+with the last column always being
+\[
+  \begin{pmatrix} 0\\ 0 \\ 1 \end{pmatrix}
+\]
+
+Thus in practice, only the $a,b,c,d,e,f$ need be supplied. This is done either 
+by
+```
+transformation=list(matrix=matrix(c(a,b,c,d,e,f)2,3))
+```
+or
+```
+transformation=list(matrix=c(a,b,c,d,e,f))
+```
+
+Now the transformation matrix $A$ is determined by the values $Y_i=A[X_i]$ on any three collinear points $X_i$. In particular if X and Y the matrices whose columns are the $X_i$ and $Y_i$, then $X$ is non-singular and $Y= A X$. From this we solve for A.
+
+We given two examples,  the first being scaling in about a fixed point.
+
+Let $\alpha=(\alpha_x, \alpha_y)$ be scaling factors in the x and y direction. Let $p=(p_x,p_y)$ be the fixed point. Then we have
+\[
+  \begin{pmatrix} p_x+1 \\ p_y  \end{pmatrix}
+  \mapsto
+  \begin{pmatrix} p_x+\alpha_x \\ p_y  \end{pmatrix}, \qquad
+  \begin{pmatrix} p_x \\ p_y+1  \end{pmatrix}
+  \mapsto
+  \begin{pmatrix} p_x \\ p_y+\alpha_y  \end{pmatrix}, \qquad
+  \begin{pmatrix} p_x \\ p_y  \end{pmatrix}
+  \mapsto
+  \begin{pmatrix} p_x \\ p_y  \end{pmatrix}
+\]
+Appending 1's and placing into matrix form we have
+\[
+  \begin{pmatrix} 
+  p_x+1 & p_x   & 0 \\
+  p_y   & p_y+1 & 0 \\
+  1   & 1   & 1 
+  \end{pmatrix} 
+  \mapsto
+  \begin{pmatrix} 
+  p_x+\alpha_x   & p_x        & 0 \\
+  p_y          & p_y+\alpha_y & 0 \\
+  1          & 1              & 1 
+  \end{pmatrix}
+\]
+So
+\[
+  \begin{pmatrix} 
+  p_x+\alpha_x   & p_x        & 0 \\
+  p_y          & p_y+\alpha_y & 0 \\
+  1          & 1              & 1 
+  \end{pmatrix}
+  =
+  \begin{pmatrix} 
+  a & c & e \\
+  b & d & f \\
+  0 & 0 & 1 
+  \end{pmatrix} 
+  \begin{pmatrix} 
+  p_x+1 & p_x   & 0 \\
+  p_y   & p_y+1 & 0 \\
+  1   & 1   & 1 
+  \end{pmatrix} 
+\]
+Taking transposes
+\[
+  \begin{pmatrix} 
+  p_x+\alpha_x   & p_y        & 1  \\
+  p_x          & p_y+\alpha_y & 1 \\
+  0         & 0        & 1 
+  \end{pmatrix}
+  =
+  \begin{pmatrix} 
+  p_x+1 & p_y   & 1 \\
+  p_x   & p_y+1 & 1  \\
+  0    & 0  & 1 
+  \end{pmatrix} 
+  \begin{pmatrix} 
+  a & b & 0 \\
+  c & d & 0 \\
+  e & f & 1 
+  \end{pmatrix} 
+\]
+
+Setting up the augmented matrix
+$$
+  \left[\begin{array}{rrr|rrr}
+  p_x+\alpha_x   & p_y        & 1  & p_x+1 & p_y   & 1 \\
+  p_x          & p_y+\alpha_y & 1 & p_x   & p_y+1 & 1  \\
+  0         & 0        & 1 & 0    & 0  & 1 
+  \end{array}\right]
+$$
+
+This reduces to 
+$$
+  \left[\begin{array}{rrr|rrr}
+  \alpha_x   & 0        & 0  & 1 & 0   & 0 \\
+  0          & \alpha_y & 0  & 0  & 1  & 0  \\
+  p_x(1-\alpha_x)   & P_y(1-\alpha_y)   & 1 & 0    & 0  & 1 
+  \end{array}\right]
+$$
+
+So the transformation matrix value is
+$$ 
+  \begin{pmatrix} 
+  a   &  c & e   \\
+  b   &  d & f  
+  \end{pmatrix} =
+  \begin{pmatrix} 
+  \alpha_x   &  0 & p_x(1-\alpha_x) \\
+  0          &  \alpha_y & p_y(1-\alpha_y)
+  \end{pmatrix}
+$$
+or
+
+```
+ c(alpha[1], 0 , 0, alpha[2], p[1]*(1-alpha[1]), p[2]*(1-alpha[2]) )
+```
+
+
+
+
+
+
+
+
+##### Scaling with the center as a fixed point using matrix, 
+```{r, echo=T, results="asis"}
+inPlaceTrans<-function(fixedPoint, alpha){
+  c( alpha[1],0,0, alpha[2], 
+    (1-alpha[1])*fixedPoint[1],
+    (1-alpha[2])*fixedPoint[2] )
+}
+
+svgR( 
+  myBack(WH, "Scaling with the center as fixed point using matrix"),
+  cirCirSqr(cxy=WH/2, 
+      transform=list( matrix=inPlaceTrans( WH/2, c(0.5,1.5) ) )
+  )
+)
+``` 
+
+#### Rotation with the Center as a Fixed Point
+
+For our second example, we peform a rotation of $\frac{\pi}{4}$  around the point c(400,200). *The difference here is that this time we
+use R to solve the matrix equation.*
+
+We choose our points x_i to be equaly space around the fixed point with radius 100. The points and mapping are:
+$$ 
+\begin{pmatrix} 
+400+100 cos(\frac{2 \pi k}{3}) \\ 
+200+ 100 sin(\frac{2 \pi k}{3}) \\ 
+1 
+\end{pmatrix} 
+\mapsto
+\begin{pmatrix} 
+400+100 cos(\frac{2 \pi k}{3} + \frac{\pi}{4}) \\ 
+200+ 100 sin(\frac{2 \pi k}{3}+ \frac{\pi}{4}) \\
+1 
+\end{pmatrix}
+$$ 
+
+
+
+```{r, echo=TRUE}
+WH<-c(800,400)
+theta<-pi/4 #The angle we will rotate about
+r<-100
+eta<-(1:3)*(2*pi)/3
+X<-rbind( r*cos(eta), r*sin(eta), rep(1,3) ) + c(WH/2,0)
+eta<-(1:3)*(2*pi)/3 +theta 
+Y<-rbind( r*cos(eta), r*sin(eta), rep(1,3) ) + c(WH/2,0)
+solve(t(X),t(Y))->A
+as.numeric(t(A[,1:2]))->A
+```
+
+
+
+####3 Rotation though the center using matrix, 
+```{r, echo=T, results="asis"}
+svgR( 
+  myBack(WH, "Rotation though the center using matrix"),
+  cirCirSqr(cxy=WH/2 , transform=list( matrix= A[1:6] ) )
+)
+```
+
+
+
+
+### Alternatives to a list parameters
+
+To keep a clear conscience, here are some alternatives to
+using lists for transform values.
+
+Instead of a list we can use a string as so:
+
+```{r, echo=T, results="asis"}
+WH=c(600, 200) # window rect
+wh=c(80,30) # small rect
+pt=c(c,0)
+svgR( 
+  wh=WH, 
+  graphPaper(wh=WH, dxy=c(50,50), labels=TRUE),
+  g(
+      rect( xy=pt, wh=wh, stroke ='black', fill='blue', opacity=.3),
+      circle(cxy=pt, r=wh[2], stroke="black", fill="red", opacity=.3),
+      transform="translate(200,100) rotate(-30) scale(.5,3) skewX(80)"
+  )
+ )
+```
+
+Note the latter can become awkward for dynamic situations when the amount and sequence of translation, scaling, rotation
+are determined at runtime.  But this is easily overcome with some additional helper functions
+ 
+  
+```{r, echo=T}
+ translate<-function(...)paste0("translate(", paste(list(...),collapse=","), ")")   
+ rotate<-function(...)paste0("rotate(", paste(list(...),collapse=","), ")")   
+ skewX<-function(...)paste0("skewX(", paste(list(...),collapse=","), ")")   
+ skewY<-function(...)paste0("skewX(", paste(list(...),collapse=","), ")")   
+ scale<-function(...)paste0("scale(", paste(list(...),collapse=","), ")")   
+```
+
+Now with the helper functions
+```{r, echo=T, results="asis"}
+WH=c(600, 200) # window rect
+wh=c(80,30) # small rect
+svgR( 
+  wh=WH, 
+  graphPaper(wh=WH, dxy=c(50,50),TRUE),
+  rect( xy=c(0,0), wh=wh, stroke ='blue', fill='green', opacity=.3,
+        transform=c(translate(200,100), rotate(-30),  scale(.5,3), skewX(80))
+        )
+ )
+```
+

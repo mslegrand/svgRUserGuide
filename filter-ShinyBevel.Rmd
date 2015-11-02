@@ -1,0 +1,182 @@
+---
+title: "filter-ShinyBevel"
+output:
+  html_document:
+    toc: true
+    theme: united
+---
+
+
+
+```{r, echo=FALSE}
+stopifnot(require(svgR, quietly=TRUE))
+```
+
+```{r, echo=FALSE}
+if(!exists("newId")){
+  source('Util.R')
+}
+```
+
+We can 
+shiny bevel
+```{r, echo=T, results="asis"}
+WH=c(800, 200) # window rect
+svgR( wh=WH,
+  text( "R Rocks!", cxy=c(400,100), fill="darkblue", font.size=190, font.face='bold',
+    filter = filter(
+      feMerge( 
+         feMergeNode(in1="SourceGraphic"),
+         feMergeNode(
+           in1=feComposite( operator='in',
+                in1=feSpecularLighting( surfaceScale=6,
+                                        specularConstant=1,
+                                        specularExponent=30,
+                                        lighting.color="white",
+                                        in1=feGaussianBlur(
+                                          stdDeviation=5,
+                                          in1="SourceAlpha"),
+                                        fePointLight(xyz=c(40,-30,200))
+                                        ),
+                in2="SourceAlpha"
+                )
+           )
+         )
+    )
+  )
+)
+```
+
+shiny bevel
+```{r, echo=T, results="asis"}
+WH=c(800, 250) # window rect
+svgR( wh=WH,
+  g(
+    text( "S", cxy=WH/2, fill="black", font.size=100, 
+          font.family="serif", stroke.width=3),
+    circle(cxy=WH/2, r=39, stroke.width=10, fill='none'  ),
+     stroke='black',
+    filter = filter(
+      feMerge( 
+         feMergeNode(in1="SourceGraphic"),
+         feMergeNode(
+           in1=feComposite( operator='in',
+                in1=feSpecularLighting( surfaceScale=6,
+                                        specularConstant=1,
+                                        specularExponent=30,
+                                        lighting.color="white",
+                                        in1=feGaussianBlur(
+                                          stdDeviation=5,
+                                          in1="SourceAlpha"),
+                                        fePointLight(xyz=c(40,-30,200))
+                                        ),
+                in2="SourceAlpha"
+                )
+           )
+         )
+    )
+  )
+)
+```
+
+shiny bevel
+```{r, echo=T, results="asis"}
+WH=c(800, 250) # window rect
+svgR( wh=WH,
+  g(
+    text( "svgR", cxy=WH/2, fill="black", font.size=100, 
+          font.family="san serif", stroke.width=3),
+    circle(cxy=WH/2, r=99, stroke.width=10, fill='none'  ),
+     stroke='black',
+    filter = filter(
+      feMerge( 
+         feMergeNode(in1="SourceGraphic"),
+         feMergeNode(
+           in1=feComposite( operator='in',
+                in1=feSpecularLighting( surfaceScale=6,
+                                        specularConstant=1,
+                                        specularExponent=30,
+                                        lighting.color="white",
+                                        in1=feGaussianBlur(
+                                          stdDeviation=5,
+                                          in1="SourceAlpha"),
+                                        fePointLight(xyz=c(40,-30,200))
+                                        ),
+                in2="SourceAlpha"
+                )
+           )
+         )
+    )
+  )
+)
+```
+
+
+shiny bevel
+```{r, echo=T, results="asis"}
+WH=c(800, 250) # window rect
+svgR( wh=WH,
+  g(
+    text( "svgR", cxy=WH/2, fill="darkred", font.size=100, 
+          font.family="san serif", stroke.width=3),
+    circle(cxy=WH/2, r=99, stroke.width=10, fill='none'  ),
+     stroke='black',
+    filter = filter(
+      feMerge( 
+         feMergeNode(in1="SourceGraphic"),
+         feMergeNode(
+           in1=feComposite( operator='in',
+                in1=feSpecularLighting( surfaceScale=6,
+                                        specularConstant=1,
+                                        specularExponent=30,
+                                        lighting.color="white",
+                                        in1=feGaussianBlur(
+                                          stdDeviation=5,
+                                          in1="SourceAlpha"),
+                                        fePointLight(xyz=c(40,-30,200))
+                                        ),
+                in2="SourceAlpha"
+                )
+           )
+         )
+    )
+  )
+)
+```
+
+
+
+shiny bevel
+```{r, echo=T, results="asis"}
+WH=c(800, 250) # window rect
+svgR( wh=WH,     
+  g(
+    text( "svgR", cxy=WH*c(.25,.5), fill="darkblue", font.size=100, 
+          font.family="san serif", stroke.width=3),
+    text( "Users Guide", cxy=WH*c(.7,.25), fill="darkblue", font.size=60, 
+          font.family="fantasy", stroke.width=3),
+    circle(cxy=WH*c(.25,.5), r=99, stroke.width=10, fill='none'  ),
+     stroke='black',
+    filter = filter(
+      feMerge( 
+         feMergeNode(in1="SourceGraphic"),
+         feMergeNode(
+           in1=feComposite( operator='in',
+                in1=feSpecularLighting( surfaceScale=6,
+                                        specularConstant=1,
+                                        specularExponent=30,
+                                        lighting.color="yellow",
+                                        in1=feGaussianBlur(
+                                          stdDeviation=5,
+                                          in1="SourceAlpha"),
+                                        fePointLight(xyz=c(40,-30,200))
+                                        ),
+                in2="SourceAlpha"
+                )
+           )
+         )
+    )
+  )
+)
+```
+

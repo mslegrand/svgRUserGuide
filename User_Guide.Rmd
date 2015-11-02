@@ -1,0 +1,246 @@
+---
+title: "An svgR User Guide"
+author: "M. S. Legrand"
+output:
+  html_document:
+    includes:
+      in_header: svgLogo.svg
+    number_sections: no
+    theme: cerulean
+    toc: true
+    toc_depth: 2
+  pdf_document:
+    toc: true
+    toc_depth: 2 
+---
+
+This document is still being edited.
+This document describes some of the basics of svgR.  
+This document has been created from an R Markdown document using svgR. 
+For more details on using R Markdown see <http://rmarkdown.rstudio.com>. 
+For a good starting place on using SVG see <https://github.com/willianjusten/awesome-svg>
+
+
+<style>
+h1 {
+   color: darkblue;
+   font-size:3.5em;
+}
+</style>
+
+
+
+
+<style>
+#TOC {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 220px;
+  height: 100%;
+  overflow:auto;
+}
+body {
+  max-width: 800px;
+  margin: auto;
+  margin-left:225px;
+  line-height: 20px;
+}
+</style>
+
+
+
+
+
+
+
+```{r, echo=FALSE}
+stopifnot(require(svgR, quietly=TRUE))
+```
+```{r, echo=FALSE}
+if(!exists("newId")){
+  source('Util.R')
+}
+```
+
+<hr>
+```{r, echo=F, results="asis"}
+svgR(  logo2(wh=c(600,50)))
+```
+One Line Teasers
+===
+
+```{r child = 'OneLineTeasers.Rmd'}
+```
+
+<hr>
+```{r, echo=F, results="asis"}
+svgR(  logo2(wh=c(600,50)))
+```
+Setting Up
+========================================================
+```{r child = 'SetUp.Rmd'}
+```
+
+<hr>
+```{r, echo=F, results="asis"}
+svgR(  logo2(wh=c(600,50)))
+```
+<!-- whirl wind tour -->
+Whirlwind Tutorial
+========================================================
+```{r child = 'walkThrough.Rmd'}
+```
+```{r child = 'walkThrough-gentleStart.Rmd'}
+```
+```{r child = 'walkThrough-lists.Rmd'}
+```
+```{r child = 'walkThrough-compounds.Rmd'}
+```
+
+<hr>
+```{r, echo=F, results="asis"}
+svgR(  logo2(wh=c(600,50)))
+```
+Coordinates, Viewports, and Containers
+=======================================================
+```{r child = 'Coordinates.Rmd'}
+```
+
+<hr>
+```{r, echo=F, results="asis"}
+svgR(  logo2(wh=c(600,50)))
+```
+The Transform Attribute
+=======================================================
+```{r child = 'Transforms.Rmd'}
+```
+
+
+<hr>
+```{r, echo=F, results="asis"}
+svgR(  logo2(wh=c(600,50)))
+```
+
+<!-- shapes and structures, groups symbols, use -->
+Shapes, Markers, Paths
+=======================================================
+
+```{r child = 'Shapes.Rmd'}
+```
+
+```{r child = 'Path.Rmd'}
+```
+
+```{r child = 'Marker.Rmd'}
+```
+
+<hr>
+```{r, echo=F, results="asis"}
+svgR(  logo2(wh=c(600,50)))
+```
+The Text Element
+=======================================================
+```{r child = 'text.Rmd'}
+```
+
+<hr>
+```{r, echo=F, results="asis"}
+svgR(  logo2(wh=c(600,50)))
+```
+The Fill Attribute
+=======================================================
+```{r child = 'Fill.Rmd'}
+```
+
+
+<hr>
+```{r, echo=F, results="asis"}
+svgR(  logo2(wh=c(600,50)))
+```
+
+
+The Filter Attribute
+=======================================================
+```{r child = 'filter-Overview.Rmd'}
+```
+
+## The Gaussian Blur Filter
+```{r child = 'filter-GaussianBlur.Rmd'}
+```
+
+## Filter Coordinates
+```{r child = 'filter-Coordinates.Rmd'}
+```
+
+
+
+# Color Filters
+```{r child = 'filter-Colors.Rmd'}
+```
+
+```{r child = 'filter-feComponentTransfer.Rmd'}
+```
+
+# Combining Filter Primitives
+```{r child = 'filter-Combining.Rmd'}
+```
+
+## DropShadows
+```{r child = 'filter-DropShadows.Rmd'}
+```
+<!-- Textures -->
+# Texture Filters
+```{r child = 'filter-Textures.Rmd'}
+```
+
+# Lighting Filters
+```{r child = 'filter-Lighting.Rmd'}
+```
+
+```{r child = 'caseStudy_lighting.Rmd'}
+```
+
+
+
+## The Shiny Bevel
+```{r child = 'filter-ShinyBevel.Rmd'}
+```
+
+
+
+<!-- shapes modification: mask and markers -->
+Shape Shifters
+=======================================================
+
+## The clip.path attibute
+```{r child = 'ClipPath.Rmd'}
+```
+## The mask attribute
+```{r child = 'Mask.Rmd'}
+```
+
+## Morpolgy filtering
+```{r child = 'filter-ChangingShapes.Rmd'}
+```
+## Changing Shapes feDisplacementMap (Warping)
+```{r child = 'filter-Displacement.Rmd'}
+```
+
+Animating
+=======================================================
+
+```{r child = 'animate-main.Rmd'}
+```
+
+```{r child = 'animate-set.Rmd'}
+```
+
+```{r child = 'animate-animate.Rmd'}
+```
+
+```{r child = 'animate-animateTransform.Rmd'}
+```
+
+```{r child = 'animate-animateMotion.Rmd'}
+```

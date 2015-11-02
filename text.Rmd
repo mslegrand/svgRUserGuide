@@ -1,0 +1,368 @@
+---
+title: "Text"
+output:
+  html_document:
+  toc: true
+theme: united
+---
+  
+
+
+```{r, echo=FALSE}
+stopifnot(require(svgR, quietly=TRUE))
+```
+
+```{r, echo=FALSE}
+if(!exists("newId")){
+  source('Util.R')
+}
+```
+
+
+```{r, echo=T, results="asis"}
+WH=c(800, 400) # window rect
+r=WH[2]/2
+svgR( wh=WH,
+  g(
+    circle(cxy=WH/2, stroke.width=8, stroke="red", r=r),
+    text('Data Rules', cxy=WH/2, font.size=80, stroke="red") 
+    ) 
+)
+
+```
+
+A good reference is:
+  http://www.hongkiat.com/blog/scalable-vector-graphics-text/
+  
+  ### Simple Text
+  ```{r, echo=FALSE}
+tmp<-data.frame(
+  Attribute=c(
+    "font.family",
+    "font.size",
+    "font.style",
+    "font.variant",
+    "font.weight"),
+  Values=c(
+    "CSS font family",
+    "pt, px, em, etc | inherit", 
+    "(normal | italic | oblique | inherit)", 
+    "(normal | small-caps | inherit)", 
+    "(normal | bold | inherit | +others)"
+  )
+  ,
+  Inital=c("Depends","medium","normal","normal","normal")
+  ,
+  Comment=c(
+    "Name of font or font family.",
+    "The font size.",
+    "Style in which letters are rendered.",
+    "'small.caps' makes all lower case letters render as small capitals.", 
+    "The thickness of Attribute the font."
+  )
+)
+```
+
+### Font Styling
+
+Attribute    | Values                              | Initial    | Comment
+-------------|-------------------------------------|------------|----------------------------------------------------------
+  font.family  | CSS font family                     | Depends    |Name of font or font family
+font.size    | pt, px, em, %,  etc,   inherit      | medium     |The font size. Any SVG unit can be used.
+font.style   |(normal\| italic\|oblique\| inherit) | normal     |Style in which letters are rendered.
+font.variant |(normal\| small.caps \| inherit)     |normal      |'small.caps' sets lower case letters render to small caps.
+font.weight  |(normal\|bold\|inherit\|+others)     |normal      | The thickness of the font.                               
+
+
+#### Examining some font families using font.family
+
+```{r, echo=T, results="asis"}
+y<-40
+fontName<-c("serif","sans-serif","cursive","fantasy","Arial","Times New Roman","Verdana", "Comic Sans")
+WH=c(800,200)
+svgR( wh=WH,
+      graphPaper(WH, dxy=c(40,40), labels=TRUE),
+      font.size=40, stroke='black',  stroke.width=0.5,
+      lapply(1:8, function(i){
+        text(fontName[i], xy=c(40+400*(i%%2), 40*floor((i+1)/2)), font.family=fontName[i], fill=rrgb())
+      })
+)
+```
+
+
+#### In addition, there we can specify a font style:
+
+```{r, echo=T, results="asis"}
+y<-40
+WH=c(800,120)
+fontStyle=c("normal" , "italic" , "oblique", "inherit")
+svgR( wh=WH,
+      font.style= "inherit",
+      graphPaper(WH, dxy=c(40,40), labels=TRUE),
+      font.size=40, stroke='black',  stroke.width=0.5,
+      lapply(1:4, function(i){
+        text(fontStyle[i], xy=c(40+400*(i%%2), 40*floor((i+1)/2)), font.style=fontStyle[i], fill=rrgb())
+      })
+)
+```
+
+
+### Text Positioning
+
+```{r, echo=F}
+refLines<-function(wh){
+  x<-wh[1]/2
+  y<-wh[2]/2
+  list(
+    line(xy1=c(0,y),xy2=c(wh[1],y), stroke='red', stroke.width=2),
+    line(xy1=c(x,0),xy2=c(x,wh[2]), stroke='red', stroke.width=2),
+    text("baseline" ,xy=c(5,y-5), stroke='red',  font.size=16),
+    text("anchor" ,xy=c(x+5,wh[2]-5), stroke='red',  font.size=16)          )
+}
+baseLineAt<-function(y, wh){
+  list(
+    line(xy1=c(0,y),xy2=c(wh[1],y), stroke='red', stroke.width=2),
+    text("baseline" ,xy=c(0,y-5), stroke='red',  font.size=16)
+  )
+}
+anchorAt<-function(x, wh){
+  list(
+    line(xy1=c(x,0),xy2=c(x,wh[2]), stroke='red', stroke.width=2),
+    text("anchor" ,xy=c(x,wh[2]-5), stroke='red',  font.size=16)
+  )
+}
+```
+
+#### text-anchor
+By default, text begins at the x value, however the this can be modified by the text.anchor attribute (parameter). The text.anchor attribute can take one of four values: "start" , "middle" , "end" , "inherit". These are illustrated below.
+
+```{r, echo=T, results="asis"}
+WH=c(800,220)
+textAnchor=c("start" , "middle" , "end" , "inherit")
+svgR( wh=WH,
+      graphPaper(WH, dxy=c(40,40), labels=TRUE),
+      anchorAt(WH[1]/2,WH),
+      lapply(1:4, function(i){
+        g(
+          baseLineAt(i*40,WH),
+          text( textAnchor[i], xy=c(400, i*40), fill=rrgb(), text.anchor=textAnchor[i],
+                font.size=40, font.weight="bold", stroke='black',  stroke.width=0.5)
+        )
+      }
+      )
+)
+```
+
+
+#### dominant.baseline
+By default, text lies directly above the y coordinate (the baseline) This alignment can be adjusted by setting the dominant.baseline attribute (parameter).
+The baseline is the y coordinate given to the text element. By default, the text is aligned
+using the **alphabetic** option as the baseline. Other alignments are possible by setting the
+alignment.baseline parameter, as illustrated in the following:
+  #### alignment.baseline
+  
+  The baseline is the y coordinate given to the text element. By default, the text is aligned
+using the **alphabetic** option as the baseline. Other alignments are possible by setting the
+alignment.baseline parameter, as illustrated in the following:
+  
+```{r, echo=T, results="asis"}
+WH<-c(800,80*9)
+baseLine<-c( "alphabetic","ideographic","hanging","mathematical","central","middle",
+             "text-before-edge","text-after-edge")
+svgR( wh=WH,
+      graphPaper(WH, dxy=c(40,40), labels=TRUE),
+      anchorAt(WH[1]/2,WH),
+      lapply(1:8, function(i){
+        g(
+          baseLineAt(i*80,WH),
+          text( baseLine[i], xy=c(400, i*80), fill=rrgb(), dominant.baseline=baseLine[i],
+                font.size=40, font.weight="bold", stroke='black',  stroke.width=0.5)
+        )
+      }
+      )
+)
+```
+#### tspan
+
+Within a text element we can change the positioning, style, color of component words using the tspan element child element.
+
+```{r, echo=T, results="asis"}
+WH<-c(800,160)
+svgR( wh=WH,
+      graphPaper(WH, dxy=c(40,40), labels=TRUE),
+      text( xy=c(40,120), lapply(1:14, function(i){
+        tspan( LETTERS[i] , font.size=i*10, fill=rrgb() )}
+      ))
+)
+```
+
+```{r, echo=T, results="asis"}
+WH<-c(800,160)
+svgR( wh=WH,
+      graphPaper(WH, dxy=c(40,40), labels=TRUE),
+      text( xy=c(40,40), font.size=20, lapply(1:14, function(i){
+        tspan( LETTERS[i] , dy=10*(i%%2), fill=rrgb() )}
+      ))
+)
+```
+
+
+#### baseline.shift for superscripts and subscriptss
+
+Baseline.shift can be used to create super/subscripts.
+Values for baseline.shift are
+
+- baseline: not shift
+- sub: subscript
+- super: superscript
+- percentage: a percentate
+- length
+
+  
+```{r, echo=T, results="asis"}
+WH<-c(800,120)
+shift<-c( "auto","baseline","super","sub","60%", 6, "inherit")
+bl<-80
+svgR( wh=WH,
+      graphPaper(WH, dxy=c(40,40), labels=TRUE),
+      baseLineAt(bl,WH),
+      lapply(1:7, function(i){
+        text( "X",
+              tspan( shift[i], baseline.shift=shift[i] , font.size=20),
+              xy=c(i*120, bl), fill=rrgb(), 
+              font.size=20, font.weight="bold", stroke='black',  stroke.width=0.5
+        )
+      }
+      )
+)
+```
+
+
+#### Math equations: Superscripts, subscripts
+
+
+
+```{r, echo=T, results="asis"}
+WH=c(800,240)
+svgR( wh=WH,
+      graphPaper(WH, dxy=c(40,40), labels=TRUE),
+      refLines(WH),
+      text( 
+        tspan(mathSymbol("\\int"), font.size=120, dominant.baseline='mathematical'), 
+        "e",
+        tspan("-x", baseline.shift="60%", dominant.baseline="mathematical", font.size=40,
+              tspan( "2", baseline.shift='super', font.size=20)),
+        "dx",
+        dominant.baseline='mathematical', xy=WH/2,  font.size=80, 
+        stroke='black',  stroke.width=0.5, fill='lightblue'
+      )
+)
+```
+
+### Text Along a Path
+
+Here we create text in a circle.
+```{r, echo=T, results="asis"}
+WH<-c(800, 600)
+txt<-"The product of the circumferenc times the redius equals twice the area."
+r=200
+Pt1=WH/2+c(0,r)
+Pt2=WH/2-c(0,r)
+rxy=c(r,r)
+svgR( wh=WH,
+  defs( 
+    path(id="C1",d=c("M", Pt1, "A", rxy, 0, 1, 0, Pt2, "A", rxy, 0, 1, 0, Pt1) , stroke='red')
+  ), 
+  graphPaper(WH, dxy=c(50,50), labels=TRUE),
+  text( textPath(txt, font.size=40, stroke='black', stroke.width=0.5, fill='red', xlink.href="#C1")),
+  circle(cxy=WH/2, r=90, stroke='red', fill='orange')
+)
+```
+
+We can also spiral our text
+```{r, echo=T, results="asis"}
+WH<-c(800, 300)
+txt<-"help, I'm getting dizzy!"
+r=200
+Pt1=WH/2+c(0,r)
+Pt2=WH/2-c(0,r)
+rxy=c(r,r)
+svgR( wh=WH,
+  defs( 
+    path(id="spiralText",
+         d = "M 50,50 A 20,20 0 0 1 90,50 A 40,40 0 0 1 10,50 A 60,60 0 0 1 130,50",
+         stroke='blue')
+  ), 
+  graphPaper(WH, dxy=c(50,50), labels=TRUE),
+  text( textPath(txt, font.size=30, stroke='black', stroke.width=0.5, fill='red', xlink.href="#spiralText"),
+        transform=list(translate=c(100,100))
+  )
+)
+```
+
+
+### Reflection Transformation
+
+```{r, echo=T, results="asis"}
+WH=c(800,250)
+svgR( wh=WH,
+      graphPaper(WH, dxy=c(50,50), labels=TRUE),
+      text( "Reflections", xy=c(0,0), 
+            font.size=100, font.weight="bold", 
+            stroke='black',  stroke.width=0.5, fill='red',
+            transform=list(translate=c(100,100))
+            ),
+      text( "Reflections", xy=c(0,0), 
+            font.size=100, font.weight="bold", 
+            stroke='black',  stroke.width=0.5, fill='pink',
+            transform = list(translate=c(100, 100), scale=c(1, -1) ) 
+          )
+)
+```
+
+
+
+#### Writing mode
+
+The writing mode is useful to change text orientation to top-bottom
+```{r, echo=T, results="asis"}
+WH<-c(200,600)
+svgR( wh=WH,
+      graphPaper(WH, dxy=c(40,40), labels=TRUE),
+      text( linearRegression ,  writing.mode="tb" , 
+              font.size=100,
+              xy=c(80, 80), fill='red',
+              font.weight="bold", stroke='black',  stroke.width=0.5
+      )
+)
+```
+
+Text can be outlined or filled depending on what argument is supplied to the **fill** attribute.
+
+```{r, echo=T, results="asis"}
+WH=c(800,100)
+svgR( wh=WH,
+      graphPaper(WH, dxy=c(20,20), labels=TRUE),
+      text( "Outlined Text", xy=c(60,80), 
+            font.size=50, font.weight="bold", 
+            stroke='black',  stroke.width=0.5, fill='none'),
+      text( "Filled Text", xy=c(460,80), 
+            font.size=50, font.weight="bold", 
+            stroke='black',  stroke.width=0.5, fill='lightblue')
+)
+```
+
+
+
+
+```{r, echo=T, results="asis"}
+WH=c(800,120)
+svgR( wh=WH,
+      graphPaper(WH, dxy=c(50,50), labels=TRUE),
+      text( "svgR has it All", xy=c(50,100), 
+            font.size=100, font.weight="bold", 
+            stroke='black',  stroke.width=0.5, fill='red')
+)
+```
+
+

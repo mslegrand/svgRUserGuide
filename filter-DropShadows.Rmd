@@ -1,0 +1,389 @@
+---
+title: "DropShadows"
+output:
+  html_document:
+    toc: true
+    theme: united
+---
+
+
+```{r, echo=FALSE}
+stopifnot(require(svgR, quietly=TRUE))
+```
+
+```{r, echo=FALSE}
+if(!exists("newId")){
+  source('Util.R')
+}
+```
+
+Drop shadows of a figure can be made by applying 
+alpha channel of an image with a small offset and then combining it with the original image.  Specifically we 
+
+1. Apply an offset to the original source using feOffset
+2. Take the result of 1 and apply feGaussianBlur to the Alpha channel of the original source to 
+create the shadow portion.
+3. Combine using **feComposite** the original source with the result of 2
+
+#### feBlend
+
+```{r, echo=T, results="asis"}
+WH=c(800, 120) # window rect
+svgR( wh=WH,
+  text( 'svgR', xy=c(50,70), font.size=50,  fill="lightblue", stroke="darkblue",
+    filter = filter( xy=c(-10,-10), wh=c(200,60),
+              feBlend( x=-10, width=200, 
+                in1="SourceGraphic", 
+                in2=feGaussianBlur( stdDeviation=3, in1=feOffset( dxy=c(3,3), in1="SourceAlpha") )
+              )
+      )   
+  )
+)
+```
+
+**Note:** Here, for feBlend, in1 is placed on top, in2 is placed below.
+
+Alternatively, we can place the filter definition in a defs statement and refer to the filter by its id. 
+
+```{r, echo=T, results="asis"}
+WH=c(600, 120) # window rect
+svgR( wh=WH,
+  defs( 
+    filter(
+      id="blendFilter2", xy=c(-10,-10), wh=c(200,100),
+      feOffset( in1="SourceAlpha", dxy=c(3,3), result="offset2"), 
+      feGaussianBlur(in1="offset2", stdDeviation=3, result="blur2"),
+      feBlend( in1="SourceGraphic",  in2="blur2", x=-10, width=200)
+    )         
+  ),
+  text( 'svgR', xy=c(50,70), font.size=50,  fill="lightblue", stroke="darkblue",
+           filter="url(#blendFilter2)")
+  
+)
+```
+
+Now suppose that we want to replace the black shadow with a different colored shadow, for example 'red'. Recall that our
+shadow came about by applying a feGaussianBlur to a SourceAlpha. But SourceAlpha gives us black.
+So we need to replace SourceAlpha with something else. One way is to apply a red flood to the source graphic. To limit the flood to SourceGraphic, we will feComposite the flood with the SourceGraphic.
+
+The following demonstrates our approach for obtaining the red text using the flood filter:
+```{r, echo=T, results="asis"}
+#```{r, echo=T}
+WH=c(800, 120) # window rect
+svgR( wh=WH,
+  text( 'svgR', xy=c(50,70), font.size=50,  fill="lightblue", stroke="darkblue",
+    filter = filter(
+      feComposite(
+        operator="in",
+        in1=feFlood(flood.color='red', full.opacity=1),
+        in2="SourceGraphic"
+      )
+    )
+  )
+)
+```
+
+Now we replace "SourceAlpha" with the feComposite in our original drop shadow to get
+
+```{r, echo=T, results="asis"}
+WH=c(800, 120) # window rect
+svgR( wh=WH,
+  text( 'svgR', xy=c(50,70), font.size=50,  fill="lightblue", stroke='darkblue',
+    filter = filter(
+      feBlend( x=-10, width=200,
+        in1="SourceGraphic", 
+        in2=feGaussianBlur( stdDeviation=3,
+          in1=feOffset( dxy=c(3,3), 
+              in1=feComposite( operator="in",
+                  in1=feFlood(flood.color='red', full.opacity=1), 
+                  in2="SourceGraphic"
+              )
+          )
+        )
+      )
+    )
+  )
+)
+```
+
+#### Some Fun with feComposite
+Let's return to our shadow example
+
+
+
+
+## Fun with Drop Shadows
+
+Lets have some fun with drop shadows and feComposite.
+
+First lets change the color again.
+```{r, echo=T, results="asis"}
+WH=c(800, 120) # window rect
+svgR( wh=WH,
+  text( 'svgR', xy=c(50,70), font.size=50,  fill="orange", stroke='brown',
+    filter = filter(
+      feBlend( x=-10, width=200,
+        in1="SourceGraphic", 
+        in2=feGaussianBlur( stdDeviation=3,
+          in1=feOffset( dxy=c(3,3), 
+              in1=feComposite( operator="in",
+                  in1=feFlood(flood.color='blue', full.opacity=1), 
+                  in2="SourceGraphic"
+              )
+          )
+        )
+      )
+    )
+  )
+)
+```
+
+Or stick with blue
+
+```{r, echo=T, results="asis"}
+WH=c(800, 120) # window rect
+svgR( wh=WH,
+  text( 'svgR', xy=c(50,70), font.size=50,  fill="lightblue", stroke='blue',
+    filter = filter(
+      feBlend( x=-10, width=200,
+        in1="SourceGraphic", 
+        in2=feGaussianBlur( stdDeviation=3,
+          in1=feOffset( dxy=c(3,3), 
+              in1=feComposite( operator="in",
+                  in1=feFlood(flood.color='blue', full.opacity=1), 
+                  in2="SourceGraphic"
+              )
+          )
+        )
+      )
+    )
+  )
+)
+```
+
+Or play with the in operator of feComposite
+
+```{r, echo=T, results="asis"}
+WH=c(800, 120) # window rect
+operators=c("over","in","out","atop","xor")
+svgR( wh=WH,
+  lapply( 1:5, function(i){
+    x=20+(i-1)*150
+    g( 
+      text( 'svgR', xy=c(x,55), font.size=50,  fill="lightblue", stroke='black',
+        filter = filter(
+          feComposite( x=x-10, width=200, 
+            operator=operators[i],
+            in1="SourceGraphic", 
+            in2=feGaussianBlur( stdDeviation=5,
+              in1=feOffset( dxy=c(3,3), in1="SourceAlpha")
+            )
+          )
+        )
+      ),
+      text( operators[i], xy=c(x,92), font.size=15 )
+    )
+  })
+)
+```
+
+Next we modify the alpha channel
+
+```{r, echo=T, results="asis"}
+WH=c(800, 120) # window rect
+operators=c("over","in","out","atop","xor")
+svgR( wh=WH,
+  lapply( 1:5, function(i){
+    x=20+(i-1)*150
+    g( 
+      text( 'svgR', xy=c(x,55), font.size=50,  fill="black", stroke='black',
+        filter = filter(
+          feComposite( x=x-10, width=200, 
+            operator=operators[i],
+            in1="SourceGraphic", 
+            in2=feComponentTransfer(
+             feFuncA( type='table', 
+                       tableValues=c(0, .5, 0, .5, 0, .5, 0, .5) 
+              ),
+              in1=feGaussianBlur( stdDeviation=10, in1="SourceAlpha")
+            )
+          )
+        )
+      ),
+      text( operators[i], xy=c(x,92), font.size=15 )
+    )
+  })
+)
+```
+
+## feComponentTransfer
+
+Colors can also be remapped using feComponentTransfer and the components feFuncR, feFuncG, feFuncB, feFuncA. The feFuncX's correspond to the 
+Red, Green, Blue, and Alpha channels. Each channel has a value between between 0 and 1 which can be reassinged using the component transfers. 
+There are four types of color component transfers:
+
+- **table**: Reassigns the colors according to a piece-wise continous linear function that is specified by a "table"" values of points. The points are assumend to form a uniform partion of [0,1] so only the values need to be specified. (Using linear interpolation of the values between the points) 
+- **linear** Similar to table, but with only 2 points. The function is specifed using the slope and intercept
+- **discrete** Reassigns the colors according to a step function that is specified by a "table"" of points. Again the points are assumed to be a uniform partition of [0,1], so only the values need be specified in the "table"." (Between points, the output is the value of the nearest point.
+- **gamma** The value is given by
+$C_{out} = \alpha \times C_{in}^\gamma + \beta$
+
+####  feComponentTransfer: Table
+We illustrate this with a simple example that interchanges the colors blue and red of a color spectrum.
+
+```{r, echo=T, results="asis"}
+WH=c(800, 200) # window rect
+colors=c('red','blue')
+svgR( wh=WH, stroke="black",
+  rect(wh=c(.6,.3)*WH, xy=c(.2,0)*WH, 
+       fill=linearGradient(colors=colors)
+  ),
+  rect(wh=c(.6,.3)*WH, xy=c(.2,.3)*WH, 
+       fill=linearGradient(colors=colors),
+       filter=filter( 
+          feComponentTransfer( 
+              feFuncR( type="table", tableValues="1 0"),
+              feFuncB( type="table", tableValues="1 0 ")
+          )
+        )
+  ),
+  text('original', xy=c(20,1.5*WH[2])),
+  text('transfered', xy=c(20,4.5*WH[2])),
+  text('feComponentTransfer using type="table"', cxy=c(.5,.8)*WH)
+)
+```
+
+
+#### feComponentTransfer: Linear
+
+```{r, echo=T, results="asis"}
+WH=c(800, 200) # window rect
+colors=c('red','blue')
+svgR( wh=WH, stroke="black",
+  rect(wh=c(.6,.3)*WH, xy=c(.2,0)*WH, 
+       fill=linearGradient(colors=colors)
+  ),
+  rect(wh=c(.6,.3)*WH, xy=c(.2,.3)*WH, 
+       fill=linearGradient(colors=colors),
+       filter=filter( 
+          feComponentTransfer( 
+              feFuncR( type="linear", intercept=1, slope=-1),
+              feFuncB( type="linear", intercept=1, slope=-1)
+          )
+        )
+  ),
+  text('original', xy=c(20,1.5*WH[2])),
+  text('transfered', xy=c(20,4.5*WH[2])),
+  text('feComponentTransfer using type="linear"', cxy=c(.5,.8)*WH)
+)
+```
+
+
+#### feComponentTransfer: Discrete
+
+```{r, echo=T, results="asis"}
+WH=c(800, 200) # window rect
+colors=c('red','blue')
+svgR( wh=WH, stroke="black",
+  rect(wh=c(.6,.3)*WH, xy=c(.2,0)*WH, 
+       fill=linearGradient(colors=colors)
+  ),
+  rect(wh=c(.6,.3)*WH, xy=c(.2,.3)*WH, 
+       fill=linearGradient(colors=colors),
+       filter=filter( 
+          feComponentTransfer( 
+              feFuncR( type="discrete", tableValues="1 0"),
+              feFuncB( type="discrete", tableValues="1 0 ")
+          )
+        )
+  ),
+  text('original', xy=c(20,1.5*WH[2])),
+  text('transfered', xy=c(20,4.5*WH[2])),
+  text('feComponentTransfer using type="discrete"', cxy=c(.5,.8)*WH)
+)
+```
+
+
+#### feComponentTransfer: Gamma exponent=1
+
+```{r, echo=T, results="asis"}
+WH=c(800, 200) # window rect
+colors=c('red','blue')
+svgR( wh=WH, stroke="black",
+  rect(wh=c(.6,.3)*WH, xy=c(.2,0)*WH, 
+       fill=linearGradient(colors=colors)
+  ),
+  rect(wh=c(.6,.3)*WH, xy=c(.2,.3)*WH, 
+       fill=linearGradient(colors=colors),
+       filter=filter( 
+          feComponentTransfer( 
+              feFuncR( type="gamma", offset=1, amplitude=-1, exponent=1),
+              feFuncB( type="gamma", offset=1, amplitude=-1, exponent=1)
+          )
+        )
+  ),
+  text('original', xy=c(20,1.5*WH[2])),
+  text('transfered', xy=c(20,4.5*WH[2])),
+  text('feComponentTransfer using type="gamma"', cxy=c(.5,.8)*WH)
+)
+```
+
+
+#### feComponentTransfer: Gamma, exponent=10
+
+```{r, echo=T, results="asis"}
+WH=c(800, 200) # window rect
+colors=c('red','blue')
+svgR( wh=WH, stroke="black",
+  rect(wh=c(.6,.3)*WH, xy=c(.2,0)*WH, 
+       fill=linearGradient(colors=colors)
+  ),
+  rect(wh=c(.6,.3)*WH, xy=c(.2,.3)*WH, 
+       fill=linearGradient(colors=colors),
+       filter=filter( 
+          feComponentTransfer( 
+              feFuncR( type="gamma", offset=1, amplitude=-1, exponent=2),
+              feFuncB( type="gamma", offset=1, amplitude=-1, exponent=2)
+          )
+        )
+  ),
+  text('original', xy=c(20,1.5*WH[2])),
+  text('transfered', xy=c(20,4.5*WH[2])),
+  text('feComponentTransfer using type="table"', cxy=c(.5,.8)*WH)
+)
+```
+
+
+###feComponentTransfer: Inverting the grey scale
+
+```{r, echo=T, results="asis"}
+WH=c(800, 200) # window rect
+colors=c('red','blue')
+svgR( wh=WH, stroke="black",
+  rect(wh=c(.6,.3)*WH, xy=c(.2,0)*WH, 
+       fill=linearGradient(colors=colors)
+  ),
+  rect(wh=c(.6,.3)*WH, xy=c(.2,.3)*WH, 
+       fill=linearGradient(colors=colors),
+       filter=filter( 
+          feComponentTransfer( 
+              feFuncR( type="table", tableValues="1 0"),
+              feFuncG( type="table", tableValues="1 0"),
+              feFuncB( type="table", tableValues="1 0 ")
+          )
+        )
+  ),
+  text('original', xy=c(20,1.5*WH[2])),
+  text('transfered', xy=c(20,4.5*WH[2])),
+  text('feComponentTransfer using type="table"', cxy=c(.5,.8)*WH)
+)
+```
+
+
+
+
+
+
+
+
+

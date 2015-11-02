@@ -1,0 +1,185 @@
+---
+title: "Filter Colors"
+output:
+  html_document:
+    toc: true
+    theme: united
+---
+
+```{r, echo=FALSE}
+stopifnot(require(svgR, quietly=TRUE))
+```
+
+```{r, echo=FALSE}
+if(!exists("newId")){
+  source('Util.R')
+}
+```
+
+
+## Using filters to change colors
+
+### feFlood to flood with color
+
+The feFlood filter is probably the simplest filter. It is used to flood a region with a given color. The feFlood filter is often combined with other filters and rarely used alone. In this section we use feFlood alone, but later sections will use it in combination with other filters.
+
+A simple example of feFlood is
+```{r, echo=T, results="asis"}
+WH=c(800, 100) # window rect
+svgR( wh=WH,
+  use(
+    filter=filter( feFlood(flood.color='yellow') )
+  )
+)
+```
+
+The filter as shown above, assigns an filter element to a filter attribute directly.  This filter=filter(...) is a shortcut introduced in svgR for programming convienience. 
+
+The more traditional approach is to place the filter as a child of a defs element and use a reference to the filter when when assigning to an attribute.
+
+For example
+
+```{r, echo=T, results="asis"}
+WH=c(800, 100) # window rect
+svgR( wh=WH,
+  defs(
+    filter(id='myFlood',
+           feFlood(flood.color='yellow')
+    )
+  ),
+  use(
+    filter="url(#myFlood)"
+  )
+)
+```
+
+The filter=filter(...) short cut in svgR does a similar construction in the output. However, for complex filters, where filter components are reused the tradional approach might be easier.
+
+In this document we use the shortcut approach.
+
+Our second example of feFlood is to illustrate that a filter has on a rectangular region on which it is effective. That region given by it's xy, wh coordinates.
+
+```{r, echo=T, results="asis"}
+WH=c(800, 100) # window rect
+svgR( wh=WH,
+    text('10 semi-transparent floods', xy=c(5,20), stroke="black", font.size=20),
+    rect(cxy=WH/2, wh=c(1,.2)*WH, fill='blue'),
+    lapply(1:10, 
+      function(i){g(
+           filter=filter( xy=c(i*60,10),  wh=c(30,90), feFlood(flood.color='yellow', flood.opacity='.5'))
+           ) 
+      }
+      )
+)
+```
+
+Caution: feFlood floods the filters bounding box defined by the filter xy and wh. To flood the interior of a graphics, one needs
+to use one of feComposite, feBlend, feMerge.
+
+### Filter colors with feColorMatrix
+
+#### Applying hueRotate
+
+Applying hue rotate to a red rectangle
+```{r, echo=T, results="asis"}
+WH=c(800, 100) # window rect
+svgR( wh=WH,
+    lapply(seq(from=0, to=360, by=16), 
+      function(i){
+        rect(xy=c(i*2,10), wh=c(30,32), fill='red',
+           filter=filter( 
+             feColorMatrix(
+               type="hueRotate", values=i
+             )  
+           )
+        )
+      }
+    )
+)
+```
+
+
+Applying hue rotate to a color spectrum genenerated by a linear gradient.
+
+```{r, echo=T, results="asis"}
+WH=c(800, 100) # window rect
+svgR( wh=WH,
+    lapply(seq(from=0, to=360, by=16), 
+      function(i){
+        rect(xy=c(i*2,10), wh=c(30,96), 
+          fill=linearGradient( xy1=c(0,0), xy2=c(0,1),
+            colors=c('red','yellow','green','blue')),
+           filter=filter( 
+             feColorMatrix(
+               type="hueRotate", values=i
+             )  
+           )
+        )
+      }
+    )
+)
+```
+
+#### Applying saturate to feColorMatrix
+
+Applying satuate to a red rectangle
+```{r, echo=T, results="asis"}
+WH=c(800, 100) # window rect
+svgR( wh=WH,
+    lapply(seq(from=1, to=0, by=-.05), 
+      function(i){
+        rect(xy=c(i*800,10), wh=c(32,32), fill="red",
+           filter=filter( 
+             feColorMatrix(
+               type="saturate", values=i
+             )  
+           )
+        )
+      }
+    )
+)
+```
+
+Applying hue saturate to a color spectrum genenerated by a linear gradient.
+
+```{r, echo=T, results="asis"}
+WH=c(800, 100) # window rect
+svgR( wh=WH,
+    lapply(seq(from=1, to=0, by=-.05),
+      function(i){
+        rect(xy=c(i*800,10), wh=c(32,96), fill=
+          linearGradient( xy1=c(0,0), xy2=c(0,1),
+            colors=c('red','yellow','green','blue')),
+           filter=filter( 
+             feColorMatrix(
+               type="saturate", values=i
+             ) 
+           )
+        )
+      }
+    )
+)
+```
+
+#### Applying matrix
+(!!To fix)
+Applying satuate to a red rectangle
+```{r, echo=T, results="asis"}
+WH=c(800, 100) # window rect
+svgR( wh=WH,
+    lapply(seq(from=0, to=1, by=.05), 
+      function(i){
+        rect(xy=c(i*800,10), wh=c(32,32), fill="red",
+           filter=filter( 
+             feColorMatrix(
+               type="matrix", 
+               values=paste(runif(25,-1,1),collapse=" ")
+             )  
+           )
+        )
+      }
+    )
+)
+```
+
+

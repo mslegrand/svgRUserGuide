@@ -1,0 +1,141 @@
+---
+title: "Marker"
+output:
+  html_document:
+    toc: true
+    theme: united
+---
+
+
+
+```{r, echo=FALSE}
+stopifnot(require(svgR, quietly=TRUE))
+```
+
+```{r, echo=FALSE}
+if(!exists("newId")){
+  source('Util.R')
+}
+```
+
+```{r, echo=T, results="asis"}
+#```{r, echo=T}
+WH=c(600, 100) # window rect
+svgR( wh=WH,
+  path(d="M100,20 l50,0 l0,50 l50,0", fill="none",
+    stroke='black', stroke.width=2, 
+    marker.end=marker(viewBox=c(0, 0, 10, 10), refXY=c(4,4), 
+      markerWidth=7, markerHeight=7, orient="auto",
+      rect(xy=c(1,1),wh=c(5,5), fill='black')
+    ) 
+  )
+)
+```
+
+Testing:
+```{r, echo=T, results="asis"}
+#```{r, echo=T}
+WH=c(600, 100) # window rect
+svgR( wh=WH,
+    defs(
+    marker(
+      id="marker1",  viewBox=c(0, 0, 10, 10), refXY=c(1,5), 
+      markerWidth=6, markerHeight=6, orient="auto",
+      path( d=c("M", 0, 0, "L", 10, 5, "L", 0, 10, "z") ) 
+    )    
+    ),
+    line(xy1=c(0,0), xy2=c(300,50), 
+         stroke='black', stroke.width=2, 
+         marker.end='url(#marker1)'
+    )
+)
+```
+
+With a defs marker works seamlessly and
+```{r, echo=T, results="asis"}
+#```{r, echo=T}
+WH=c(600, 100) # window rect
+svgR( wh=WH,
+    defs(
+    marker(
+      id="marker1",  viewBox=c(0, 0, 10, 10), refXY=c(1,5), 
+      markerWidth=6, markerHeight=6, orient="auto",
+      path( d="M 0 0 L 10 5 L 0 10 z" ) 
+    )    
+    ),
+    line(xy1=c(0,0), xy2=c(300,50), 
+         stroke='black', stroke.width=2, 
+         marker.end='url(#marker1)'
+    )
+)
+```
+
+and with the alternate (lazy-inline) approach
+
+### marker end
+```{r, echo=T, results="asis"}
+#```{r, echo=T}
+WH=c(600, 100) # window rect
+svgR( wh=WH,
+  line(xy1=c(20,50), xy2=c(300,50), 
+    stroke='black', stroke.width=2, 
+    marker.end=marker(viewBox=c(0, 0, 10, 10), refXY=c(1,5), 
+      markerWidth=6, markerHeight=6, orient="auto",
+      path( d=c("M", 0, 0, "L", 10, 5, "L", 0, 10, "z") )
+    ) 
+  )
+)
+```
+
+### marker start
+
+```{r, echo=T, results="asis"}
+#```{r, echo=T}
+WH=c(600, 100) # window rect
+svgR( wh=WH,
+  line(xy1=c(20,50), xy2=c(300,50), 
+    stroke='black', stroke.width=2, 
+    marker.start=marker(viewBox=c(0, 0, 10, 10), refXY=c(1,5), 
+      markerWidth=6, markerHeight=6, orient="auto",
+      path( d="M 0 0 L 10 5 L 0 10 z" )
+    ) 
+  )
+)
+```
+### Marker mid
+
+We can also place markers in middle points that define a path.
+
+```{r, echo=T, results="asis"}
+#```{r, echo=T}
+WH=c(600, 100) # window rect
+svgR( wh=WH,
+  path(d="M100,20 l50,0 l0,50 l50,0", fill="none",
+    stroke='black', stroke.width=2, 
+    marker.mid=marker(viewBox=c(0, 0, 10, 10), refXY=c(4,4), 
+      markerWidth=7, markerHeight=7, orient="auto",
+      rect(xy=c(1,1),wh=c(5,5), fill='black')
+    ) 
+  )
+)
+```
+
+
+also works when removing the defs.
+```{r, echo=T, results="asis"}
+#```{r, echo=T}
+WH=c(600, 100) # window rect
+svgR( wh=WH,
+    #defs(
+    marker(
+      id="marker1",  viewBox=c(0, 0, 10, 10), refXY=c(1,5), 
+      markerWidth=6, markerHeight=6, orient="auto",
+      path( d="M 0 0 L 10 5 L 0 10 z" ) 
+    #)    
+    ),
+    line(xy1=c(0,0), xy2=c(300,50), 
+         stroke='black', stroke.width=2, 
+         marker.end='url(#marker1)'
+    )
+)
+```

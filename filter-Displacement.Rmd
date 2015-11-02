@@ -1,0 +1,211 @@
+title: "ChangingShapes"
+output:
+  html_document:
+    toc: true
+    theme: united
+---
+
+
+```{r, echo=FALSE}
+stopifnot(require(svgR, quietly=TRUE))
+```
+
+```{r, echo=FALSE}
+if(!exists("newId")){
+  source('Util.R')
+}
+
+```
+
+
+Another approach to shape modification is to perform some
+kind of ***warping*** of a image shape. **feDisplacementMap** allows for this displacing an image according to the colors of a second image. 
+
+
+Here we illustrate using a linear gradient for the second image.
+```{r, echo=T, results="asis"}
+library(svgR)
+WH=c(800, 200) # window rect
+svgR( wh=WH, 
+      symbol(
+        rect( id="spec", xy=c(0,0), wh=WH, 
+          fill=linearGradient( 
+            xy1=c("40%",0), xy2=c("60%","0%"),
+            colors=rep(c("red","green"),5) 
+          )
+        )
+      ),
+      use(xlink.href="#spec"),
+      text("feDisplacementMap: linear gradient", xy=c(20,20), stroke='white', fill='white', font.size=20),
+      line(xy1=c(100,WH[2]/2),xy2=c(700,WH[2]/2), 
+           stroke='yellow', stroke.width=20,
+           filter=
+             filter( xy=c(0,0), filterUnits='userSpaceOnUse',
+                feDisplacementMap(
+                  in1="SourceGraphic",
+                  in2=feImage(xlink.href='#spec'),
+                  scale=50,
+                  yChannelSelector="R"
+                )
+          )
+      )
+)
+```
+
+Our second example uses a radial gradient as the second image
+
+```{r, echo=T, results="asis"}
+library(svgR)
+WH=c(400, 400) # window rect
+svgR( wh=WH, 
+      symbol(
+        rect( id="radDispl", xy=c(0,0), wh=WH, 
+          fill=radialGradient( 
+            xy1=c(0,0), xy2=c(1,1), 
+            colors=rep(c("red","blue"),5) 
+          )
+        )
+      ),
+      use(xlink.href="#radDispl"),
+       text("feDisplacementMap: radial gradient", xy=c(20,20), stroke='white', fill='white', font.size=20),
+      line(xy1=c(0,150),xy2=c(400,150), 
+           stroke='yellow', stroke.width=20,
+           filter=
+             filter( xy=c(0,0), filterUnits='userSpaceOnUse',
+                feDisplacementMap(
+                  in1="SourceGraphic",
+                  in2=feImage(xlink.href='#radDispl'),
+                  scale=50,
+                  xChannelSelector="R",
+                  yChannelSelector="R"
+                )
+          )
+        ),
+        line(xy1=c(0,260),xy2=c(800,260), 
+         stroke='yellow', stroke.width=20,
+         filter=
+           filter( xy=c(0,0), filterUnits='userSpaceOnUse',
+              feDisplacementMap(
+                in1="SourceGraphic",
+                in2=feImage(xlink.href='#radDispl'),
+                scale=50,
+                xChannelSelector="B",
+                yChannelSelector="B"
+              )
+            )
+        )
+)
+```
+<br><br>
+
+
+
+
+
+
+Next we try a different approach: use the text as the displacement template and the image is a simple radial gradient
+```{r, echo=T, results="asis"}
+library(svgR)
+WH=c(800, 600) # window rect
+svgR( wh=WH, 
+      symbol(
+        g( id="radDisp2",  
+           text("svgR", fill='red', cxy=c(.65,.45)*WH, font.size=200),
+            text("in Action", fill='red', cxy=c(.65,.75)*WH, font.size=100)
+        )
+      ),
+      rect(cxy=WH/2, wh=WH, 
+           fill=radialGradient( colors=c("white","black") ),
+           filter=filter(
+                feDisplacementMap(
+                  in1="SourceGraphic",
+                  in2=feImage(xlink.href='#radDisp2'),
+                  scale=50,
+                  xChannelSelector="B",
+                  yChannelSelector="R"
+                )
+           )
+      )
+)
+```
+
+
+Next we try a different approach: use the text as the displacement template and the image is a simple radial gradient
+```{r, echo=T, results="asis"}
+library(svgR)
+WH=c(800, 600) # window rect
+svgR( wh=WH, 
+      symbol(
+        g( id="radDisp2",  
+           text("svgR", fill='red', cxy=c(.65,.45)*WH, font.size=200),
+            text("in Action", fill='red', cxy=c(.65,.75)*WH, font.size=100)
+        )
+      ),
+      rect(cxy=WH/2, wh=WH, 
+           fill=radialGradient( colors=c("grey","white","grey","black") ),
+           filter=filter(
+                feDisplacementMap(
+                  in1="SourceGraphic",
+                  in2=feImage(xlink.href="./IMG_4703.JPG"),
+                  scale=50,
+                  xChannelSelector="B",
+                  yChannelSelector="R"
+                )
+           )
+      )
+)
+```
+
+Finally we apply a displayment to an image.
+```{r, echo=T, results="asis"}
+library(svgR)
+WH=c(800, 600) # window rect
+svgR( wh=WH, 
+      symbol(
+        g( id="radDisp3",  
+           text("Seville", fill='red', cxy=c(.8,.5)*WH, font.size=100)
+        )
+      ),
+      image(cxy=WH/2, wh=WH, xlink.href="./IMG_4703.JPG",
+           filter=filter(
+                feDisplacementMap(
+                  in1="SourceGraphic",
+                  in2=feImage(xlink.href='#radDisp3'),
+                  scale=150,
+                  yChannelSelector="R"
+                )
+           )
+      )
+)
+```
+
+
+
+Finally, we use a filter as the second image.
+```{r, echo=T, results="asis"}
+library(svgR)
+WH=c(800, 600) # window rect
+svgR( wh=WH, 
+      symbol(
+        rect( id="symFunkyRect1", xy=c(0,0), wh=WH, 
+          filter=funkyFilter('funky4Dispacement1')
+        )
+      ),
+      #use(xlink.href="#symFunkyRect1"),
+      text("feDisplacementMap: linear gradient", xy=c(20,20), stroke='white', fill='white', font.size=20),
+#      text('Data Denier 4 Pres'
+rect( cxy=WH/2, wh=c(600,20), fill='lightblue', 
+           stroke='blue', stroke.width=2,
+           filter=
+             filter( xy=c(0,0), filterUnits='userSpaceOnUse',
+                feDisplacementMap(
+                  in1="SourceGraphic",
+                  in2=feImage(xlink.href='#symFunkyRect1'),
+                  scale=50,
+                  yChannelSelector="R",
+                  yChannelSelector="B"
+                )
+          )
+      )
+)
+```

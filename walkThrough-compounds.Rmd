@@ -1,0 +1,531 @@
+---
+title: "Three Compounds"
+output:
+  html_document:
+    toc: true
+    theme: united
+---
+
+
+```{r, echo=FALSE}
+stopifnot(require(svgR, quietly=TRUE))
+```
+
+```{r, echo=FALSE}
+if(!exists("newId")){
+  source('Util.R')
+}
+```
+## Lessons 2: Making Compounds from Elements
+
+*Compounds* are composed of Elements that together  are user defined and used just like elements. They are reusable widget-like entities made from elements and work like elements.
+
+Compounds should: 
+
+- have arguments are either elements, attributes, or text
+    + named arguments are attributes
+    + unnamed arguments not of class character (or numeric) are child elements 
+    + unnamed arguments of class character (or numeric) are text data
+- have the same interface for usage as an element
+
+Compounds are functions built by the developer that adhere to the above restrictions.  The reason for these restrictions is to provide a uniform interface for their usage. (Principle of least suprises)
+
+In this lesson we present three compounds, all quite similar, but each with slightly different behaviour.
+
+
+#### Group Based Compounds 
+
+We begin by considering a compound built around a group element. The example
+given here is *groupCircleInCircle*, which is a compound build from a group element containing two concentric circles:
+
+
+```{r, echo=TRUE, results='asis'}
+groupCircleInCircle<-function(...){
+  args<-list(...)
+  if(is.null(names(args))){
+    names(args)<-rep("",length(args))
+  }
+  defaults<-list( 
+    r=50,
+    cxy=c(0,0)
+  )
+  #args<-c(args, defaults[setdiff(names(defaults),names(args))])
+  args<-c(args, defaults[sapply(args[names(defaults)], is.null)])
+  defaults2<-list( #secondary defaults (defaults base on primary)
+    r2=.8*args$r,
+    fill2=args$fill
+  )
+  #args<-c(args, defaults2[setdiff(names(defaults2),names(args))])
+  args<-c(args, defaults2[sapply(args[names(defaults2)], is.null)])
+  indx<-c("r","cxy", "r2", "fill2") 
+  sargs<-args[indx]
+  args[indx]<-NULL
+  g( 
+    circle(cxy=sargs$cxy, r=sargs$r),
+    circle(cxy=sargs$cxy, r=sargs$r2, fill=sargs$fill2),
+    args
+   )
+}
+```
+
+**Note:**
+
+- The function arguments are the ellipses (...). 
+- Defaults are assigned for any missing attributes
+- Secondary defaults conditional on the first set of attrs are defined to allow for a fine control of attrs of compound elements.
+- A group container element (g) enclosing the circles is the return value
+- The args is placed at the bottom of the group element.
+- We supplied the coordinates cxy to each circle element
+
+
+
+Deploying the  *groupCircleInCircle* Compound
+
+```{r, echo=TRUE, results='asis'}
+WH=c(800,300)
+svgR( wh=WH,
+  text("groupCircleInCircle compound: fill='none'", 
+       xy=c(30,30), font.size=25),   
+  groupCircleInCircle(cxy=c(400,150), fill='none',r=60, stroke='green', stroke.width=3)
+)
+```
+
+
+Here *groupCircleInCircle* is given the attributes *stroke='green'* and *stroke.width=3*.
+Inside the *groupCircleInCircle* function, these attributes are contained in the *args* variable and passed to **g**. From there the 
+stroke and stroke.width attributes are propogated  to each circle, supplying the resulting green stroke of width 3.
+
+Now lets change the inner radius and fill the circles with a gradient .
+
+```{r, echo=TRUE, results='asis'}
+WH=c(800,300)
+svgR( wh=WH,
+  text("groupCircleInCircle compound: fill=radialGradient; r2=30",
+    xy=c(30,30), font.size=25),   
+  groupCircleInCircle(cxy=c(400,150), r=60, r2=30, stroke='green', stroke.width=3,
+    fill=radialGradient(colors=c('red','yellow','blue'))
+  )
+)
+```
+
+
+This time we we set the fill of the inner circle to white and the outer to red. Additionally we add a rectangle as a child.
+
+
+```{r, echo=TRUE, results='asis'}
+WH=c(800,300)
+svgR( wh=WH, xy=c(300,135),
+  text("groupCircleInCircle compound: rect element", xy=c(230,30), font.size=25),
+  text("here xy=c(230,60) is set at the group level", xy=c(230,60), font.size=15),   
+  groupCircleInCircle(cxy=c(400,150), r=60, r2=40, 
+    fill='red', fill2='white',
+    rect( wh=c(200,30) )
+  )
+)
+```
+
+**Note:**
+
+- Since the rectangle did not have a fill specified, it inherites the *red fill* from the fill attribute of the compound.
+- In contrast, the resultin rectangle is positioned at c(0,0) instead of xy=c(300,135). The reason is that groups do not support coordinate attributes such as x, y, cx, cy, r ... . Assigning xy=c(300,135) at the group level is just ignored. 
+For this reason,  cxy was explicitly specified for each circle. To place the rectangle over the circle, the xy must be explicit assigned within the rect child. 
+
+Explicitly specifing xy in the rect element we get:
+
+```{r, echo=TRUE, results='asis'}
+WH=c(800,300)
+svgR( wh=WH,
+  text("groupCircleInCircle compound: fill=radialGradient; r2=30", xy=c(30,30), font.size=25),   
+  groupCircleInCircle(cxy=c(400,150), r=60, r2=40, 
+    fill='red', fill2='white',
+    rect(xy=c(300,135), wh=c(200,30) )
+  )
+)
+```
+
+
+Adding a blue fill attribute to the rectangle, and some white text gives:
+
+```{r, echo=TRUE, results='asis'}
+WH=c(800,300)
+svgR( wh=WH,
+  text("groupCircleInCircle compound: blue rect; white", xy=c(30,30), font.size=25),   
+  groupCircleInCircle(cxy=c(400,150), r=60, r2=40, 
+    fill='red', fill2='white',
+    rect(xy=c(300,135), wh=c(200,30) , fill='blue'),
+    text('Underground', cxy=c(400,150), font.size=20, stroke='white', fill='white')
+  )
+)
+```
+
+
+##### Relocating
+
+Now suppose one wants to relocate this drawing such that the center is  at c(100,200). The obvious, **but messy** way, would be to change all the coordinates in the call. That means 3 changes:
+
+- groupCircleInCircle(cxy=c(400,150), => groupCircleInCircle(cxy=c(100,200), 
+- rect(xy=c(300,135), => rect(xy=c(0,185),
+- text('Underground', cxy=c(400,150), => text('Underground', cxy=c(100,200),
+
+
+```{r, echo=TRUE, results='asis'}
+WH=c(800,300)
+svgR( wh=WH,
+  text("groupCircleInCircle compound: 3 edits to translate", xy=c(30,30), font.size=25),   
+  groupCircleInCircle(cxy=c(100,200), r=60, r2=40, 
+    fill='red', fill2='white',
+    rect(xy=c(0,185), wh=c(200,30) , fill='blue'),
+    text('Underground', cxy=c(100,200), font.size=20, stroke='white', fill='white')
+  )
+)
+```
+
+
+
+A better approach is to use the transform attribute.
+
+```{r, echo=TRUE, results='asis'}
+WH=c(800,300)
+svgR( wh=WH,
+  text("groupCircleInCircle compound: fill=radialGradient; r2=30", xy=c(30,30), font.size=25),   
+  groupCircleInCircle(cxy=c(400,150), r=60, r2=40, 
+    fill='red', fill2='white',
+    rect(xy=c(300,135), wh=c(200,30) , fill='blue'),
+    text('Underground', cxy=c(400,150), font.size=20, stroke='white', fill='white'),
+    transform=list(translate=c(-300,50))
+  )
+)
+```
+
+This not only allows tranlation, but also scaling and rotation.
+
+```{r, echo=TRUE, results='asis'}
+WH=c(800,300)
+svgR( wh=WH,
+  text("groupCircleInCircle compound: fill=radialGradient; r2=30", xy=c(30,30), font.size=25),   
+  groupCircleInCircle(cxy=c(400,150), r=60, r2=40, 
+    fill='red', fill2='white',
+    rect(xy=c(300,135), wh=c(200,30) , fill='blue'),
+    text('Underground', cxy=c(400,150), font.size=20, stroke='white', fill='white'),
+    transform=list(rotate=c(45,WH/2))
+  )
+)
+```
+
+In fact, a more natural usage would be to use the origin as the center and perform translation after the fact to get the proper location:
+
+```{r, echo=TRUE, results='asis'}
+WH=c(800,300)
+svgR( wh=WH,
+  text("groupCircleInCircle compound: design at c(0,0), then tranlate", xy=c(30,30), font.size=25),   
+  groupCircleInCircle(cxy=c(0,0), r=60, r2=40, 
+    fill='red', fill2='white',
+    rect(cxy=c(0,0), wh=c(200,30) , fill='blue'),
+    text('Underground', cxy=c(0,0), font.size=20, stroke='white', fill='white'),
+    transform=list(translate=WH/2)
+  )
+)
+```
+
+This suggests that *groupCircleInCircle* could be simplified by harding-coding
+cxy=c(0,0) for each circle, and use transform tranlate in any application.
+
+For more details on transform  see ...
+
+#### SVG Compounds
+
+As demonstrated the last section, without using transforms, the group-based compounds are messy to relocate. 
+
+
+The svg container provides an alternative to the group container. It does have an
+x and y, and so we can use the defaults on for the cxy of each circle.
+For example consider the *svgCircleInCircle* compound.
+
+```{r, echo=TRUE, results='asis'}
+svgCircleInCircle<-function(...){
+  args<-list(...)
+  if(is.null(names(args))){
+    names(args)<-rep("",length(args))
+  }
+  defaults<-list( 
+    r=50,
+    cxy=c(50,50),
+    wh<-c(100,100),
+    preserveAspectRatio=c('xMidYMid','meet')
+  )
+  args<-c(args, defaults[sapply(args[names(defaults)], is.null)])
+  defaults2<-list( #secondary defaults (defaults base on primary)
+    r2=.8*args$r,
+    fill2=args$fill,
+    viewBox=c(-1,-1,2,2)*args$r
+  )
+  args<-c(args, defaults2[sapply(args[names(defaults2)], is.null)])
+  indx<-c("r","cxy", "r2", "fill2", "wh", "viewBox", "preserveAspectRatio") 
+  sargs<-args[indx]
+  args[indx]<-NULL
+  svg( 
+    cxy=sargs$cxy,
+    wh=sargs$wh,
+    viewBox=sargs$viewBox,
+    preserveAspectRatio=sargs$preserveAspectRatio,
+    circle(cxy=c(0,0), r=sargs$r),
+    circle(cxy=c(0,0), r=sargs$r2, fill=sargs$fill2),
+    args
+   )
+}
+```
+
+The main differences between this and the group implementation
+
+- g becomes svg
+- a viewbox is added
+- a preserveAspectRatio is added.
+- wh is added
+- circles are centered at the origin
+
+**Note:** An svg element always has an implicit viewBox generated from it's viewPort and given the same coordinates as the view identical dimensions. 
+When an svg element is not explicitly given a viewBox, an implicit viewBox is generate from the viewPort, which has the same coordinates as the viewPort. In the *svgCircleInCircle* composite a default viewBox centered about the origin is 
+provided. This allows keeping child elements to be centered about the origin, while changing the x, y coordinates provided to the component. 
+
+
+Deploying the  *svgCircleInCircle* Compound
+
+```{r, echo=TRUE, results='asis'}
+WH=c(800,300)
+r=30
+svgR( wh=WH,
+text("svgCircleInCircle component: fill='none'", xy=c(30,30), font.size=25),   
+svgCircleInCircle(cxy=WH/2, wh=c(200,100), fill='none',r=30, stroke='green')
+)
+```
+
+
+Adding fills, text and children:
+  
+```{r, echo=TRUE, results='asis'}
+WH=c(800,300)
+svgR( wh=WH,
+  text("svgCircleInCircle compound: centered", xy=c(30,30), font.size=25),   
+  svgCircleInCircle(cxy=WH/2, wh=c(200,120),r=60, r2=40, 
+    fill='red', fill2='white',
+    rect(cxy=c(0,0), wh=c(200,30) , fill='blue'),
+    text('Underground', cxy=c(0,0), font.size=20, stroke='white', fill='white')
+  )
+)
+```
+
+The relevant points are:
+  
+- The children (rect and text) are centered at c(0,0)
+- Specifing svgCircleInCircle(cxy=WH/2, is all that is need to center the image
+    + No transforms was required
+    + The center WH/2 is specified only once.
+- A wh=c(200,120) was specified. 
+
+Moreover to relocate to c(100,200) requires only one change: replace the single occurance of WH/2 by c(100,200)
+
+```{r, echo=TRUE, results='asis'}
+WH=c(800,300)
+svgR( wh=WH,
+      text("svgCircleInCircle compound: translated using cxy", xy=c(30,30), font.size=25),   
+  svgCircleInCircle(cxy=c(100,200), wh=c(200,120),r=60, r2=40, 
+                        fill='red', fill2='white',
+                        rect(cxy=c(0,0), wh=c(200,30) , fill='blue'),
+                        text('Underground', cxy=c(0,0), font.size=20, stroke='white', fill='white')
+      )
+)
+```
+
+
+Scaling can be accomplished by changinging the wh:
+
+
+```{r, echo=TRUE, results='asis'}
+WH=c(800,300)
+r=60
+svgR( wh=WH,
+  text("svgCircleInCircle compound: scale using wh", xy=c(30,30), font.size=25),   
+  svgCircleInCircle(cxy=WH/2, wh=2*c(220,120),r=60, r2=40, 
+    fill='red', fill2='white',
+    rect(cxy=c(0,0), wh=c(200,30) , fill='blue'),
+    text('Underground', cxy=c(0,0), font.size=20, stroke='white', fill='white')
+  )
+)
+```
+
+Two drawbacks to an svg-based composite
+
+- It will not respond to a transform attribute prevent easy rotation
+- Clipping occurs due to the viewPort. Any portion of a child element extending beyond the viewPort will not be rendered.
+
+```{r, echo=TRUE, results='asis'}
+WH=c(800,300)
+svgR( wh=WH,
+  text("svgCircleInCircle compound: fails to respond to transform", xy=c(30,30), font.size=25),   
+  svgCircleInCircle(cxy=WH/2, wh=c(200,120),r=60, r2=40, 
+    fill='red', fill2='white',
+    rect(cxy=c(0,0), wh=c(200,30) , fill='blue'),
+    text('Underground', cxy=c(0,0), font.size=20, stroke='white', fill='white'),
+    transform=list(rotate=c(45, 0,0))
+  )
+)
+```
+
+```{r, echo=TRUE, results='asis'}
+WH=c(800,300)
+svgR( wh=WH,
+  text("svgCircleInCircle compound: blue rect is being clipped", xy=c(30,30), font.size=25),   
+  svgCircleInCircle(cxy=WH/2, wh=c(200,120),r=60, r2=40, 
+    fill='red', fill2='white',
+    rect(cxy=c(0,0), wh=c(800,30) , fill='blue'),
+    text('Underground', cxy=c(0,0), font.size=20, stroke='white', fill='white')
+    
+  )
+)
+```
+
+#### List-based Compounds
+
+A listbased Compound uses a list in place of a group or svg containers. As a result, a list-based compound can add attributes to it's parent. To demonstrate this, consider slightly differ problem: given N, render a stack of N rectangles, each a fixed dimension. This means that the width and height of the containing svgR must be able to fit the rectangle stack.
+
+For example, for N=4, with each rectangle having dimensions 600 by 50, with a, seperation of 5,  the optimal WH is WH=c(600,215).
+
+```{r, echo=T, results='asis'}
+WH<-c(600,215)
+dy<-50
+W<-600
+N<-4
+svgR( wh=WH,  
+      lapply(1:N, function(i){
+        rect(xy=c(0,(i-1)*(dy+5)),wh=c(W,dy), fill=rrgb())
+      }
+      )
+)
+```
+
+To make this into an element with N as an attribute is simple, but would be nice is nice if the element we are inserting could set the WH for the parent svgR.
+
+Here is how:
+
+```{r, echo=T, results='asis'}
+
+listMultiRects<-function(...){
+#the usual preproccessing  
+  args<-list(...)
+  if(is.null(names(args))){
+    names(args)<-rep("",length(args))
+  }
+  defaults<-list(
+    wh=c(600,50),
+    sep=5,
+    N=4
+  )
+  missingArgs<-setdiff(names(defaults),names(args))
+  args<-c(args, defaults[missingArgs])
+  
+  W<-args$wh[1]
+  dy<-args$wh[2]
+  N<-args$N
+  sep<-args$sep
+  WH<-c(W,N*(dy+sep))
+  
+  list(
+    wh=WH,
+      lapply(1:N, function(i){
+        rect(xy=c(0,(i-1)*(dy+sep)),wh=c(W,dy), fill=rrgb())
+      }
+      )    
+  )
+}
+```
+
+
+```{r, echo=T, results='asis'}
+WH<-c(600,215)
+dy<-50
+W<-600
+N<-4
+svgR( 
+  listMultiRects(wh=c(500,10), N=10, sep=3)
+)
+```
+
+#### Filter-based compounds
+
+Thus far all compounds were just containers for shape
+elements. In this section we consider something a littler different: Filters and fe elements (filter elements)
+Recall filters are containers for filter elements so it make since to perform a similar construct as before to create filter-based compounds. 
+
+
+```{r, echo=T}
+filterChrome <- function(...){
+  args<-list(...)
+  if(is.null(names(args))){
+    names(args)<-rep("",length(args))
+  }
+  defaults<-list( 
+    surfaceScale=6,
+    specularConstant=1,
+    specularExponent=30,
+    lighting.color="yellow",
+    stdDeviation=5,
+    lighting.xyz=c(40,-30,200)
+  )
+  args<-c(args, defaults[sapply(args[names(defaults)], is.null)])
+  filter(
+    feMerge( 
+      feMergeNode(in1="SourceGraphic"),
+      feMergeNode(
+        in1=feComposite( operator='in',
+          in1=feSpecularLighting( 
+            surfaceScale=args$surfaceScale,
+            specularConstant=args$specularConstant,
+            specularExponent=args$specularExponent,
+            lighting.color=args$lighting.color,
+            in1=feGaussianBlur(
+              stdDeviation=args$stdDeviation,
+              in1="SourceAlpha"),
+            fePointLight(xyz=args$lighting.xyz)
+          ),
+          in2="SourceAlpha"
+        )
+      )
+    )
+  )
+}
+```
+
+Although we provided some attribute options (with defaults), this particular filter
+does not permit the addition other filter elements. We leave as exercise to the reader
+to create a filter compound taking arbritary filter elements.
+
+
+```{r, echo=T, results='asis'}
+WH<-c(800,300)
+svgR( 
+wh=WH,
+  text("filterChrome compound: R", xy=c(30,30), font.size=25),   g(
+    text( "S", cxy=WH/2, fill="darkblue", font.size=120, 
+          font.family="san serif", stroke.width=3),
+    text( "hiny", cxy=WH/2+c(100,0), fill="darkblue", font.size=50, 
+          font.family="san serif", stroke.width=3),
+    circle(cxy=WH/2, r=49, stroke.width=10, fill='none'  ),
+    stroke='black',
+    filter=filterChrome(lighting.color='#EEAAFF')
+  )
+)
+```
+
+
+#### Summary
+A *custom user defined element* 
+is a reusable widget-like entity that looks and behaves like an element. 
+Custom defined elements should: 
+
+- have arguments are either elements or attributes
+  + named arguments are attributes
+  + unnamed arguments not of class character (or numeric) are child elements 
+  + unnamed arguments of class character (or numeric) are text data
+- be deployed like an element
+
+

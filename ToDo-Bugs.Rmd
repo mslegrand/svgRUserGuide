@@ -1,0 +1,732 @@
+---
+title: "ToDo-Bugs"
+output: html_document
+---
+
+
+```{r, echo=FALSE}
+library(svgR)
+```
+```{r, echo=FALSE}
+source('Util.R')
+```
+
+# Themes
+cosmo looks nice
+themes “default”, “cerulean”, 
+“journal”, “flatly”, “readable”, 
+“spacelab”, “united”, “cosmo”
+
+http://appadvice.com/appnn/2015/10/nest-challenges-apples-homekit-makes-weave-open-to-devs
+
+#Outline of doc
+
+[Foo](#foo)
+
+[Todo Topics:](#todo-topics)
+
+[Todo examples:](#todo-examples)
+
+[Todo svgR Core:](#todo-svgr-core)
+
+[Bugs](#bugs)
+
+[Other Todo:](#otherTodo)
+
+[Anim](#Animation)
+
+polaris slingshot
+2.4 liter turbo
+0 to 60 in 4 seconds
+canam 
+
+
+There was a young man from Trinity,
+Who solved the square root of infinity.
+While counting the digits,
+He was seized by the fidgets,
+Dropped science, and took up divinity.
+~Author Unknown
+
+
+An ounce of algebra is worth of a ton of verbal argument. -JBS Haldane
+
+Data do not give up their secrets easily. They must be tortured to confess. -Jeff Hopper, Bell Labs
+
+
+79.48% of all statistics are made up on the spot.
+John Paulos, Prof of Math
+
+All models are wrong, but some are useful. (George E. P. Box)
+
+
+In God we trust. All others must bring data.
+(W. Edwards Deming)
+
+
+Statisticians, like artists, have the bad habit of falling in love with their models.
+-- George Box
+
+Conducting data analysis is like drinking a fine wine. It is important to swirl and sniff the wine, to unpack the complex bouquet and to appreciate the experience. Gulping the wine doesn’t work.
+-Daniel B. Wright (2003), see PDF of Article.
+
+
+#Todo Topics
+
+- rework section on Shiny bevel, (is just before drop shadowns)
+- Move filtering up??
+- stories
+- graphs
+- animation timing
+- zooming
+- chaining transformations
+
+
+#Todo examples:
+
+- maps
+- graphs
+    + pie chart
+    + bar chart
+    + line graph
+    + animated graphing
+- timing demos
+- animate scrolling texts (horizontal and vertical)
+    + animate viewbox
+- example pattern background?? see [Useful links](#Useful links)
+
+
+#Todo svgR Core:
+
+
+- add default for animateTransform: attributeName='transform'
+    + Found 2 references that claim 'transform' is the only alternative
+- all animateTransform to take transform lists.
+    + additive='sum' is necessary if more than one transform at a time.
+    +  Issues:
+        + list(rotate=(), translate=(), scale=()), would do for each from, to
+        + list( rotate=list(), translate=list(), scale=list() ), With each list
+        (scale,tran,.. of the same length)
+    
+
+    
+- whitespace-semicolon list for values for animate command
+
+- should feConvolveMatrix need x, y, w, h, cxy? (It seems so)
+
+-
+#Useful links
+
+- https://ledrug.wordpress.com/2010/09/30/learning-svg/
+- http://franzheidl.github.io/keysplines/
+- http://www.cheatography.com/kbarni/cheat-sheets/textadept7/
+- http://www.nbcnews.com/health/health-news/getting-it-wrong-everyone-suffers-wrong-or-late-diagnosis-n431496
+
+		<pattern id="checker" patternUnits="userSpaceOnUse"
+				x="0" y="0" width="20" height="20">
+			<rect x="0" y="0" height="20" width="20" fill="#aaaaaa"/>
+			<rect x="0" y="0" height="10" width="10" fill="#999999"/>
+			<rect x="10" y="10" height="10" width="10" fill="#999999"/>
+		</pattern>
+
+# ToDo: 
+
+## General
+- Break functons in Utils.R into seperate files
+- Integrate
+    +  **Anatomy of svg call** 
+        + svgR call tree to SVG markup tree (with attributes)
+        + list promotion
+        + filters
+    +  **Motivation of Grammar** (this seems to be included in anatomy)
+        + SVG markup tree
+        + function call
+    +  **Structure**
+        +  SVG markup tree
+        +  indexing with ids
+        +  tables with svgR  svg elements correspondence
+        +  table with common svgR shortcuts
+
+##Animation
+- Lighting (spotlight, etc. doesn't look right) FIX THIS
+- animate
+- set
+- animateMotion 
+- animateColor
+- animateTransform
+- ToDo: Animate: Filters
+- Todo: viewbox: (zooming)
+- triggering
+- transaltion, rotation, scaling
+- along path
+- color
+- lighting
+- Todo: viewbox: (zooming)
+- events: ‘onbegin’, ‘onend’, ‘onrepeat’, ‘onload’
+- example: anishapes.svg on my desktop
+- example: http://franzheidl.github.io/keysplines/
+- example: http://blog.pixelingene.com/2006/09/a-great-tool-for-visualizing-keysplines/
+- example: https://docs.webplatform.org/wiki/svg/tutorials/smarter_svg_animation 
+
+
+<a name="otherTodo"/>
+
+## Other Todo: 
+* Todo: KeyTimes, keyvalues, and keypoints?
+* ToDo: Transforms
+* ToDo: Section on coords and zooming
+* Todo: feComponentTransfer - make and move it
+* Todo: viewbox: (zooming)
+* Todo: scrollbar (for zooming, panning)
+* Todo: Lighting: Composing different lightins.
+* Todo: Lighting at work
+* Todo: Explain physics behind lighting.
+* Todo: Use braces Util
+* Todo: Javascript: scroll, pan, zoom, new object
+* Todo: Javascript: keystoke responses
+* Todo: Using jason data
+* Todo: More Controls
+    + video tape 
+    + scrollbar
+    + 
+
+Animation
+---
+
+* Animate
+* AnimateMotion
+* AnimateTransform
+
+#Bugs
+
+* Bug: wsp-scl is being used for
+    + path attribute d in animate,  to get 'm 0 1; c 1 2 3 4; m 0 1; c 1 2 3 4' <=ok
+    + xyz attribute xyz in animate spotlight gives  x= '1 4 7', y= '2 5 8'
+    + xyz needs x= '1; 4; 7', y= '2; 5; 8'
+        + cxy has 2 numbers so we need an x and y
+        + attrN='cxy' for to=list(c(1,2),c(3,4) ) want x=1;3 y=3;4
+        + but the problem comes with values
+            +  values may refer to an xy
+            +  values may refer to an d
+    
+* Bug: feComponeTransfer
+* Bug: viewBox text is not centered in Viewports and Viewboxes
+* Bug: Keytimes keypoints do not respond to c(,,)
+* But: keySplines need to be space seperated, not ";" seperated!
+* Bug: Animate combo params
+* Bug: Animate gradient
+* Bug: cxy and $\\infty$ didn't work together
+* need to put def-like elements to the front of sibling list.
+
+* Bug: add xyChannelSelector for feDisplacementMap 
+currently we have xChannelSelector
+* Bug: feDiffuseLighting: check if we really want our fix
+
+
+```{r, echo=T, results="asis"}
+WH<-c(800,160)
+svgR( wh=WH,
+  graphPaper(WH, dxy=c(40,40), labels=TRUE),
+  brace(c(100,100),c(200,50),c(200,150))
+)
+```
+
+# What are the 5 Extinctions
+
+
+#Todo:logo
+```{r, echo=T, results="asis"}
+library(svgR)
+WH=c(800, 250) # window rect
+svgR( wh=WH,  
+      rect(xy=c(0,0), wh=WH, fill=radialGradient( colors=c("white","red","blue","black"))),
+      g(
+        text( "svgR", cxy=WH/2, fill="darkblue", font.size=100, 
+              font.family="san serif", stroke.width=3),
+        stroke='black',
+        filter = filter(
+          feMerge( 
+            feMergeNode(in1="SourceGraphic"),
+            feMergeNode(
+              in1=feComposite( operator='in',
+                               in1=feSpecularLighting( surfaceScale=6,
+                                                       specularConstant=1,
+                                                       specularExponent=30,
+                                                       lighting.color="yellow",
+                                                       in1=feGaussianBlur(
+                                                         stdDeviation=5,
+                                                         in1="SourceAlpha"),
+                                                       fePointLight(xyz=c(40,-30,200))
+                               ),
+                               in2="SourceAlpha"
+              )
+            )
+          )
+        )
+      )
+)->logo
+print(logo)
+```
+
+#Notes
+
+# Bug: feMerge in dropShadow using width
+
+- with width=200 feMerge delivers good sharp image
+- with w=200 feMerge delivers a blurry image
+- without width feMerge delivers a blurry image
+- with wh=c(200,60) feMerge fails to deliver any image
+
+
+# arrow poly: Util
+A fat arrow (filled) to use with block diagrams, to explain
+- Svg overview (compile, choices, ,,)
+- filter processing
+
+# labeled rect, circle, equalateral triangle (orient=ULRD), diamond,
+
+
+For diagram
+
+# Todo logo
+
+```{r, echo=T, results="asis"}
+library(svgR)
+WH=c(800, 250) # window rect
+svgR( wh=WH,     
+      g(
+        text( "svgR", cxy=WH*c(.25,.5), fill="darkblue", font.size=100, 
+              font.family="san serif", stroke.width=3),
+        text( "Users Guide", cxy=WH*c(.7,.25), fill="darkblue", font.size=60, 
+              font.family="fantasy", stroke.width=3),
+        circle(cxy=WH*c(.25,.5), r=99, stroke.width=10, fill='none'  ),
+        stroke='black',
+        filter = filter(
+          feMerge( 
+            feMergeNode(in1="SourceGraphic"),
+            feMergeNode(
+              in1=feComposite( operator='in',
+                               in1=feSpecularLighting( surfaceScale=6,
+                                                       specularConstant=1,
+                                                       specularExponent=30,
+                                                       lighting.color="yellow",
+                                                       in1=feGaussianBlur(
+                                                         stdDeviation=5,
+                                                         in1="SourceAlpha"),
+                                                       fePointLight(xyz=c(40,-30,200))
+                               ),
+                               in2="SourceAlpha"
+              )
+            )
+          )
+        )
+      )
+)->logo
+print(logo)
+```
+
+# Todo: add classes to the construction
+
+# Todo: path=path
+How to wrap the path attribute? 
+It will need to be inside either
+
+- defs
+- symbol
+
+#ToDo:  Some Fun with feComposite
+Let's return to our shadow example
+
+<feComposite operator=”over” in=”SourceGraphic” in2=”dropBlur” result=”final”/>
+
+We change the operator to 
+
+#ToDo: breakup rmd and put in new directory
+
+# Fix: feTile
+
+
+```{r, echo=T, results="asis"}
+WH=c(800, 100) # window rect
+svgR( wh=WH,
+     symbol(id='svgRaves', viewbox=c(0,0,"100%","100%"),
+            text('svgR', xy=c(0,30), stroke='red')),
+     use(filter( xy=c(0,0),wh=c("100%","100%"),
+            feTile( in1="svgRaves")
+          ))
+)
+```
+
+# ToDo Section on symbol, use
+
+Discuss
+
+- symbol
+- use
+
+```{r, echo=T, results="asis"}
+WH=c(800, 100) # window rect
+svgR( wh=WH,
+      symbol(id='svgRocks',
+               text('svgR', xy=c(0,30), stroke='red')
+      ),
+      use( xlink.href="#svgRocks", xy=c(400,50) ),
+      use( xlink.href="#svgRocks", xy=c(440,50) )
+)
+```
+
+# Todo: Utility
+
+braces util
+
+
+Shapes
+===
+
+The shapes are circles, ellipses, lines, paths, polygons, polylines, rectangles. 
+Shapes are customizable by
+
+- fill
+- transform
+- stoke, width, ...
+- animate
+- filter
+- mask
+- clippath
+
+
+End of Doc
+===
+
+Elements to Fill
+===
+Both shapes and text can be filled.
+- Shapes we have seen so far are:
+ + rectangles, circles, ellipses
+- Other shapes are
+ + lines
+ + polygons
+ + polylines
+ + paths
+
+
+Defs
+===
+Defs are used as a location to define reuseable graphical entities such as
+- gradients
+- patterns
+- markers
+- shapes
+
+
+Functions to add???
+===
+```
+rotate<-function(v){paste0("rotate(",paste(v,collapse=","),")")}
+usage: transform=rotate(...)
+(instead fo transform=list(rotate=...))
+```
+
+```
+polygon( x= ..., y=...) or list(x=, y=) (as inspired from data.frame)
+```
+
+
+
+
+
+## lines,
+
+## polylines, 
+## paths, 
+## polygons, 
+## rectangles
+## circles,
+## ellipses, 
+
+# Add content
+
+#### Rexamining the tree
+
+- The nodes having tags **circle**,**line**,**rect**,**polygon**,**polyline**,**ellipse** are the shape wlements Shapese elements are used to render corresponding shape. Shape nodes are contained in the **container** elements
+- The nodes **svg**, **g** and **defs** are the tags for the container elements. Container eements are nodes which can have as child elements both graphics elements and other container elements. The container elements are: **a**, **defs**, **glyph**, **g**, **marker**, **mask**, **missing-glyph**, **pattern**, **svg**, **switch** and **symbol**.
+- The **defs** node contain definitions. Nodes contained in a **defs** node are not rendered directly, but when referenced to by other nodes can be used to provide additional information or instructions for rendering.
+- The nodes **mask**, **linearGradient**, **filter**, **marker** are not rendered directly, but rather are used to modify the rendering of shape nodes. These are usually placed in a **defs** node and referenced by the shapes that use them.  However, in svgR we for convenience we provide an alternate approach. 
+That is, svgR allows a shape to have the modifying node as a child. This feature is particulary convenient when those nodes are to be applied to a single shape. (In reality, behind the scenes, svgR moves the nodes and references them in order to be compliant with the WC3 svg standard.)
+
+# Todo: import text font
+```
+defs<-getNodeSet(tmp,"//defs")
+filter<-getNodeSet(tmp,"//defs/filter")
+filter.attrs<-xmlAttrs(filter[[1]])
+filter.attr.names<-names(filter.attrs)
+if("id" %in$ filter.attr.names){
+  rtv.id<-filter.attrs["id"]
+}
+
+<defs>
+  <style type="text/css">@import url('http://fonts.googleapis.com/css?family=Lobster|Fontdiner+Swanky|Crafty+Girls|Pacifico|Satisfy|Gloria+Hallelujah|Bangers|Audiowide|Sacramento');</style>
+  </defs>
+  
+  <link href='http://fonts.googleapis.com/css?family=Sancreek' rel='stylesheet' type='text/css'>
+```  
+testing 
+
+
+```{r, echo=FALSE}
+library(svgR)
+```
+
+
+testing 2
+
+```{r, echo=T, results="asis"}
+library(XML)
+y<-40
+WH=c(800,120)
+fontInfo<-"
+  @font-face {
+    font-family: Lato;
+    src: url('http://fonts.googleapis.com/css?family=Lato:400,700'); 
+  }
+"  
+svgR( wh=WH,
+  defs(
+    style( type="text/css", xmlCDataNode(value=fontInfo))
+  ),
+  graphPaper(WH, dxy=c(40,40), labels=TRUE),
+  text( "Text using CSS @font-face",
+    font.size=40, stroke='black',  #font.style='Spice Rice', 
+    font.family='Lato',
+    #style="font-family: 'Lato'; font-weight:normal; font-style: normal",
+    xy=c(40, 40),  fill='red')
+)
+```
+testing 3
+
+```{r, echo=T, results="asis"}
+library(XML)
+y<-40
+WH=c(800,120)
+fontInfo<-"
+  @font-face {
+    font-family: Sancreek;
+    src: url('http://fonts.googleapis.com/css?family=Sancreek'); 
+  }
+"  
+svgR( wh=WH,
+  defs(
+    style( type="text/css", xmlCDataNode(value=fontInfo))
+  ),
+  graphPaper(WH, dxy=c(40,40), labels=TRUE),
+  text( "Text using CSS @font-face",
+    font.size=40, stroke='black',  #font.style='Spice Rice', 
+    font.family='Sancreek',
+    #style="font-family: 'Lato'; font-weight:normal; font-style: normal",
+    xy=c(40, 40),  fill='red')
+)
+```
+
+
+
+feDisplacementMap 2
+
+```{r, echo=T, results="asis"}
+library(svgR)
+WH=c(400, 400) # window rect
+svgR( wh=WH, 
+      symbol(
+        rect( id="radDisp23", xy=c(0,0), wh=WH, 
+          fill=radialGradient( 
+            xy1=c(0,0), xy2=c(1,1), 
+            colors=c("red","blue")
+          )
+        )
+      ),
+      use(xlink.href="#radDisp23"),
+      g(  
+        graphPaper(WH, dxy=c(40,40), labels=TRUE),
+          filter=
+           filter(  filterUnits='userSpaceOnUse',
+              feMerge(
+                in1=feMergeNode(
+                   feDisplacementMap( xy=c(0,0), wh=WH/2,
+                    in1="SourceGraphic",
+                    in2=feImage(xlink.href='#radDisp23'),
+                    scale=50,
+                    xChannelSelector="R",
+                    yChannelSelector="R"
+                  )                   
+                ),
+                 in1=feMergeNode( 
+                   feDisplacementMap( xy=WH/2, wh=WH/2,
+                    in1="SourceGraphic",
+                    in2=feImage(xlink.href='#radDisp23'),
+                    scale=50,
+                    xChannelSelector="B",
+                    yChannelSelector="B"
+                  )                   
+                ),
+                 in1=feMergeNode( 
+                   feDisplacementMap( xy=c(1,0)*WH/2, wh=WH/2,
+                    in1="SourceGraphic",
+                    in2=feImage(xlink.href='#radDisp23'),
+                    scale=50,
+                    xChannelSelector="R",
+                    yChannelSelector="B"
+                  )                   
+                ),
+                 in1=feMergeNode( 
+                   feDisplacementMap( xy=c(0,1)*WH/2, wh=WH/2,
+                    in1="SourceGraphic",
+                    in2=feImage(xlink.href='#radDisp23'),
+                    scale=50,
+                    xChannelSelector="B",
+                    yChannelSelector="R"
+                  )                   
+                )
+          )
+        )
+      )
+)
+```
+
+
+
+
+```{r, echo=T, results="asis"}
+WH<-c(600,100)
+
+svgR( wh=WH,
+    rect(xy=c(0,0),wh=WH, fill="rgb(192,224,255)"),
+    playButton( xy=WH),
+    circle( cxy=c(20,20), r=10, stroke="black", fill="yellow"),
+    g(
+      circle( cxy=c(20,40),r=10, stroke="black", fill="blue"),
+      animateMotion(from=c(0,0), to=c(WH[1],0), 
+                    begin=playButton.click, dur=10, fill="freeze") 
+    )
+)
+```
+
+```{r, echo=T, results="asis"}
+WH<-c(600,200)
+svgR( wh=WH,
+    graphPaper(wh=WH),
+    rect(xy=c(0,WH[2]-40),  wh=c(WH[1],40), 
+         fill= #'lightblue'
+            linearGradient(
+              xy1=c(0,0), xy2=c(0,1),
+              colors=c("lightblue","white","lightblue") 
+            )
+    ),
+    playButton(xy=WH),
+    rect(xy=c(0,0),wh=WH, fill='none', stroke='blue', stroke.width=3),
+
+    circle( cxy=c(20,20), r=10, stroke="black", fill="red"),
+    g(
+      circle( cxy=c(20,40),r=10, stroke="black", fill="green"),
+      animateMotion(from=c(0,0), to=c(WH[1],0), 
+                    begin=playButton.click, dur=10, fill="freeze") 
+    )
+)
+```
+
+
+#### Text Span size
+```{r, echo=T, results="asis"}
+WH<-c(800,200)
+txt<-"svgR"
+txt=unlist(strsplit(txt,""))
+N<-length(txt)
+ids<-paste0("animateTspan",1:N)
+ids.click<-c(playButton.click, ids)
+svgR( wh=WH,
+    playBar(WH),
+    text( "", cxy=WH/2, stroke="black", fill="lightgreen",
+          lapply(1:N, function(i){
+            tspan( txt[i], font.size=45, stroke="black", fill="red",
+                   set(id=ids[i], 
+                      attributeName='fill', from='black', to='red', 
+                      begin=ids.click[i], dur=.5*(1+N-i)
+                   )
+            )
+          })
+     )
+)
+```
+
+
+#olde examples
+
+```{r, echo=TRUE, results="asis"}
+myNames<-strsplit("animate animateColor animateMotion animateTransform set desc metadata title circle ellipse line path polygon polyline rect defs g svg symbol use linearGradient radialGradient altGlyph textPath tref tspan feBlend feColorMatrix feComponentTransfer feComposite feConvolveMatrix feDiffuseLighting feDisplacementMap feFlood feGaussianBlur feImage feMerge feMorphology feOffset feSpecularLighting feTile feTurbulence mask filter text marker"," ")[[1]]
+
+#myNames<-myNames[1:10]
+id<-1+1:length(myNames)
+
+tree<-as.data.frame(cbind(
+  parent = rep(1, length(myNames)),
+  child  = id
+))
+nodeNames<-c('root svg',myNames)
+
+nodeColors<-autoNodeColor(nodeNames)
+WH=c(600, 1800)
+svgR( wh=WH,
+  svgRTree( tree, nodeNames, nodeColors=nodeColors, nodeWH=c(160,20))
+)
+
+```
+
+
+# ToDo: insert tree graphs
+```{r, echo=TRUE, results="asis"}
+# tree<-as.data.frame(cbind(
+#   parent = c(1, 1, 2, 2, 2, 2, 3, 3, 6,  6,  3,  3,  1  ),
+#   child  = c(2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 )
+# ))
+tree<-as.data.frame(cbind(
+  parent = c(1, 1,  2, 2, 2, 3, 3, 6,  6,  3,  3,  1  ),
+  child  = c(2, 3,  5, 6, 7, 8, 9, 10, 11, 12, 13, 14 )
+))
+
+#Positions in Nodes names determines the id
+# nodeNames<-c("svg (root)","defs","g","mask","linearGradient","filter","marker", "circle","line","rect","polygon","polyline","ellipse","circle")
+
+nodeNames<-c("svg","defs","g","mask","linearGradient","filter","marker", "circle","line","feGaussianBlur","feMerge","polyline","ellipse","text")
+
+# nodeColors<-c('#AFFFA0','#AFFFA0','#AFFFA0','#FFFF50','#FF80FF','pink',,
+#               '#D0D0FF','#D0D0FF','#D0D0FF','#D0D0FF','#D0D0FF','#D0D0FF','#D0D0FF')
+
+nodeColors<-autoNodeColor(nodeNames)
+WH=c(800, 600)
+svgR( wh=WH,
+  svgRTree( tree, nodeNames, nodeColors=nodeColors, nodeWH=c(110,20))
+)
+
+```
+
+# Foo
+
+```{r, echo=T, results="asis"}
+library(XML)
+y<-40
+WH=c(800,320)
+myFontInfo<-"
+  @font-face {
+    font-family: Delicious;
+    src: url('http://nimbupani.com/demo/svgfonts/delicious-roman.otf');
+  }
+"  
+svgR( wh=WH,
+
+  #graphPaper(WH, dxy=c(40,40), labels=TRUE),
+  text( "@ ☢ ☣ ☤ CSS font-face",
+    font.size=200, stroke='black',  #font.style='Spice Rice', 
+#    style="font-family: 'Delicious'; font-weight:normal; font-style: normal",
+    xy=c(40, 240),  fill='red')
+)
+```
+
+

@@ -1,0 +1,90 @@
+---
+title: "Filter Attribute"
+output:
+  html_document:
+    toc: true
+    theme: united
+---
+
+
+
+```{r, echo=FALSE}
+stopifnot(require(svgR, quietly=TRUE))
+```
+
+```{r, echo=FALSE}
+if(!exists("newId")){
+  source('Util.R')
+}
+```
+
+##Overview
+
+
+The Filter attribute can only have a filter element or a reference to a filter element as it's value.
+A Filter element is a container for fe-elements, which in this document we will refer to as .
+The fe-elements together form a directed graph, with root, 
+whose construction is discussed in the section [Combining Filter Primitives]
+
+That ensemble is used to
+create interesting effects by modifying existing images. 
+
+Many filter primitives  require  input of image data 
+(some require two), and these are supplied via the in1 and in2 attributes. 
+Two notable exceptions are feImage and feFlood.
+
+
+
+todo: diagrams
+
+
+todo: 
+
+- feFunc***X*** 
+- feTile
+
+
+
+### The  In Attribute of  Filter components
+
+As we noted before, filter components may have one or two ***in*** attributes: in1, in2.
+The in1 and in2 attributes can take the values SourceGraphic, SourceAlpha, BackgroundImage, BackgroundAlpha, FillPaint, StrokePaint, or a reference to another primitive's result. The behaviours for each are as follows:
+
+- SourceGraphic represents the original element to which the filter is applied (as full RGBA image data)
+- SourceAlpha represents just the alpha channel of the original element to which the filter is applied
+- BackgroundImage represents the area directly underneath the filter region
+- BackgroundAlpha represents just the alpha channel of the area underneath the filter region
+- FillPaint represents whatever fill was applied to the element in question
+- StrokePaint represents whatever stroke was applied to the element
+- Any other value should be a reference equal to the result attribute for any preceding filter primitive. In this case, the output of the referenced primitive will be used as the specified input.
+
+
+
+
+
+### Filter Components Summary
+
+Element               |                Attributes                                  
+----------------------|------------------------------------------------------------
+feBlend               | in2="***second source***" <br> mode="normal"  "multiply"  "screen"  "darken"  "lighten"
+feColorMatrix         | type="matrix"  "saturate"  "hueRotate"  "luminanceToAlpha" <br> values="***matrix values***"  "***saturation value (0-1)***"  "***rotate degrees***"
+feComponentTransfer   | container for <br>feFuncR, <br>feFuncG, <br>feFuncB, and <br>feFuncA elements.
+feFunc***X***         | type="identity"  "table"  "discrete"  "linear"  "gamma" <br> tableValues="***intervals for table, steps for discrete***" <br> slope="***linear slope***" <br> intercept="***linear intercept***" <br> amplitude="***gamma amplitude***" <br> exponent="***gamma exponent***" <br> offset="***gamma offset***" 
+feComposite           | in2="***second source***" <br> operator="over"  "in"  "out"  "atop"  "xor"  "arithmetic" <br> The following attributes are used with arithmetic: <br> k1="***factor for in1,in2***" <br> k2="***factor for in1***" <br> k3="***factor for in2***" <br> k4="***additive offset***"
+feConvolveMatrix      | order="***columns rows***" (default 3 by 3) <br> kernel="***values***" <br> bias="***offset value***"
+feDiffuseLighting     | Container for a light source element. <br> surfaceScale="***height***" (default 1) <br> diffuseConstant="***factor***" (must be non-negative; default 1)
+feDisplacementMap     | scale="***displacement factor***" (default 0) <br> xChannelSelector="R"  "G"  "B"  "A" <br> yChannelSelector="R"  "G"  "B"  "A" <br> in2="***second input***"
+feFlood               | flood.fill.color="***color specification***" <br> flood.fill.opacity="***value (0-1)***"
+feGaussianBlur        | stdDeviation="***blur spread***" (larger is blurrier; default 0)
+feImage               | xlink:href="***image source***"
+feMerge               | container for feMergeNode elements
+feMergeNode           | ***in1*** = "***intermediate result***"
+feMorphology          | operator="erode" "dilate" <br> radius="***x-radius** **y-radius***" <br> radius="***radius***"
+feOffset              | dx="***x offset***" (default 0)<br>dy="***y offset***" (default 0)
+feSpecularLighting    | Container for a light source element.<br>surfaceScale="***height***" (default 1)<br>specularConstant="***factor***" (must be non-negative; default 1)<br>specularExponent="***exponent***" (range 1-128; default 1)
+feTile                | tiles the ***in1*** layer
+feTurbulence          | type="turbulence"  "fractalNoise" <br> baseFrequency="***x-frequency y-frequency***" <br> baseFrequency="***frequency***" <br> numOctaves="***integer***" <br> seed="***number***"
+feDistantLight        | azimuth="***degrees***" (default 0)<br>elevation="***degrees***" (default 0)
+fePointLight          | x="***coordinate***" (default 0)<br>y="***coordinate***" (default 0)<br>z="***coordinate***" (default 0)
+feSpotLight           | x="***coordinate***" (default 0)<br>y="***coordinate***" (default 0)<br>z="***coordinate***" (default 0)<br>pointsAtX="***coordinate***" (default 0)<br>pointsAtY="***coordinate***" (default 0)<br>pointsAtZ="***coordinate***" (default 0)<br>specularConstant="***focus control***" (default 1)<br>limitingConeAngle="***degrees***"
+
