@@ -195,10 +195,10 @@ svgR( wh=c(600, 250),
 
 ### C: The Cubic Bézier
 
-The **Cubic Bézier** is similar to the Quadratic Bézier, but has a higher degree allowing for a S-shaped curve. The Quadratic Bézier requires four points, $P_0$ the start point, $P_1$ the end point and 
+The **Cubic Bézier** is similar to the Quadratic Bézier, but has a higher degree allowing for a S-shaped curve. The Cubic Bézier requires four points, $P_0$ the start point, $P_1$ the end point and 
 two control points $C_0$, $C_1$ . 
 $$ P(t)=(1-t)^3 P_0 + 3 (1-t)^2 t C_0 + 3 (1-t)t^2 C_1 + t^3 P_p $$ 
-for $0 leq t leq 1$
+for $0 \leq t \leq 1$
 
 The first control point,  $C_0$,  together with the starting point, $P_0$,  determines a vector, $C_0-P_0$ which is tangent to the  curve at $P_0$. Similarly, the second control point, $C_1$,  together with ending point, $P_1$, determine a vector, $P_1-C_1$ which is tangent to the curve at $P_1$. The magnititude of the vectors $C_0 - p_0$, and $P_1 -C_1$ determine the intermediate shape.
 
