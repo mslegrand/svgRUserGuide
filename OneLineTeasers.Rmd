@@ -89,3 +89,12 @@ svgR( wh=c(600, 200), lapply( 1:5,  function(x)polygon(points= 5*(c(0,0,-4,6, 4,
 ```{r, echo=T, results="asis"}
 svgR( wh=c(600, 100), line( xy1=c(0,50), xy2=c(600,50), stroke.width=20, stroke.dasharray=8, stroke.dashoffset=16, stroke="lightblue", animate(attributeName="stroke.dashoffset", from=16, to=0 , dur=0.5, repeatCount="indefinite")))
 ```
+
+```{r, echo=T, results="asis"}
+WH<-c(15,18)
+svgR(wh=WH,
+     circle(cxy=c(5,9), r=3, stroke.width=3, fill="none", stroke="#DDDDDD" ),
+     circle(cxy=c(10,9), r=3, stroke.width=3, fill="none", stroke="#DDDDDD" )
+)
+```
+

@@ -21,9 +21,9 @@ if(!exists("newId")){
 }
 ```
 
-## **Transform** is an Attribute 
+## Transform operations
 
-The transform attribute allows for multiple linear operations
+The *transform attribute* allows for multiple linear operations
 to be applied prior to rendering.
 
 SVG supports the composition 5 types transforms:

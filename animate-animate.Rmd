@@ -19,13 +19,13 @@ if(!exists("newId")){
 
 <a name="animateAnimation"></a> 
 
-## Animate Animation
+## Animate Element
 
 While set changes an attribute value instaneously, animate changes the attribute by moving from the start value to the end value in continous fashion. This makes Animate an essential work horse for animations in SVG.
 
 
 
-#### Stroke Width
+### Stroke Width
 ```{r, echo=T, results='asis'}
 WH<-c(800,200)
 svgR( 
@@ -38,7 +38,7 @@ svgR(
 ```
 
 
-#### radius
+### Radius
 ```{r, echo=T, results="asis"}
 WH<-c(800,200)
 svgR( 
@@ -50,7 +50,7 @@ svgR(
 )
 ```
 
-#### fill color
+### Fill color
 ```{r, echo=T, results="asis"}
 WH<-c(800,200)
 svgR( 
@@ -62,7 +62,7 @@ svgR(
 )
 ```
 
-#### stroke dashoffset
+### Stroke dashoffset
 ```{r, echo=T, results="asis"}
 WH<-c(800,200)
 soffset<-40*7
@@ -77,7 +77,7 @@ svgR(
 )
 ```
 
-#### Animating coordinates: cx
+### Coordinate: cx
 ```{r, echo=T, results="asis"}
 WH<-c(800,200)
 svgR( 
@@ -88,7 +88,7 @@ svgR(
     )
 )
 ```
-#### Animating coordinates: cxy
+### Coordinates: cxy
 ```{r, echo=T, results="asis"}
 WH<-c(800,300)
  pt<-c(30,30)
@@ -101,7 +101,7 @@ svgR(
 )
 ```
 
-#### Circle changing size, fill color and location
+### Circle changing size, fill color and location
 ```{r, echo=T, results="asis"}
 WH<-c(800,200)
 svgR( 
@@ -118,7 +118,7 @@ svgR(
 ```
 
 
-#### Vertically Scrolling Text
+### Vertically Scrolling Text
 ```{r, echo=T, results="asis"}
 WH<-c(800,200)
 txt<-c(
@@ -144,7 +144,7 @@ svgR(
 )
 ```
 
-#### Horizontally Scrolling Text
+### Horizontally Scrolling Text
 ```{r, echo=T, results="asis"}
 WH<-c(800,200)
 txt<-c(
@@ -175,7 +175,8 @@ svgR(
 
 <br><br>
 
-#### Gradients
+### Linear Gradient 1
+
 ```{r, echo=TRUE, results="asis"}
 WH=c(450,300)
 svgR(
@@ -198,6 +199,8 @@ svgR(
     )
 )
 ```
+
+### Linear Gradient 2
 
 
 ```{r, echo=TRUE, results="asis"}
@@ -222,6 +225,7 @@ svgR(
 )
 ```
 
+### Linear Gradient 3
 
 ```{r, echo=TRUE, results="asis"}
 WH=c(800,300)
@@ -246,6 +250,8 @@ svgR(
 )
 ```
 
+### Linear Gradient 4
+
 ```{r, echo=TRUE, results="asis"}
 WH=c(800,300)
 colors=c('darkblue','white','black')
@@ -269,6 +275,7 @@ svgR(
 )
 ```
 
+### Radial Gradient 1
 
 
 ```{r, echo=TRUE, results="asis"}
@@ -294,6 +301,7 @@ svgR(
 )
 ```
 
+### Radial Gradient 2
 
 ```{r, echo=TRUE, results="asis"}
 WH=c(800,300)
@@ -319,7 +327,7 @@ svgR(
 ```
 
 
-#### Gaussian Blur
+### Gaussian Blur
 
 This example illustrates a simple Gaussian Blur on the alpha channel where the
 standard deviation (in both the x and y directions) is the attribute being animated.
@@ -330,36 +338,39 @@ svgR(
   playBar(wh=WH),
   text('Animating Simple Gaussing Blur', xy=c(20,30), font.size=20),
   text( 'svgR', cxy=c(.5,.4)*WH, font.size=100, fill="blue",
-           filter=filter( y=-5, height=100,
-              feGaussianBlur(in1="SourceAlpha", stdDeviation=0, y="-",
-                animate(attributeName='stdDeviation',
-              from=0,to=20, dur=1, 
-              begin=playButton.click)      
-          ))
-      )
-  
+    filter=filter( y=-5, height=100,
+        feGaussianBlur(in1="SourceAlpha", stdDeviation=0, y="-",
+          animate(attributeName='stdDeviation',
+        from=0,to=20, dur=1, 
+        begin=playButton.click)      
+    ))
+  )
 )
 ```
+
+### Gaussian Blur $sigma_x$
+
 This example illustrates a simple Gaussian Blur on the alpha channel where the
 standard deviation in the x direction is the attribute being animated.
 
 
 ```{r, echo=TRUE, results="asis"}
 WH=c(800, 200) # window rect
-svgR( wh=WH,
-  playBar(WH),
+svgR( 
+  playBar(wh=WH),
   text('horizontal blurring repeated twice', xy=c(20,30), font.size=20),
   text( 'svgR', cxy=c(.5,.3)*WH, font.size=100, fill="blue",
-           filter=filter( y=-5, height=100,
-              feGaussianBlur(in1="SourceGraphic", stdDeviation=c(0,0), y="-",
-                animate(attributeName='stdDeviation',
-              from=c(0,0),to=c(20,0), dur=1, repeatCount=2,
-              begin=playButton.click)      
-          ))
-      )
-  
+       filter=filter( y=-5, height=100,
+          feGaussianBlur(in1="SourceGraphic", stdDeviation=c(0,0), y="-",
+            animate(attributeName='stdDeviation',
+          from=c(0,0),to=c(20,0), dur=1, repeatCount=2,
+          begin=playButton.click )      
+      ))
+  )
 )
 ```
+
+### Depth Illusion
 
 This example illustrates the illusion of depth, by animating both the x-position of the text and the x postion of the Guaussian blur is animated. The back and forth motion is achieved by chaining the animations.
 
@@ -395,6 +406,7 @@ svgR(
 )
 ```
 
+### Pattern
 
 
 ```{r, echo=T, results="asis"}
@@ -413,6 +425,7 @@ svgR(
 )
 ```
 
+### Radius
 
 ```{r, echo=T, results="asis"}
 WH=c(600, 600) # window rect
@@ -431,6 +444,8 @@ svgR(
 )
 ```
 
+### Radius
+
 ```{r, echo=T, results="asis"}
 WH=c(800, 400) # window rect
 svgR( 
@@ -447,7 +462,8 @@ svgR(
 )
 ```
 
-#### animate color hue
+###  hueRotate 1
+
 ```{r, echo=T, results="asis"}
 WH=c(800, 400) # window rect
 svgR( 
@@ -466,7 +482,7 @@ svgR(
 )
 ```
 
-
+### hueRotate 2
 
 ```{r, echo=T, results="asis"}
 WH<-c(800, 400) # window rect
@@ -488,8 +504,9 @@ svgR(
 ```
 
 
-#### Animateing Shapes
+## Animating Shapes
 
+### Morphology
 
 Here we animate using feMorphology.
 
@@ -512,7 +529,7 @@ svgR(
 
 This illustration uses both feTurbulence and feDisplacementMap to create a dissolve effect.
 
-
+### feTurbulence and feDisplacementMap
 
 This illustration uses both feTurbulence and feDisplacementMap to create a dissolve effect.
 
@@ -553,7 +570,7 @@ svgR(
 )
 ```
 
-#### Animate: Warping Text
+### Warping Text
 
 ```{r, echo=T, results="asis"}
 library(svgR)

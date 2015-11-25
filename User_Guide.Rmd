@@ -1,5 +1,5 @@
 ---
-title: "An svgR User Guide"
+title: ""
 author: "M. S. Legrand"
 output:
   html_document:
@@ -14,9 +14,8 @@ output:
     toc_depth: 2 
 ---
 
-This document is still being edited.
-This document describes some of the basics of svgR.  
-This document has been created from an R Markdown document using svgR. 
+
+This document describes some of the basics of svgR.  This document has been created from an R Markdown document using svgR. 
 For more details on using R Markdown see <http://rmarkdown.rstudio.com>. 
 For a good starting place on using SVG see <https://github.com/willianjusten/awesome-svg>
 
@@ -63,67 +62,53 @@ if(!exists("newId")){
 }
 ```
 
-<hr>
-```{r, echo=F, results="asis"}
-svgR(  logo2(wh=c(600,50)))
-```
+<hr><br/><br/> 
+
 One Line Teasers
 ===
 
 ```{r child = 'OneLineTeasers.Rmd'}
 ```
 
-<hr>
-```{r, echo=F, results="asis"}
-svgR(  logo2(wh=c(600,50)))
+<hr><br/><br/> 
+
 ```
 Setting Up
 ========================================================
 ```{r child = 'SetUp.Rmd'}
 ```
 
-<hr>
-```{r, echo=F, results="asis"}
-svgR(  logo2(wh=c(600,50)))
-```
-<!-- whirl wind tour -->
-Whirlwind Tutorial
-========================================================
-```{r child = 'walkThrough.Rmd'}
-```
-```{r child = 'walkThrough-gentleStart.Rmd'}
-```
-```{r child = 'walkThrough-lists.Rmd'}
-```
-```{r child = 'walkThrough-compounds.Rmd'}
+
+<hr><br/><br/> 
+
 ```
 
-<hr>
-```{r, echo=F, results="asis"}
-svgR(  logo2(wh=c(600,50)))
+Overview
+=====
+```{r child = 'overView.Rmd'}
 ```
+
+
 Coordinates, Viewports, and Containers
 =======================================================
 ```{r child = 'Coordinates.Rmd'}
 ```
 
-<hr>
-```{r, echo=F, results="asis"}
-svgR(  logo2(wh=c(600,50)))
-```
+
+<hr><br/><br/> 
+
 The Transform Attribute
 =======================================================
 ```{r child = 'Transforms.Rmd'}
 ```
 
 
-<hr>
-```{r, echo=F, results="asis"}
-svgR(  logo2(wh=c(600,50)))
-```
+
+<hr><br/><br/> 
+
 
 <!-- shapes and structures, groups symbols, use -->
-Shapes, Markers, Paths
+Shapes,  Paths, Markers 
 =======================================================
 
 ```{r child = 'Shapes.Rmd'}
@@ -135,19 +120,19 @@ Shapes, Markers, Paths
 ```{r child = 'Marker.Rmd'}
 ```
 
-<hr>
-```{r, echo=F, results="asis"}
-svgR(  logo2(wh=c(600,50)))
+
+<hr><br/><br/> 
+
 ```
 The Text Element
 =======================================================
 ```{r child = 'text.Rmd'}
 ```
 
-<hr>
-```{r, echo=F, results="asis"}
-svgR(  logo2(wh=c(600,50)))
-```
+
+<hr><br/><br/> 
+
+
 The Fill Attribute
 =======================================================
 ```{r child = 'Fill.Rmd'}

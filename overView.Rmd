@@ -1,0 +1,254 @@
+---
+title: "Brief Intro"
+output:
+  html_document:
+    toc: true
+    theme: united
+---
+
+
+```{r, echo=FALSE}
+stopifnot(require(svgR, quietly=TRUE))
+```
+
+```{r, echo=FALSE}
+if(!exists("newId")){
+  source('Util.R')
+}
+```
+
+
+
+The svgR package provides a DSL to create SVG markup from R. It is similar to
+grid graphics, in that it is a low level api upon which higher level graphics
+constructs can be built.
+
+## A Short Example
+
+We start by first considering the short example show below together
+with the rendered result.
+
+```{r, echo=TRUE, results="asis"}
+svgR( wh=c(100,50),
+  text( xy=c(20,10), "line 1", 
+    tspan(dy=10, "line2 ")
+  )
+)
+```
+
+```{r, echo=FALSE}
+library(stringr)
+showCode<-function(txt){
+  indentCount<-function(s){
+    if(grepl(pattern="^ +", s)){
+      nchar(str_match(pattern="^ +", s))   
+    } else {
+      0
+    }
+  }
+  line2span<-function(s, default='black'){
+    pattern='\\\\\\w+'
+    #browser()
+    if(grepl(pattern,s)){
+      spns<-str_split(pattern=pattern,s)[[1]]
+      cols<-as.character(str_match_all(pattern=pattern,s)[[1]])
+      cols<-gsub("\\\\","",cols)
+      if(length(cols)<length(spns)){
+        cols<-c('black',cols)
+      }
+    } else {
+      spns<-s
+      cols<-'black'
+    }
+    lapply(1:length(spns), function(i){
+      font.size=ifelse( cols[i]=="black",12,16 )
+      stroke.width=ifelse( cols[i]=="black",.2,1 )
+      tspan(spns[i], stroke=cols[i], fill=cols[i], font.size=font.size, stroke.width=stroke.width)
+    })
+  }
+  
+  lines<-str_split(pattern="\\n",txt1)[[1]]  
+  lapply(1:length(lines), function(i){
+    line<-lines[i]
+    ic<-indentCount(line)
+    xy<-c(ic*10+20, i*18+10)
+    text(xy=xy, line2span(line))
+  })
+}
+
+WH<-c(910,100)
+
+codeBlock<-function(wh){
+  rect(xy=c(1,1), wh=wh-c(2,2), fill="#F4F4F4", stroke='#444', rxy=c(5,5), stroke.width=.3)
+}
+```
+
+To get the above result in this document we embedded the code with the
+usual 3 backtics and set the options to *echo=FALSE* and *results="asis"* (shown below in red)
+
+```{r, echo=FALSE, results="asis"}
+WH<-WH+c(0,40)
+txt1<-'\\red \\`\\`\\`{r, echo=FALSE, results="asis"}
+svgR( wh=c(100,50),
+  text( xy=c(20,10), "line 1", 
+    tspan(dy=10, "line2 ")
+  )
+)
+\\red \\`\\`\\`
+'
+svgR( wh=WH, font.family='sans-serif', font.size=12, stroke.width=0.2, letter.spacing=2,
+  codeBlock(WH),
+  showCode(txt1)
+)
+```
+
+Next we break apart the code into it's basic components, starting with the function call **svgR**
+
+```{r, echo=FALSE, results="asis"}
+txt1<-
+'\\purple svgR( \\black wh=c(100,50),
+  text( xy=c(20,10), "line 1", 
+    tspan(dy=10, "line2 ")
+  )
+\\red )
+'
+svgR( wh=WH, font.family='sans-serif', font.size=12, stroke.width=0.2, letter.spacing=2,
+  codeBlock(WH),
+  showCode(txt1)
+)
+```
+
+
+
+It has two arguments, a *named parameter wh=c(100,50)* and  an *unnamed parameter*
+which is the function called **text**. 
+
+The named parameter *wh* (shown in orange below) is an attribute specifying the *width* and *height* of the viewport,
+the region on the screen where the image is shown.
+
+```{r, echo=FALSE, results="asis"}
+txt1<-
+'svgR( \\orange wh=c(100,50),
+   text( \\black xy=c(20,10), "line 1", 
+    tspan(dy=10, "line2 ")
+  )
+ )
+'
+svgR( wh=WH, font.family='sans-serif', font.size=12, stroke.width=0.2, letter.spacing=2,
+  codeBlock(WH),
+  showCode(txt1)
+)
+```
+
+The **text** function (shown in blue) is one of 80 functions that can be called within the scope of 
+svgR to render an SVG markup. These functions are called *svgR elements* (or simply elements)
+and each svgR *element* creates and SVG node whose tag name is the same as the function name.
+
+```{r, echo=FALSE, results="asis"}
+txt1<-
+'svgR(  wh=c(100,50),
+  \\blue text( \\black xy=c(20,10), "line 1", 
+    tspan(dy=10, "line2 ")
+  )
+\\red )
+'
+svgR( wh=WH, font.family='sans-serif', font.size=12, stroke.width=0.2, letter.spacing=2,
+  codeBlock(WH),
+  showCode(txt1)
+)
+```
+
+This text element has 3 components: an xy *attribute* (in orange), text content (in green), 
+and a child element named **tspan** (in blue).
+
+```{r, echo=FALSE, results="asis"}
+txt1<-
+'svgR(  wh=c(100,50),
+  text( \\orange xy=c(20,10), \\green "line 1", 
+    \\blue tspan( \\black dy=10, "line2 ")
+  )
+\\red )
+'
+svgR( wh=WH, font.family='sans-serif', font.size=12, stroke.width=0.2, letter.spacing=2,
+  codeBlock(WH),
+  showCode(txt1)
+)
+```
+
+The **tspan** element contains an *dy attribute* (orange) and *text content* (green)
+
+```{r, echo=FALSE, results="asis"}
+txt1<-
+'svgR(  wh=c(100,50),
+  text( xy=c(20,10), "line 1", 
+    tspan( \\orange dy=10,  \\green "line2 " \\black )
+  )
+\\red )
+'
+svgR( wh=WH, font.family='sans-serif', font.size=12, stroke.width=0.2, letter.spacing=2,
+  codeBlock(WH),
+  showCode(txt1)
+)
+```
+
+The  generated **SVG** markup is 
+
+```
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="100" height="50">
+  <text x="20" y="10">
+    line 1
+    <tspan dy="10">tspan line 2</tspan>
+  </text>
+</svg>
+```
+
+**Note**: The  SVG root node was created by the svgR call.
+
+
+## Taxonomy
+
+In the previous section we walked though an example where we
+encountered  elements (text, tspan), attributes (xy, wh, dy )and text content (line1, line2).
+However, there are many more elements and attributes to consider. 
+
+The elements (functions within an svgR call) can be broken into 
+several categories:
+
+
+category | description
+------|------------
+Text | used to display text (text, tspan,...)
+Shapes | used to draw shapes (circle, rect, ...)
+Containers | used to group shapes, text, (g, svg, ...)
+Animators | used to animate the display (set, animate, animatemotion)
+the rest | mask, filter elements, script, ...
+
+
+*Text* and *Shapes* are the building blocks of the image. Prominent attributes
+that can be applied to these are 
+
+attribute | description
+-----------|----------------
+xy,wh,cxy, ..| related to positioning
+transform | repositioning
+fill (shape) | what to fill the interior with
+filter| modify the image
+mask | to hide a portion
+clip.path | to trim a portion
+
+To apply the
+same attribute to a group of shapes, we often group them together,
+either with the g element or the svg element. 
+The distinction between these are the attributes that can be applied. 
+
+- svg can has *coordinate attributes xy, wh* but not a *transform attribute*
+- g has the *transform attribute*, but no coordinates
+
+Other containers are *defs* for reusable components, *symbol* to designate a shape
+or group. These are not displayed directly, but are used by reference. 
+
+The remainder of this document is broken into sections and subsections reflecting
+the above decomposition.  Each section contains multiple short examples of each topic.
+Enjoy!
+

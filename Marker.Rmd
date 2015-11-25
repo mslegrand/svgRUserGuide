@@ -18,79 +18,18 @@ if(!exists("newId")){
 }
 ```
 
-```{r, echo=T, results="asis"}
-#```{r, echo=T}
-WH=c(600, 100) # window rect
-svgR( wh=WH,
-  path(d="M100,20 l50,0 l0,50 l50,0", fill="none",
-    stroke='black', stroke.width=2, 
-    marker.end=marker(viewBox=c(0, 0, 10, 10), refXY=c(4,4), 
-      markerWidth=7, markerHeight=7, orient="auto",
-      rect(xy=c(1,1),wh=c(5,5), fill='black')
-    ) 
-  )
-)
-```
+## Markers
 
-Testing:
-```{r, echo=T, results="asis"}
-#```{r, echo=T}
-WH=c(600, 100) # window rect
-svgR( wh=WH,
-    defs(
-    marker(
-      id="marker1",  viewBox=c(0, 0, 10, 10), refXY=c(1,5), 
-      markerWidth=6, markerHeight=6, orient="auto",
-      path( d=c("M", 0, 0, "L", 10, 5, "L", 0, 10, "z") ) 
-    )    
-    ),
-    line(xy1=c(0,0), xy2=c(300,50), 
-         stroke='black', stroke.width=2, 
-         marker.end='url(#marker1)'
-    )
-)
-```
+Markers are used to decorate the ends paths and any adjoining segements.
+Markers allow for a completely customizable looking arrowhead and tails
 
-With a defs marker works seamlessly and
-```{r, echo=T, results="asis"}
-#```{r, echo=T}
-WH=c(600, 100) # window rect
-svgR( wh=WH,
-    defs(
-    marker(
-      id="marker1",  viewBox=c(0, 0, 10, 10), refXY=c(1,5), 
-      markerWidth=6, markerHeight=6, orient="auto",
-      path( d="M 0 0 L 10 5 L 0 10 z" ) 
-    )    
-    ),
-    line(xy1=c(0,0), xy2=c(300,50), 
-         stroke='black', stroke.width=2, 
-         marker.end='url(#marker1)'
-    )
-)
-```
+First we show some simple examples for the end, start, middle
 
-and with the alternate (lazy-inline) approach
 
-### marker end
-```{r, echo=T, results="asis"}
-#```{r, echo=T}
-WH=c(600, 100) # window rect
-svgR( wh=WH,
-  line(xy1=c(20,50), xy2=c(300,50), 
-    stroke='black', stroke.width=2, 
-    marker.end=marker(viewBox=c(0, 0, 10, 10), refXY=c(1,5), 
-      markerWidth=6, markerHeight=6, orient="auto",
-      path( d=c("M", 0, 0, "L", 10, 5, "L", 0, 10, "z") )
-    ) 
-  )
-)
-```
 
-### marker start
+### An Arrow Tail
 
 ```{r, echo=T, results="asis"}
-#```{r, echo=T}
 WH=c(600, 100) # window rect
 svgR( wh=WH,
   line(xy1=c(20,50), xy2=c(300,50), 
@@ -102,12 +41,11 @@ svgR( wh=WH,
   )
 )
 ```
-### Marker mid
+### An Arrow Middle
 
 We can also place markers in middle points that define a path.
 
 ```{r, echo=T, results="asis"}
-#```{r, echo=T}
 WH=c(600, 100) # window rect
 svgR( wh=WH,
   path(d="M100,20 l50,0 l0,50 l50,0", fill="none",
@@ -120,22 +58,122 @@ svgR( wh=WH,
 )
 ```
 
+### An Arrow Head
 
-also works when removing the defs.
 ```{r, echo=T, results="asis"}
-#```{r, echo=T}
 WH=c(600, 100) # window rect
 svgR( wh=WH,
-    #defs(
-    marker(
-      id="marker1",  viewBox=c(0, 0, 10, 10), refXY=c(1,5), 
+  line(xy1=c(20,50), xy2=c(300,50), 
+    stroke='black', stroke.width=2, 
+    marker.end=marker(viewBox=c(0, 0, 10, 10), refXY=c(1,5), 
       markerWidth=6, markerHeight=6, orient="auto",
-      path( d="M 0 0 L 10 5 L 0 10 z" ) 
-    #)    
-    ),
-    line(xy1=c(0,0), xy2=c(300,50), 
-         stroke='black', stroke.width=2, 
-         marker.end='url(#marker1)'
-    )
+      path( d=c("M", 0, 0, "L", 10, 5, "L", 0, 10, "z") )
+    ) 
+  )
 )
 ```
+
+Putting it together
+
+### Tail, Middle, Head 
+
+
+We can also place markers in middle points that define a path.
+
+```{r, echo=T, results="asis"}
+WH=c(600, 100) # window rect
+svgR( wh=WH,
+  path(d="M100,20 l50,0 l0,50 l50,0", fill="none",
+    stroke='black', stroke.width=2, 
+    marker.start=marker(viewBox=c(0, 0, 10, 10), refXY=c(1,5), 
+      markerWidth=6, markerHeight=6, orient="auto",
+      path( d="M 0 0 L 10 5 L 0 10 z" )
+    ),
+    marker.mid=marker(viewBox=c(0, 0, 10, 10), refXY=c(4,4), 
+      markerWidth=7, markerHeight=7, orient="auto",
+      rect(xy=c(1,1),wh=c(5,5), fill='black')
+    ),
+    marker.end=marker(viewBox=c(0, 0, 10, 10), refXY=c(1,5), 
+      markerWidth=6, markerHeight=6, orient="auto",
+      path( d=c("M", 0, 0, "L", 10, 5, "L", 0, 10, "z") )
+    ) 
+  )
+)
+```
+
+### Exoctic Markers
+
+Varing the marker path allows for a more exotic look.
+
+```{r, echo=T, results="asis"}
+WH=c(600, 100) # window rect
+svgR( wh=WH,
+  path(d="M100,20 l50,0 l0,50 l50,0", fill="none",
+    stroke='black', stroke.width=2, 
+    marker.start=marker(viewBox=c(0, 0, 10, 10), refXY=c(1,5), 
+      markerWidth=16, markerHeight=16, orient="auto",
+      path( d=c( "M", c(0,0), "A", c(5,5), 0, 1,  1,  c(0,10),  "Z" ) )
+    ),
+    marker.mid=marker(viewBox=c(0, 0, 10, 10), refXY=c(4,4), 
+      markerWidth=7, markerHeight=7, orient="auto",
+      circle(cxy=c(5,5),r=5, fill='red')
+    ),
+    marker.end=marker(viewBox=c(0, 0, 20, 20), refXY=c(1,10), 
+      markerWidth=16, markerHeight=20, orient="auto",
+      path( fill="blue",
+        d=c("M", c(0,0), 
+            "A", c(20,20), 0, 0,  0,  c(10,10),
+            "A", c(20,20), 0, 0,  0,  c(0,20),
+            "Z") 
+      )
+    ) 
+  )
+)
+```
+
+
+### Multiple Arrows
+
+When employing a marker multiple times, it may be more
+efficient to include it in a defs container and then 
+provide a reference to it.
+
+
+```{r, echo=T, results="asis"}
+WH=c(600, 100) # window rect
+svgR( wh=WH,
+  defs(
+    marker(id="marker.start", viewBox=c(0, 0, 10, 10), refXY=c(1,5), 
+      markerWidth=16, markerHeight=16, orient="auto",
+      path( d=c( "M", c(0,0), "A", c(5,5), 0, 1,  1,  c(0,10),  "Z" ) )
+    ),
+    marker(id="marker.mid", viewBox=c(0, 0, 10, 10), refXY=c(4,4), 
+      markerWidth=7, markerHeight=7, orient="auto",
+      circle(cxy=c(5,5),r=5, fill='red')
+    ),
+    marker(id="marker.end", viewBox=c(0, 0, 20, 20), refXY=c(1,10), 
+      markerWidth=16, markerHeight=20, orient="auto",
+      path( fill="blue",
+        d=c("M", c(0,0), 
+            "A", c(20,20), 0, 0,  0,  c(10,10),
+            "A", c(20,20), 0, 0,  0,  c(0,20),
+            "Z") 
+      )
+    ) 
+  ),
+  path(d="M100,20 l50,0 l0,50 l50,0", fill="none",
+    stroke='black', stroke.width=2, 
+    marker.start='url(#marker.start)',
+    marker.end='url(#marker.end)',
+    marker.mid='url(#marker.mid)'
+  ),
+  path(d = c("M",200, 20, "C", 250, 80, 380, 0, 400, 50, "L", 300, 80),  
+    stroke='green', stroke.width=2, fill="none",
+    marker.start='url(#marker.start)',
+    marker.end='url(#marker.end)',
+    marker.mid='url(#marker.mid)'
+  )
+)
+```
+
+

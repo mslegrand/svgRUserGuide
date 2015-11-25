@@ -69,18 +69,18 @@ setAnimation
 
 
 ```{r, echo=T, results="asis"}
-WH<-c(800,280)
+WH<-c(800,300)
 txt<-c(
   "All circles will turn orange after 10 seconds",
   "The first will go back to green after 1 second",
   "The second will go back to green after 2 seconds",
-  "The third will remain green"
+  "The third will remain orange"
 )
 labs<-c("orange 1 sec","orange 2 sec","forever orange")
 cxy<-rbind(WH[1]*c(.3,.5,.7), WH[2]*c(.7,.7,.7))
 svgR( wh=WH,
       text("RELOAD BROWSER:", xy=c(0,40), font.size=25),
-      lapply(1:4, function(i){ text(txt[i], xy=c(250,i*20), font.size=16)}),
+      lapply(1:4, function(i){ text(txt[i], xy=c(250,i*20+20), font.size=16)}),
       circle(id="setCir1e1", r=70, fill='lightgreen', cxy=cxy[,1],
           set( attributeName="fill", to="orange", begin=10, dur=1 )),
       circle(id="setCir1e1", r=70, fill='lightgreen', cxy=cxy[,2],
