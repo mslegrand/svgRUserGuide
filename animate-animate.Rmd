@@ -12,52 +12,41 @@ stopifnot(require(svgR, quietly=TRUE))
 ```
 
 ```{r, echo=FALSE}
-if(!exists("newId")){
-  source('Util.R')
-}
+#if(!exists("newId")){
+  source('~/R/svgRUserGuide/Util.R')
+#}
 ```
+
+Recall, animation can be broken up as discrete or continous.
+
+- Discrete animation is when an object's attributes are changed instaneously at a given point in time.
+    + Discrete animation accomplished using the **set** element
+- Continous animation is when an object attribute is changed gradually from one value to another over a period
+of time. Most attributes can be animated using the Animate Element, the 2 exceptions being *motion along a path*
+and the *transform attribute*. In this section we describe use of the **animate** element by presenting numerous
+examples.
 
 <a name="animateAnimation"></a> 
 
 ## Animate Element
 
-While set changes an attribute value instaneously, animate changes the attribute by moving from the start value to the end value in continous fashion. This makes Animate an essential work horse for animations in SVG.
+The animate element is considered the general work-horse for continuous animation since it encompasses
+everything except transforms and motions along a path. 
 
 
+
+
+## Stroke Attributes
 
 ### Stroke Width
 ```{r, echo=T, results='asis'}
+library(svgR)
 WH<-c(800,200)
 svgR( 
     playBar(wh=WH),
     circle( cxy=WH/2, r=40, stroke="black", fill="yellow",
       animate(attributeName='stroke.width', from=0, to=40, 
-                    begin=playButton.click, dur=2, fill="remove") 
-    )
-)
-```
-
-
-### Radius
-```{r, echo=T, results="asis"}
-WH<-c(800,200)
-svgR( 
-    playBar(wh=WH),
-    ellipse( cxy=WH/2, rxy=c(40,40), stroke="black", fill="blue",
-      animate(attributeName='rx', from=10, to=300, 
-                    begin=playButton.click, dur=2, fill="remove") 
-    )
-)
-```
-
-### Fill color
-```{r, echo=T, results="asis"}
-WH<-c(800,200)
-svgR( 
-    playBar(wh=WH),
-    ellipse( cxy=WH/2, rxy=c(40,40), stroke="black", fill="red",
-      animate(attributeName='fill', from='red', to='yellow', 
-                    begin=playButton.click, dur=2, fill="remove") 
+                    begin=playButton.click(), dur=2, fill="remove") 
     )
 )
 ```
@@ -72,7 +61,212 @@ svgR(
              stroke.width=10, stroke.dasharray=soffset,
              stroke.dashoffset=soffset,
       animate(attributeName='stroke.dashoffset', from=soffset, to=0, 
-                    begin=playButton.click, dur=.5, fill="remove") 
+                    begin=playButton.click(), dur=.5, fill="remove") 
+    )
+)
+```
+
+
+
+## The Fill Attribute
+
+### Fill color
+```{r, echo=T, results="asis"}
+WH<-c(800,200)
+svgR( 
+    playBar(wh=WH),
+    ellipse( cxy=WH/2, rxy=c(40,40), stroke="black", fill="red",
+      animate(attributeName='fill', from='red', to='yellow', 
+                    begin=playButton.click(), dur=2, fill="remove") 
+    )
+)
+```
+
+
+
+### Linear Gradient 1
+
+```{r, echo=TRUE, results="asis"}
+WH=c(450,300)
+svgR(
+    playBar(wh=WH),
+    defs(
+      linearGradient(id="myLinGradAnimate1",
+        xy1=c(.1,.1), xy2=c(.9,.9),             
+       stop(offset=0,stop.color='green'), #stop is the stop element
+       stop(offset=0.1,stop.color='black',
+            animate( attributeName='stop.color',
+              from='black',to='yellow',
+              begin=playButton.click(), dur=3) 
+       ),
+       stop(offset=0.9,stop.color='red')
+      )
+    ),
+    rect( cxy=c(200,150), 
+          fill= "url(#myLinGradAnimate1)", stroke="blue",
+          wh=c(200,200)
+    )
+)
+```
+
+### Linear Gradient 2
+
+
+```{r, echo=TRUE, results="asis"}
+WH=c(800,300)
+svgR(
+    playBar(wh=WH),
+    defs(
+      linearGradient(id="myLinGradAnimate2",
+        xy1=c(0,0), xy2=c(1,0),             
+       stop(offset=0,stop.color='green'), #stop is the stop element
+       stop(offset=0,stop.color='white',
+            animate( attributeName='offset',
+              from=0,to=1,
+              begin=playButton.click(), dur=3) 
+       ),
+       stop(offset=0.9,stop.color='red')
+      )
+    ),
+    rect( xy=c(20,20), wh=WH-c(40,80), 
+          fill= "url(#myLinGradAnimate2)", stroke="blue"
+    )
+)
+```
+
+### Linear Gradient 3
+
+```{r, echo=TRUE, results="asis"}
+WH=c(800,300)
+colors=c('blue','white','red')
+svgR(
+    playBar(wh=WH),
+    defs(
+      linearGradient(id="myLinGradAnimate3",
+        xy1=c(0,0), xy2=c(1,0),   
+        lapply( 1:3, function(i){
+          stop(offset=0, stop.color=colors[i], #stop is the stop element
+            animate(attributeName='offset',
+              from=.1*(i),to=.7+.1*(i), dur=3,
+              begin=playButton.click())        
+          )
+        })
+      )
+    ),
+    rect( xy=c(20,20), wh=WH-c(40,80), 
+          fill= "url(#myLinGradAnimate3)", stroke="blue"
+    )
+)
+```
+
+### Linear Gradient 4
+
+```{r, echo=TRUE, results="asis"}
+WH=c(800,300)
+colors=c('darkblue','white','black')
+svgR(
+    playBar(wh=WH),
+    defs(
+      linearGradient(id="myLinGradAnimate4",
+        xy1=c(0,0), xy2=c(1,0),   
+        lapply( 1:3, function(i){
+          stop(offset=0, stop.color=colors[i], #stop is the stop element
+            animate(attributeName='offset',
+              from=.1*(i),to=.7+.1*(i), dur=.4, repeatCount=5,
+              begin=playButton.click())        
+          )
+        })
+      )
+    ),
+    text( "svgR",  cxy=c(.5,.4)*(WH-c(0,40)), font.size=150, 
+          fill= "url(#myLinGradAnimate4)", stroke="blue"
+    )
+)
+```
+
+### Radial Gradient 1
+
+
+```{r, echo=TRUE, results="asis"}
+WH=c(800,300)
+svgR(
+    playBar(wh=WH),
+    defs(
+      radialGradient(id="myRadGradAnimate1",
+        xy1=c(0,0), xy2=c(1,0),             
+       stop(offset=0,stop.color='red'), #stop is the stop element
+       stop(offset=0,stop.color='white',
+            animate( attributeName='offset',
+              from=0,to=1,
+              begin=playButton.click(), dur=3) 
+       ),
+       stop(offset=0.9,stop.color='green')
+      )
+    ),
+    rect( xy=c(20,20), wh=WH-c(40,80), 
+          fill= "url(#myRadGradAnimate1)", stroke="blue",
+          wh=c(200,200)
+    )
+)
+```
+
+### Radial Gradient 2
+
+```{r, echo=TRUE, results="asis"}
+WH=c(800,300)
+colors=c('red','white','green')
+svgR(
+    playBar(wh=WH),
+    defs(
+      radialGradient(id="myRadGradAnimate2",
+        xy1=c(0,0), xy2=c(1,0),             
+        lapply( 1:3, function(i){
+          stop(offset=0, stop.color=colors[i], #stop is the stop element
+            animate(attributeName='offset',
+              from=.1*(i),to=.7+.1*(i), dur=3,
+              begin=playButton.click())        
+          )
+        })
+    )),
+    rect( xy=c(20,20), wh=WH-c(40,80), 
+          fill= "url(#myRadGradAnimate2)", stroke="blue",
+          wh=c(200,200)
+    )
+)
+```
+
+
+
+## Coordinates Movement and Size Changes
+
+
+Recall continous animition can be divide  into animation that 
+
+- involves movement: 
+- animation that which does not.
+
+Continous animation that does not involve movement is implement with the animate element.
+
+The movement specication is one of the following 3:
+
+1. specification of beginning and ending coordinate values (xy or cxy) of an object to be changed (this section)
+2. specification of begining and ending transform attribute values of an object to be changed 
+3. specification of path along which an object is to move. (
+
+Here we describe the first. See the sections 
+[Continous Movement via the Transform Attribute](#continous-movement-via-the-transform-ttribute)
+and 
+[Continous Movement along a Path](continous-movement-along-a-path) for 2 and 3.
+
+
+### Radius
+```{r, echo=T, results="asis"}
+WH<-c(800,200)
+svgR( 
+    playBar(wh=WH),
+    ellipse( cxy=WH/2, rxy=c(40,40), stroke="black", fill="blue",
+      animate(attributeName='rx', from=10, to=300, 
+                    begin=playButton.click(), dur=2, fill="remove") 
     )
 )
 ```
@@ -84,19 +278,20 @@ svgR(
     playBar(wh=WH),
     circle( cxy=c(40,100), r=30, stroke="black", fill="lightgreen",
       animate(attributeName='cx', from='40', to='760', 
-                    begin=playButton.click, dur=1, fill="remove") 
+                    begin=playButton.click(), dur=1, fill="remove") 
     )
 )
 ```
 ### Coordinates: cxy
 ```{r, echo=T, results="asis"}
+library(svgR)
 WH<-c(800,300)
- pt<-c(30,30)
+pt<-c(30,30)
 svgR( 
     playBar(wh=WH),
     circle( cxy=pt, r=20, stroke="black", fill="lightgreen",
       animate(attributeName='cxy', from=pt, to=WH-pt, 
-                    begin=playButton.click, dur=2, fill="remove") 
+                    begin=playButton.click(), dur=2, fill="remove") 
     )
 )
 ```
@@ -108,15 +303,16 @@ svgR(
     playBar(wh=WH),
     circle( cxy=c(40,100), r=30, stroke="black", fill="lightgreen",
       animate(attributeName='cx', from='40', to='760', 
-                    begin=playButton.click, dur=1, fill="freeze"), 
+                    begin=playButton.click(), dur=1, fill="freeze"), 
       animate(attributeName='r', from='30', to='1', 
-                    begin=playButton.click, dur=1, fill="freeze"), 
+                    begin=playButton.click(), dur=1, fill="freeze"), 
       animate(attributeName='fill', from='red', to='red', 
-                    begin=playButton.click, dur=1, fill="freeze") 
+                    begin=playButton.click(), dur=1, fill="freeze") 
     )
 )
 ```
 
+## Text 
 
 ### Vertically Scrolling Text
 ```{r, echo=T, results="asis"}
@@ -139,7 +335,7 @@ svgR(
         text(txt[i], xy=c(0,i*dx-3), stroke='purple', stroke.width=2, font.size=dx-5)
       }),
       animate(attributeName='viewBox', from=c(0,0, WH2), to=c(0,dx*length(txt), WH2), 
-          begin=playButton.click, dur=1*length(txt), fill="remove")
+          begin=playButton.click(), dur=1*length(txt), fill="remove")
     )
 )
 ```
@@ -166,166 +362,14 @@ svgR(
         text(txt[i], xy=c(1.0*(i-1)*WH2[1],25), stroke='purple', stroke.width=2, font.size=dx/2)
       }),
       animate(attributeName='viewBox', from=c(0,0, WH2), to=c(WH2[1]*length(txt), 0, WH2), 
-          begin=playButton.click, dur=4*length(txt), fill="remove")
+          begin=playButton.click(), dur=4*length(txt), fill="remove")
     )
 )
 ```
 
 
 
-<br><br>
-
-### Linear Gradient 1
-
-```{r, echo=TRUE, results="asis"}
-WH=c(450,300)
-svgR(
-    playBar(wh=WH),
-    defs(
-      linearGradient(id="myLinGradAnimate1",
-        xy1=c(.1,.1), xy2=c(.9,.9),             
-       stop(offset=0,stop.color='green'), #stop is the stop element
-       stop(offset=0.1,stop.color='black',
-            animate( attributeName='stop.color',
-              from='black',to='yellow',
-              begin=playButton.click, dur=3) 
-       ),
-       stop(offset=0.9,stop.color='red')
-      )
-    ),
-    rect( cxy=c(200,150), 
-          fill= "url(#myLinGradAnimate1)", stroke="blue",
-          wh=c(200,200)
-    )
-)
-```
-
-### Linear Gradient 2
-
-
-```{r, echo=TRUE, results="asis"}
-WH=c(800,300)
-svgR(
-    playBar(wh=WH),
-    defs(
-      linearGradient(id="myLinGradAnimate2",
-        xy1=c(0,0), xy2=c(1,0),             
-       stop(offset=0,stop.color='green'), #stop is the stop element
-       stop(offset=0,stop.color='white',
-            animate( attributeName='offset',
-              from=0,to=1,
-              begin=playButton.click, dur=3) 
-       ),
-       stop(offset=0.9,stop.color='red')
-      )
-    ),
-    rect( xy=c(20,20), wh=WH-c(40,80), 
-          fill= "url(#myLinGradAnimate2)", stroke="blue"
-    )
-)
-```
-
-### Linear Gradient 3
-
-```{r, echo=TRUE, results="asis"}
-WH=c(800,300)
-colors=c('blue','white','red')
-svgR(
-    playBar(wh=WH),
-    defs(
-      linearGradient(id="myLinGradAnimate3",
-        xy1=c(0,0), xy2=c(1,0),   
-        lapply( 1:3, function(i){
-          stop(offset=0, stop.color=colors[i], #stop is the stop element
-            animate(attributeName='offset',
-              from=.1*(i),to=.7+.1*(i), dur=3,
-              begin=playButton.click)        
-          )
-        })
-      )
-    ),
-    rect( xy=c(20,20), wh=WH-c(40,80), 
-          fill= "url(#myLinGradAnimate3)", stroke="blue"
-    )
-)
-```
-
-### Linear Gradient 4
-
-```{r, echo=TRUE, results="asis"}
-WH=c(800,300)
-colors=c('darkblue','white','black')
-svgR(
-    playBar(wh=WH),
-    defs(
-      linearGradient(id="myLinGradAnimate4",
-        xy1=c(0,0), xy2=c(1,0),   
-        lapply( 1:3, function(i){
-          stop(offset=0, stop.color=colors[i], #stop is the stop element
-            animate(attributeName='offset',
-              from=.1*(i),to=.7+.1*(i), dur=.4, repeatCount=5,
-              begin=playButton.click)        
-          )
-        })
-      )
-    ),
-    text( "svgR",  cxy=c(.5,.4)*(WH-c(0,40)), font.size=150, 
-          fill= "url(#myLinGradAnimate4)", stroke="blue"
-    )
-)
-```
-
-### Radial Gradient 1
-
-
-```{r, echo=TRUE, results="asis"}
-WH=c(800,300)
-svgR(
-    playBar(wh=WH),
-    defs(
-      radialGradient(id="myRadGradAnimate1",
-        xy1=c(0,0), xy2=c(1,0),             
-       stop(offset=0,stop.color='red'), #stop is the stop element
-       stop(offset=0,stop.color='white',
-            animate( attributeName='offset',
-              from=0,to=1,
-              begin=playButton.click, dur=3) 
-       ),
-       stop(offset=0.9,stop.color='green')
-      )
-    ),
-    rect( xy=c(20,20), wh=WH-c(40,80), 
-          fill= "url(#myRadGradAnimate1)", stroke="blue",
-          wh=c(200,200)
-    )
-)
-```
-
-### Radial Gradient 2
-
-```{r, echo=TRUE, results="asis"}
-WH=c(800,300)
-colors=c('red','white','green')
-svgR(
-    playBar(wh=WH),
-    defs(
-      radialGradient(id="myRadGradAnimate2",
-        xy1=c(0,0), xy2=c(1,0),             
-        lapply( 1:3, function(i){
-          stop(offset=0, stop.color=colors[i], #stop is the stop element
-            animate(attributeName='offset',
-              from=.1*(i),to=.7+.1*(i), dur=3,
-              begin=playButton.click)        
-          )
-        })
-    )),
-    rect( xy=c(20,20), wh=WH-c(40,80), 
-          fill= "url(#myRadGradAnimate2)", stroke="blue",
-          wh=c(200,200)
-    )
-)
-```
-
+## Gausian Filter Primitive Animations
 
 ### Gaussian Blur
 
@@ -342,13 +386,13 @@ svgR(
         feGaussianBlur(in1="SourceAlpha", stdDeviation=0, y="-",
           animate(attributeName='stdDeviation',
         from=0,to=20, dur=1, 
-        begin=playButton.click)      
+        begin=playButton.click())      
     ))
   )
 )
 ```
 
-### Gaussian Blur $sigma_x$
+### Gaussian Blur $\sigma_x$
 
 This example illustrates a simple Gaussian Blur on the alpha channel where the
 standard deviation in the x direction is the attribute being animated.
@@ -364,7 +408,7 @@ svgR(
           feGaussianBlur(in1="SourceGraphic", stdDeviation=c(0,0), y="-",
             animate(attributeName='stdDeviation',
           from=c(0,0),to=c(20,0), dur=1, repeatCount=2,
-          begin=playButton.click )      
+          begin=playButton.click() )      
       ))
   )
 )
@@ -387,7 +431,7 @@ svgR(
         in2=feGaussianBlur( stdDeviation=3, 
           in1=feOffset( dxy=c(10,10), in1="SourceAlpha",
             animate(id='animateShadow1', attributeName='dx', from=10, to=-10, dur=dur,
-              begin=playButton.click, fill='freeze'
+              begin=playButton.click(), fill='freeze'
             ),
             animate(attributeName='dx', from=-10, to=10, dur=dur,
               begin="animateShadow1.end+0.5", fill='freeze'
@@ -397,7 +441,7 @@ svgR(
       )
     ),
     animate( attributeName="x", from=200, to=200+10, dur=dur,
-               begin=playButton.click, fill='freeze'
+               begin=playButton.click(), fill='freeze'
             ),
     animate(attributeName="x", from=200+10, to=200, dur=dur,
                begin="animateShadow1.end+0.5", fill='freeze'
@@ -417,7 +461,7 @@ svgR(
       pattern( xy=c(0,0), wh=c(40,40), patternUnits="userSpaceOnUse",
         rect(cxy=c(20,20), wh=c(30,30), fill='blue',
           animate( attributeName="fill", from='red', to='green', dur=.5,
-               begin=playButton.click, repeatCount=3
+               begin=playButton.click(), repeatCount=3
             )                  
           )
          )
@@ -436,7 +480,7 @@ svgR(
       pattern( xy=c(10,10), wh=c(40,40), patternUnits="userSpaceOnUse",
         circle(cxy=c(10,10), r=5, fill='blue',
           animate( attributeName="r", from=5, to=20, dur=.5,
-               begin=playButton.click, repeatCount=8
+               begin=playButton.click(), repeatCount=8
             )                  
           )
          )
@@ -454,13 +498,15 @@ svgR(
       pattern( xy=c(10,10), wh=c(40,40), patternUnits="userSpaceOnUse",
         circle(cxy=c(10,10), r=5, fill='blue',
           animate( attributeName="r", from=5, to=30, dur=.5,
-               begin=playButton.click, repeatCount=8
+               begin=playButton.click(), repeatCount=8
             )                  
           )
          )
   )
 )
 ```
+
+## Color Rotation
 
 ###  hueRotate 1
 
@@ -474,7 +520,7 @@ svgR(
       filter= filter( 
       feColorMatrix(type="hueRotate", values=0,
           animate( attributeName="values", from=0, to=360, dur=1,
-              begin=playButton.click, repeatCount=5
+              begin=playButton.click(), repeatCount=5
           )                  
       )  
     )
@@ -495,7 +541,7 @@ svgR(
       filter= filter( 
       feColorMatrix(type="hueRotate", values=0,
           animate( attributeName="values", from=0, to=360, dur=1,
-              begin=playButton.click, repeatCount=5
+              begin=playButton.click(), repeatCount=5
           )                  
       )  
     )
@@ -504,7 +550,7 @@ svgR(
 ```
 
 
-## Animating Shapes
+## Shape Shifting
 
 ### Morphology
 
@@ -518,7 +564,7 @@ svgR(
         filter=filter(
           feMorphology(radius=1, operator='dilate',
              animate( attributeName="radius", from=1, to=10, dur=2,
-              begin=playButton.click, repeatCount=5
+              begin=playButton.click(), repeatCount=5
              )
           )
         )
@@ -561,7 +607,7 @@ svgR(
                   yChannelSelector="R",
                   xChannelSelector="B",
                   animate(id='animateFilter2', attributeName='scale', from=150, to=1,
-                    begin=playButton.click, dur=3, fill='freeze'),
+                    begin=playButton.click(), dur=3, fill='freeze'),
                   animate(id='animateFilter2', attributeName='scale', from=1, to=150,
                     begin='animateFilter2.end + 1', dur=2, fill='freeze')
                 )
@@ -611,7 +657,7 @@ svgR(
             yChannelSelector="R",
             xChannelSelector="B",
             animate(id='animateFilter5', attributeName='scale', from=sc, to=1,
-              begin=playButton.click, dur=4, fill='freeze'),
+              begin=playButton.click(), dur=4, fill='freeze'),
             animate(id='animateFilter6', attributeName='scale', from=1, to=sc,
               begin='animateFilter5.end + 3', dur=4, fill='freeze')
           )
@@ -620,7 +666,7 @@ svgR(
 )
 ```
 
-## Variable Rates with Animate
+## Controling the Animation Rates
 
 ### Using keyTimes and a Linear calcMode 
 
@@ -652,7 +698,7 @@ svgR(
     circle( cxy=c(0,.5)*WH, r=10, stroke="black", fill="yellow",
       animate( attributeName='cx', values=c(40, 144, 760),
                     keyTimes=c(0,0.95,1),  
-                    begin=playButton.click, dur=5)
+                    begin=playButton.click(), dur=5)
     )
 )
 ```
@@ -663,9 +709,9 @@ The rate changes for calcMode Linear are step functions.
 (Unlike **animateMotion**, where the default *calcMode* is *paced* )
 
 
-### Using keySplines with animate for a Gradual Rate Change
+## Using keySplines with animate for a Gradual Rate Change
 
-####  Fast  at the beginning and Slow at the end
+###  Fast  at the beginning and Slow at the end
 ```{r, echo=T, results="asis"}
   WH<-c(800,200)
   svgR( 
@@ -675,11 +721,11 @@ The rate changes for calcMode Linear are step functions.
       circle( cxy=c(40,100), r=30, stroke="black", fill="yellow",
         animate(attributeName='cx', values=c(40,760), calcMode="spline",
               keyTimes=c(0,1), keySplines="0 0.75 0.25 1",
-                      begin=playButton.click, dur=5, fill="remove") 
+                      begin=playButton.click(), dur=5, fill="remove") 
       )
   )
 ```
-#### Slow  at the beginning and Fast at the end
+### Slow  at the beginning and Fast at the end
 ```{r, echo=T, results="asis"}
   WH<-c(800,200)
   svgR( 
@@ -689,12 +735,12 @@ The rate changes for calcMode Linear are step functions.
       circle( cxy=c(40,100), r=30, stroke="black", fill="yellow",
         animate(attributeName='cx', values=c(40,760), calcMode="spline",
               keyTimes=c(0, 1), keySplines=".75 0 1 .25",
-                      begin=playButton.click, dur=5, fill="remove") 
+                      begin=playButton.click(), dur=5, fill="remove") 
       )
   )
 ```
 
-####  Slow  at the beginning and at the end
+###  Slow  at the beginning and at the end
 ```{r, echo=T, results="asis"}
   WH<-c(800,200)
   svgR( 
@@ -704,11 +750,11 @@ The rate changes for calcMode Linear are step functions.
       circle( cxy=c(40,100), r=30, stroke="black", fill="yellow",
         animate(attributeName='cx', values=c(40,760), calcMode="spline",
               keyTimes=c(0, 1), keySplines="0 0.5 0.5 1",
-                      begin=playButton.click, dur=5, fill="remove") 
+                      begin=playButton.click(), dur=5, fill="remove") 
       )
   )
 ```
-####  Fast  at the beginning and at the end
+###  Fast  at the beginning and at the end
 ```{r, echo=T, results="asis"}
   WH<-c(800,200)
   svgR( 
@@ -719,13 +765,13 @@ The rate changes for calcMode Linear are step functions.
         animate(attributeName='cx', values=c(40,760), calcMode="spline",
               keyTimes=c(0, 1), 
               keySplines=c(0,.5,1,.5),
-                      begin=playButton.click, dur=5, fill="remove") 
+                      begin=playButton.click(), dur=5, fill="remove") 
       )
   )
 ```
 
 
-####  Two slow downs
+###  Two slow downs
 ```{r, echo=T, results="asis"}
   WH<-c(800,200)
   svgR( 
@@ -736,12 +782,14 @@ The rate changes for calcMode Linear are step functions.
         animate(attributeName='cx', values=c(40,(40+760)/2, 760), calcMode="spline",
               keyTimes=c(0, .5, 1), 
               keySplines=rep(c(0,.5,1,.5),2),
-                      begin=playButton.click, dur=5, fill="remove") 
+                      begin=playButton.click(), dur=5, fill="remove") 
       )
   )
 ```
 
-### Path Animation
+## Animating Path-Defined Shapes
+
+### Spike and Twist
 
 ```{r, echo=T, results="asis"}
 WH<-c(800,300)
@@ -771,11 +819,11 @@ svgR(
   path(fill=goodFill, stroke='blue', d=as.path(pts0),
     animate( attributeName='d', 
       values=list(as.path(pts0),as.path(pts1),as.path(pts2)),
-      begin=playButton.click, dur=5, fill="remove"
+      begin=playButton.click(), dur=5, fill="remove"
     ),
     animate( attributeName='fill',
       values=c(goodFill,badFill,goodFill),
-      begin=playButton.click, dur=5, fill="remove"
+      begin=playButton.click(), dur=5, fill="remove"
     )
   )
 )
@@ -804,7 +852,7 @@ svgR(
   path(fill='red', stroke='blue', d=as.path(pts0),
     animate( attributeName='d', 
       values=list(as.path(pts0),as.path(pts1)),
-      begin=playButton.click, dur=2, fill="remove"
+      begin=playButton.click(), dur=2, fill="remove"
     )
   ), 
   lapply(1:N, function(i){
@@ -817,7 +865,7 @@ svgR(
 ```
 
 
-### Path Animation
+### Stab
 
 ```{r, echo=T, results="asis"}
 WH<-c(800,300)
@@ -847,13 +895,13 @@ svgR(
     d=as.path( rbind(x, rep(WH[2]/2,NX))),
     animate( attributeName='d', 
       values=values,
-      begin=playButton.click, dur=10, fill="remove"
+      begin=playButton.click(), dur=10, fill="remove"
     )
   )
 )
 ```
 
-### Path Animation
+### Sin Wave
 
 ```{r, echo=T, results="asis"}
 WH<-c(800,300)
@@ -884,14 +932,14 @@ svgR(
     d=as.path( rbind(x, rep(WH[2]/2,NX))),
     animate( attributeName='d', 
       values=values,
-      begin=playButton.click, dur=5, fill="remove"
+      begin=playButton.click(), dur=5, fill="remove"
     )
   )
 )
 ```
 
 
-### Path Animation 3
+### Standing Wave
 
 ```{r, echo=T, results="asis"}
 WH<-c(800,300)
@@ -924,14 +972,15 @@ svgR(
     d=as.path( rbind(x, rep(WH[2]/2,NX))),
     animate( attributeName='d', 
       values=values,
-      begin=playButton.click, dur=5, fill="remove"
+      begin=playButton.click(), dur=5, fill="remove"
     )
   )
 )
 ```
 
+## Animating Light Positions
 
-### Diffuse PointLight
+### Diffuse PointLight Position
 
 Here we rotate the light source about the center of the circle, starting slightly above 0 to $\pi/2$ using Diffuse + pointlight
 Specifying both x and y animation positions seperately.
@@ -956,8 +1005,8 @@ svgR(
           in2= feDiffuseLighting( lighting.color="white", diffuseConstant=1.2,
             in1="SourceGraphic",
             fePointLight( xyz=c(WH/2,10), #lightPos(pi/2),
-              animate( attributeName='x', values=x, dur=5, begin=playButton.click,fill="remove"),
-              animate( attributeName='y', values=y, dur=5, begin=playButton.click,fill="remove")
+              animate( attributeName='x', values=x, dur=5, begin=playButton.click(),fill="remove"),
+              animate( attributeName='y', values=y, dur=5, begin=playButton.click(),fill="remove")
             ) 
           )
         )
@@ -968,7 +1017,7 @@ svgR(
 ```
 
 
-### Diffuse PointLight 2
+### Diffuse PointLight Postion 2
 Again we rotate the light source about the center of the circle, 
 starting slightly above 0 to $\pi/2$ using Diffuse + pointlight. 
 
@@ -1004,7 +1053,7 @@ svgR(
               animate(attributeName='xyz',
               values=lightPos,
               dur=5, 
-              begin=playButton.click,fill="remove"
+              begin=playButton.click(),fill="remove"
               )
             ) 
           )

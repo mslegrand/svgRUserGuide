@@ -12,9 +12,7 @@ stopifnot(require(svgR, quietly=TRUE))
 ```
 
 ```{r, echo=FALSE, results="asis"}
-if(!exists("newId")){
-  source('Util.R')
-}
+source('Util.R')
 ```
 
 <a name="animateMotion"></a> 
@@ -31,7 +29,7 @@ svgR(
      text("Straight line", xy=c(30,30), font.size=25, fill="blue", font='black'),
      circle( cxy=c(20,WH[2]/2-15), r=10, stroke="black", fill="yellow",
       animateMotion(from=c(0,0), to=c(WH[1]-40,0), 
-                    begin=playButton.click, dur=2, fill="remove") 
+                    begin=playButton.click(), dur=2, fill="remove") 
     )
 )
 ```
@@ -41,12 +39,14 @@ svgR(
 
 <a name="animate-along-path-flat" /> 
 
-### Animating Text Along a Path Using Animate Motion with Fixed Text Orientation
+## Animating Text Along a Path 
+
+### Using Animate Motion with Fixed Text Orientation
 
 This  example illustrates text being moved along a path while maintaining
 text orientation. Here the path *d* is specified using *absolute coordinates*.
 
-#### Using absolute coordinates
+### Using absolute coordinates
 
 ```{r, echo=T, results="asis"}
 WH<-c(800,150)
@@ -64,7 +64,7 @@ svgR(
      text("data", cxy=c(0,0),  
         stroke="black", 
       animateMotion(path=d,  
-                    begin=playButton.click, dur=dur, fill="remove") 
+                    begin=playButton.click(), dur=dur, fill="remove") 
     )
 )
 ```
@@ -74,7 +74,7 @@ Thus, when the animation completes, the text position is restored to c(0,0). To 
 initail text postion on the path, we set *circle* parameter *cxy=(60,y0)*, and then
 use relative coordinates instead. This is illustrated in the next example
 
-#### Using Relative Coordinates
+### Using Relative Coordinates
 
 ```{r, echo=T, results="asis"}
 WH<-c(800,150)
@@ -93,16 +93,14 @@ svgR(
      text("data", cxy=c(60,y0),  
         stroke="black", 
       animateMotion(path=d,  
-                    begin=playButton.click, dur=dur, fill="remove") 
+                    begin=playButton.click(), dur=dur, fill="remove") 
     )
 )
 ```
 
 
 
-
-
-### Animating Text Along a Path Using Animate Motion with Auto Text Orientation
+### Animating Text  Auto Text Orientation
 
 
 The key to allowing the the text rotate is to set the *rotate* attribute to *auto*. In addition, 
@@ -126,14 +124,14 @@ svgR(
       text("data", cxy=c(0,0),  
         stroke="black", 
         animateMotion(path=d,  
-                      begin=playButton.click, dur=10, fill="remove", rotate='auto') 
+                      begin=playButton.click(), dur=10, fill="remove", rotate='auto') 
       ),
       transform=list(translate=c(60,y0))
     )
 )
 ```
 
-### A Bouncing Ball
+###A Bouncing Ball
 
 Here we use *path* to provide the trajectory of a bouncing ball.
 
@@ -154,17 +152,17 @@ svgR(
     playBar(wh=WH),
     ellipse( cxy=c(20,280), rxy=c(10,10), stroke="black", fill="yellow",
       animateMotion(id=ani.id, path=d, 
-                    begin=playButton.click, dur=3, fill="freeze"),
+                    begin=playButton.click(), dur=3, fill="freeze"),
       animate(attributeName="rx",from=10,to=50,begin=paste0(ani.id,".end"), dur=splat.dur, fill="freeze"),
       animate(id=splat.id, attributeName="ry",from=10,to=2, begin=paste0(ani.id,".end"), dur=splat.dur, fill="freeze" ),
-      set(attributeName="cx", to="20",  begin=playButton.click, fill='freeze'),
-      set(attributeName="cy", to="280", begin=playButton.click, fill='freeze'),
-      set(attributeName="rx", to="10",  begin=playButton.click, fill='freeze'),
-      set(attributeName="ry", to="10",  begin=playButton.click, fill='freeze')
+      set(attributeName="cx", to="20",  begin=playButton.click(), fill='freeze'),
+      set(attributeName="cy", to="280", begin=playButton.click(), fill='freeze'),
+      set(attributeName="rx", to="10",  begin=playButton.click(), fill='freeze'),
+      set(attributeName="ry", to="10",  begin=playButton.click(), fill='freeze')
     ),
     text('Splat', font.size=90, cxy=c(650,200), stroke='red', fill='red', visibility='hidden',
       set(attributeName='visibility', to="visible",  begin=paste0(ani.id,".end"), fill='freeze'),
-      set(attributeName='visibility', to="hidden",  begin=playButton.click, fill='freeze')
+      set(attributeName='visibility', to="hidden",  begin=playButton.click(), fill='freeze')
     )
 )
 ```
@@ -192,7 +190,7 @@ svgR(
     circle( cxy=c(0,.5)*WH, r=10, stroke="black", fill="yellow",
       animateMotion(id= aniMotion, path=d, 
                     keyTimes=c(0,0.95,1), keyPoints=c(0,0.2,1), calcMode="linear",
-                    begin=playButton.click, dur=5), 
+                    begin=playButton.click(), dur=5), 
       animateMotion(path=c("M", WH*c(.1,.5), 
                     begin=paste0("on.load;",aniMotion,".onend"), dur=0, fill="freeze"))
     )
@@ -220,7 +218,7 @@ svgR(
       animateMotion(id= aniMotion, path=d, calcMode="spline",
                     keyPoints=c(0,1),
                     keyTimes=c(0,1), keySplines="0 0.75 0.25 1",
-                    begin=playButton.click, dur=5), 
+                    begin=playButton.click(), dur=5), 
       animateMotion(path=c("M", WH*c(.1,.5), 
                     begin=paste0("on.load;",aniMotion,".onend"), dur=0, fill="freeze"))
     )
@@ -228,7 +226,7 @@ svgR(
 ```
 <a name="bouncingBallWithKeySplines" />
 
-### A Bouncing Ball with keySplines
+## A Bouncing Ball with keySplines
 
 Here we use *path* to provide the trajectory of a bouncing ball.
 
@@ -253,17 +251,17 @@ svgR(
                     keyPoints=seq(0,1,length.out=1+NumberOfJumps),
                     keyTimes=seq(0,1,length.out=1+NumberOfJumps), 
                     keySplines=rep( c(0,.6,1,.4), NumberOfJumps),
-                    begin=playButton.click, dur=3, fill="freeze"),
+                    begin=playButton.click(), dur=3, fill="freeze"),
       animate(attributeName="rx",from=10,to=50,begin=paste0(ani.id,".end"), dur=splat.dur, fill="freeze"),
       animate(id=splat.id, attributeName="ry",from=10,to=2, begin=paste0(ani.id,".end"), dur=splat.dur, fill="freeze" ),
-      set(attributeName="cx", to="20",  begin=playButton.click, fill='freeze'),
-      set(attributeName="cy", to="280", begin=playButton.click, fill='freeze'),
-      set(attributeName="rx", to="10",  begin=playButton.click, fill='freeze'),
-      set(attributeName="ry", to="10",  begin=playButton.click, fill='freeze')
+      set(attributeName="cx", to="20",  begin=playButton.click(), fill='freeze'),
+      set(attributeName="cy", to="280", begin=playButton.click(), fill='freeze'),
+      set(attributeName="rx", to="10",  begin=playButton.click(), fill='freeze'),
+      set(attributeName="ry", to="10",  begin=playButton.click(), fill='freeze')
     ),
     text('Splat', font.size=90, cxy=c(650,200), stroke='red', fill='red', visibility='hidden',
       set(attributeName='visibility', to="visible",  begin=paste0(ani.id,".end"), fill='freeze'),
-      set(attributeName='visibility', to="hidden",  begin=playButton.click, fill='freeze')
+      set(attributeName='visibility', to="hidden",  begin=playButton.click(), fill='freeze')
     )
 )
 ```

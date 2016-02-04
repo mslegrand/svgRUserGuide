@@ -12,9 +12,7 @@ stopifnot(require(svgR, quietly=TRUE))
 ```
 
 ```{r, echo=FALSE}
-if(!exists("newId")){
   source('Util.R')
-}
 ```
 
 <a name="animateTransform" /> 
@@ -34,7 +32,7 @@ any combination of the following:
 
 We start by showing some basic operations:
 
-
+### AnimateTransform Translate
 ```{r, echo=T, results="asis"}
 WH<-c(800,200)
 dur=5
@@ -45,12 +43,13 @@ svgR(
     rect( xy=c(80,80), wh=c(40,40), fill='lightblue', stroke='blue', opacity=0.5,
       animateTransform(attributeName="transform", type='translate',
               from=c(0,0), to=c(600,0), 
-              begin=playButton.click, dur=dur
+              begin=playButton.click(), dur=dur
       )
     )    
 )
 ```
 
+## AnimateTransform Rotate
 
 ```{r, echo=T, results="asis"}
 WH<-c(800,250)
@@ -62,7 +61,7 @@ svgR(
     fill='#80FFFF',stroke='red',
     animateTransform(attributeName="transform", type='rotate',
             from=c(0,WH/2), to=c(360,WH/2), 
-            begin=playButton.click, dur=2, 
+            begin=playButton.click(), dur=2, 
             repeatCount=5 
     )
    )
@@ -81,7 +80,7 @@ rc=5
 svgR( 
   playBar(wh=WH), 
   text( "I'm busy", xy=c(300,80), fill='red', font.size=60, visibility='hidden',
-    set(attributeName="visibility", to="visible",begin=playButton.click, dur=dur*rc)
+    set(attributeName="visibility", to="visible",begin=playButton.click(), dur=dur*rc)
   ),
   g(
     lapply(1:N, function(i){
@@ -91,7 +90,7 @@ svgR(
     }),
     animateTransform(attributeName="transform", type='rotate',
             from=c(0,150,50), to=c(360,150,50), 
-            begin=playButton.click, dur=dur, 
+            begin=playButton.click(), dur=dur, 
             repeatCount=rc 
     )
   )
@@ -99,6 +98,7 @@ svgR(
 ```
 
 
+## AnimateTransform Scale
 
 #### Animated Scaling With the Origin as the Fixed Point
 
@@ -120,7 +120,7 @@ svgR(
     rect( xy=c(100,50),wh=rect.wh, fill='lightblue', stroke='blue', opacity=.6,
       animateTransform(attributeName="transform", type='scale',
               from=c(1,1), to=c(2,2), 
-              begin=playButton.click, dur=dur
+              begin=playButton.click(), dur=dur
       )
     )    
   )
@@ -156,12 +156,12 @@ svgR(
       rect( xy=pt-rect.wh/2, wh=rect.wh, fill='lightblue', stroke='blue', opacity=.6,
         animateTransform(attributeName="transform", type='scale', 
               from=c(1,1), to=alpha, 
-              begin=playButton.click, dur=dur
+              begin=playButton.click(), dur=dur
         )
       ),
       animateTransform(attributeName="transform", type='translate', additive='sum',
         from=c(0,0), to=(c(1,1)-alpha)*pt, 
-        begin=playButton.click, dur=dur
+        begin=playButton.click(), dur=dur
       )     
     )
   )
@@ -211,7 +211,7 @@ svgR(
       rect( cxy=c(0,0), wh=rect.wh, fill='lightgreen', stroke='blue', opacity=.6,
         animateTransform(attributeName="transform", type='scale', 
               from=c(1,1), to=alpha, 
-              begin=playButton.click, dur=dur
+              begin=playButton.click(), dur=dur
         )
       ) 
     )   
@@ -240,19 +240,21 @@ svgR(
       rect( cxy=pt, wh=c(50,50), fill='lightblue', stroke='blue', opacity=.6,
         animateTransform(attributeName="transform", type='scale', 
               from=c(1,1), to=alpha, 
-              begin=playButton.click, dur=dur
+              begin=playButton.click(), dur=dur
         )
       ),
       animateTransform(attributeName="transform", type='translate', additive='sum',
         from=c(0,0), to=(c(1,1)-alpha)*pt, 
-        begin=playButton.click, dur=dur
+        begin=playButton.click(), dur=dur
       )     
     )
   )
 )
 ```
 
-#### Skewing Along the X Axis with the Origin as the Fixed Point
+## AnimateTransform Skew
+
+### Skewing Along the X Axis with the Origin as the Fixed Point
 
 Here we take a rectangle located at c(0,0) and use **animateTransform** *type='skewX'*
 to skew it.
@@ -266,14 +268,14 @@ svgR(
   rect( xy=c(0,0), wh=c(100,100), fill='lightblue', stroke='blue', opacity=.6,
     animateTransform(attributeName="transform", type='skewX',
             from=0, to=45, 
-            begin=playButton.click, dur=5 
+            begin=playButton.click(), dur=5 
             
     )
    )
 )
 ```
 
-#### Skewing Along the Y Axis with the Origin as the Fixed Point
+### Skewing Along the Y Axis with the Origin as the Fixed Point
 
 Here we take a rectangle located at c(0,0) and use **animateTransform** *type='skewY'*
 to skew it.
@@ -287,14 +289,14 @@ svgR(
   rect( xy=c(0,0), wh=c(100,100), fill='lightblue', stroke='blue', opacity=.6,
     animateTransform(attributeName="transform", type='skewY',
             from=0, to=45, 
-            begin=playButton.click, dur=5 
+            begin=playButton.click(), dur=5 
             
     )
    )
 )
 ```
 
-#### Skewing Along the X Axis with the Origin with a Given Fixed Point
+### Skewing Along the X Axis with the Origin with a Given Fixed Point
 
 In this example we 
 take a rectangle centered at the middle of the *viewPort* (WH/2) and use 
@@ -326,7 +328,7 @@ svgR(
       rect( cxy=c(0,0), wh=rect.wh, fill='lightgreen', stroke='blue', opacity=.6,
         animateTransform(attributeName="transform", type='skewX', 
               from=0, to=45, 
-              begin=playButton.click, dur=dur
+              begin=playButton.click(), dur=dur
         )
       ) 
     )  

@@ -13,9 +13,7 @@ stopifnot(require(svgR, quietly=TRUE))
 ```
 
 ```{r, echo=FALSE}
-if(!exists("newId")){
   source('Util.R')
-}
 ```
 
 ## Markers
@@ -101,7 +99,7 @@ svgR( wh=WH,
 )
 ```
 
-### Exoctic Markers
+### Exotic Markers
 
 Varing the marker path allows for a more exotic look.
 
@@ -175,5 +173,7 @@ svgR( wh=WH,
   )
 )
 ```
+
+
 
 

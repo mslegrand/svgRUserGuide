@@ -11,10 +11,7 @@ stopifnot(require(svgR, quietly=TRUE))
 ```
 
 ```{r, echo=FALSE}
-if(!exists("newId")){
   source('Util.R')
-}
-
 ```
 
 
@@ -207,5 +204,32 @@ rect( cxy=WH/2, wh=c(600,20), fill='lightblue',
                 )
           )
       )
+)
+```
+
+## Data Corruption
+
+```{r, echo=T, results="asis"}
+library(svgR)
+WH=c(800, 400) # window rect
+svgR( wh=WH, 
+      symbol( 
+        rect( id="dispy", xy=c(0,0)*WH,  wh=WH, fill='blue',
+                filter = funkyFilter("funky2", baseFrequency = .005)
+        )
+      ),
+      g(  lapply(1:50, function(i)text("Data", cxy=runif(2)*.8*WH, 
+                          fill=rrgb(),  font.size=sample(10:30,1))),
+          filter=filter( xy=c(0,0), filterUnits='userSpaceOnUse',
+              feDisplacementMap(
+                in1="SourceGraphic",
+                in2=feImage( xlink.href='#dispy'),
+                scale=50,
+                yChannelSelector="R",
+                xChannelSelector="B"
+              )
+          )
+      ),
+      text("Data corruption", xy=c(20,30), font.size=26)
 )
 ```

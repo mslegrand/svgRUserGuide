@@ -13,11 +13,13 @@ stopifnot(require(svgR, quietly=TRUE))
 ```
 
 ```{r, echo=FALSE}
-if(!exists("newId")){
   source('Util.R')
-}
 ```
 
+Shiny beveling is a popular example of what can be accomplished
+using the right lighting.
+
+## Shining with Lighting
 We can 
 shiny bevel
 ```{r, echo=T, results="asis"}
@@ -47,70 +49,148 @@ svgR( wh=WH,
 )
 ```
 
-shiny bevel
+## Wrapping a Filter
+But we can also wrap this filter as a user defined filter element by
+
+```{r, echo=T}
+sbevelFilter %<c-% function(lighting.color="white", xyz=c(40,-30,200) ){
+  filter(
+      feMerge( 
+         feMergeNode(in1="SourceGraphic"),
+         feMergeNode(
+           in1=feComposite( operator='in',
+                in1=feSpecularLighting( surfaceScale=6,
+                                        specularConstant=1,
+                                        specularExponent=30,
+                                        lighting.color=lighting.color,
+                                        in1=feGaussianBlur(
+                                          stdDeviation=5,
+                                          in1="SourceAlpha"),
+                                        fePointLight(xyz=xyz)
+                                        ),
+                in2="SourceAlpha"
+                )
+           )
+         )
+    )
+}
+```
+
+and then  use as like so
+```{r, echo=T, results="asis"}
+WH=c(800, 200) # window rect
+svgR( wh=WH,
+  text( "R Rocks!", cxy=c(400,100), fill="darkblue", font.size=190, font.face='bold',
+    filter = sbevelFilter()
+  )
+)
+```
+
+## Shing S
+
+In this section we create several shiny letters S using the sbevelFilter
+
+### Silver Metallic Shiny S
+
+For a  shiny bevel letter S, with grey scale we simple 
+add a circle and change the text to "S" , both with a black stroke.
+
+
+
+
 ```{r, echo=T, results="asis"}
 WH=c(800, 250) # window rect
 svgR( wh=WH,
-  g(
+  g( 
     text( "S", cxy=WH/2, fill="black", font.size=100, 
           font.family="serif", stroke.width=3),
     circle(cxy=WH/2, r=39, stroke.width=10, fill='none'  ),
-     stroke='black',
-    filter = filter(
-      feMerge( 
-         feMergeNode(in1="SourceGraphic"),
-         feMergeNode(
-           in1=feComposite( operator='in',
-                in1=feSpecularLighting( surfaceScale=6,
-                                        specularConstant=1,
-                                        specularExponent=30,
-                                        lighting.color="white",
-                                        in1=feGaussianBlur(
-                                          stdDeviation=5,
-                                          in1="SourceAlpha"),
-                                        fePointLight(xyz=c(40,-30,200))
-                                        ),
-                in2="SourceAlpha"
-                )
-           )
-         )
-    )
+     stroke='black', filter=sbevelFilter()
   )
 )
 ```
 
-shiny bevel
+### Metallic Shiny S's
+For variety, we can vary color of the text stroke
+
 ```{r, echo=T, results="asis"}
 WH=c(800, 250) # window rect
+colors<-c("purple", "darkblue", "darkgreen", "brown", "darkorange")
 svgR( wh=WH,
-  g(
-    text( "svgR", cxy=WH/2, fill="black", font.size=100, 
-          font.family="san serif", stroke.width=3),
-    circle(cxy=WH/2, r=99, stroke.width=10, fill='none'  ),
-     stroke='black',
-    filter = filter(
-      feMerge( 
-         feMergeNode(in1="SourceGraphic"),
-         feMergeNode(
-           in1=feComposite( operator='in',
-                in1=feSpecularLighting( surfaceScale=6,
-                                        specularConstant=1,
-                                        specularExponent=30,
-                                        lighting.color="white",
-                                        in1=feGaussianBlur(
-                                          stdDeviation=5,
-                                          in1="SourceAlpha"),
-                                        fePointLight(xyz=c(40,-30,200))
-                                        ),
-                in2="SourceAlpha"
-                )
-           )
-         )
+  lapply(1:5, function(i){
+    cxy=WH*c(i*.15,.5)
+    g( 
+      text( "S", cxy=cxy, fill=colors[i], font.size=100, 
+          font.family="serif", stroke.width=3),
+      circle(cxy=cxy, r=39, stroke.width=10, fill='none'  ),
+        stroke='black', filter=sbevelFilter()
     )
-  )
+  })
 )
 ```
 
+### Metallic Shiny S's Lighting
+
+And, we can also vary color of the light
+
+```{r, echo=T, results="asis"}
+WH=c(800, 250) # window rect
+colors<-c("purple", "darkblue", "darkgreen", "brown", "darkorange")
+lighting.color<-c("lightblue", "yellow", "pink", "orange", "lightgreen")
+
+svgR( wh=WH,
+  lapply(1:5, function(i){
+    cxy=WH*c(i*.15,.5)
+    g( 
+      text( "S", cxy=cxy, fill=colors[i], font.size=100, 
+          font.family="serif", stroke.width=3),
+      circle(cxy=cxy, r=39, stroke.width=10, fill='none'  ),
+        stroke='black', filter=sbevelFilter(lighting.color=lighting.color[i])
+    )
+  })
+)
+```
+Looking at the above, we see that the position of reflection varies from S to S. This
+is because the position of the S varies, while the lights 
+is fixed.  (There are 5 colored lights: "lightblue", "yellow", "pink", "orange", "lightgreen")
+
+
+### Metallic Shiny S's Lighting Compare
+
+To compare each S, we probably want to require the same light relative light posistion be applied
+to each letter. 
+Here we maintain the same that relative position.
+This causes the highlights to appear in the same position across all letters S. Now we can compare,
+however, as a complete image, the effect is poor. This is because the human eye assumes a light source
+at a fixed posistion and wants the reflections to vary accordingly.
+ 
+
+
+```{r, echo=T, results="asis"}
+WH=c(800, 250) # window rect
+colors<-c("purple", "darkblue", "darkgreen", "brown", "darkorange")
+lighting.color<-c("lightblue", "yellow", "pink", "orange", "lightgreen")
+
+svgR( wh=WH,
+  lapply(1:5, function(i){
+    cxy=WH*c(i*.15,.5)
+    g( 
+      text( "S", cxy=cxy, fill=colors[i], font.size=100, 
+          font.family="serif", stroke.width=3),
+      circle(cxy=cxy, r=39, stroke.width=10, fill='none'  ),
+        stroke='black', filter=sbevelFilter(lighting.color=lighting.color[i])
+    )
+  })
+)
+```
+
+
+
+## A Logo for a User Guide
+
+### A Metallic svgR
+
+Of course we do use any text, with any size for the same filter.
 
 shiny bevel
 ```{r, echo=T, results="asis"}
@@ -120,33 +200,16 @@ svgR( wh=WH,
     text( "svgR", cxy=WH/2, fill="darkred", font.size=100, 
           font.family="san serif", stroke.width=3),
     circle(cxy=WH/2, r=99, stroke.width=10, fill='none'  ),
-     stroke='black',
-    filter = filter(
-      feMerge( 
-         feMergeNode(in1="SourceGraphic"),
-         feMergeNode(
-           in1=feComposite( operator='in',
-                in1=feSpecularLighting( surfaceScale=6,
-                                        specularConstant=1,
-                                        specularExponent=30,
-                                        lighting.color="white",
-                                        in1=feGaussianBlur(
-                                          stdDeviation=5,
-                                          in1="SourceAlpha"),
-                                        fePointLight(xyz=c(40,-30,200))
-                                        ),
-                in2="SourceAlpha"
-                )
-           )
-         )
-    )
+     stroke='black', filter=sbevelFilter()
   )
 )
 ```
 
+### Enhancing
 
+Adding a little more text, and setting the lighting.color to "yellow" produces
+something could be used as a logo on title page of a document:)
 
-shiny bevel
 ```{r, echo=T, results="asis"}
 WH=c(800, 250) # window rect
 svgR( wh=WH,     
@@ -157,26 +220,7 @@ svgR( wh=WH,
           font.family="fantasy", stroke.width=3),
     circle(cxy=WH*c(.25,.5), r=99, stroke.width=10, fill='none'  ),
      stroke='black',
-    filter = filter(
-      feMerge( 
-         feMergeNode(in1="SourceGraphic"),
-         feMergeNode(
-           in1=feComposite( operator='in',
-                in1=feSpecularLighting( surfaceScale=6,
-                                        specularConstant=1,
-                                        specularExponent=30,
-                                        lighting.color="yellow",
-                                        in1=feGaussianBlur(
-                                          stdDeviation=5,
-                                          in1="SourceAlpha"),
-                                        fePointLight(xyz=c(40,-30,200))
-                                        ),
-                in2="SourceAlpha"
-                )
-           )
-         )
-    )
+    filter = sbevelFilter(lighting.color="yellow")
   )
 )
 ```
-

@@ -13,11 +13,12 @@ stopifnot(require(svgR, quietly=TRUE))
 
 ```{r, echo=FALSE}
 if(!exists("newId")){
-  source('Util.R')
+  source('~/R/svgRUserGuide/Util.R')
 }
 ```
 
-### Lighting Overview
+
+## Lighting Overview
 
 <table ><tr><td>
 ```{r, echo=F, results='asis'}
@@ -69,7 +70,7 @@ Each in turn, will be describe in this section. This will be followed
 by examples illustrating some of the differences.
 </td></tr></table>
 
-#### Geometry
+## Geometry
 
 In this section we describe how we represent repesent a shape as 3-dimensional
 object.
@@ -227,7 +228,7 @@ svgR( wh=WH,
 
 
 
-#### Summarizing 
+### Summarizing 
 
 The geometry of the surface requires
 
@@ -237,7 +238,7 @@ The geometry of the surface requires
 
 
 
-### Reflective Properties for lighting/shading
+## Reflective Properties for lighting/shading
 
 Reflective properties are the second piece of the lighting/shading construction. 
 Objects, such as a coffee cup, a book, or a dog, ar visible because of light
@@ -343,7 +344,7 @@ Now since ambient light is uniform, simply assigning a color to an object produc
 So we only need to consider diffuse and specular.
 
 
-#### Diffuse Reflection
+## Diffuse Reflection
 
 The main assumption for diffuse lighting is that light from any direction is 
 reflected uniformly in all directions.  
@@ -458,7 +459,7 @@ diffuseConstant | numeric | 1 | $\kappa_s$
 kernelUintLength| numeric vector of length 1 or 2 | small | granularity of facets
 
 
-#### feDiffuseLighting: surface scale
+### feDiffuseLighting: surface scale
 ```{r, echo=T, results='asis'}
 library(svgR)
 WH<-c(800, 300) # window rect
@@ -531,7 +532,7 @@ cat("'",as.character(doc),"'")
 ```
 
 
-#### feDiffuseLighting: diffusionConstant
+### feDiffuseLighting: diffusionConstant
 ```{r, echo=T, results='asis'}
 library(svgR)
 WH<-c(800, 300) # window rect
@@ -568,7 +569,7 @@ svgR(wh=WH,
 cat("'",as.character(doc),"'")
 ```
 
-#### Specular Reflection (The Blin-Phong Model)
+## Specular Reflection (The Blin-Phong Model)
 
 
 Recall from Phyics, for a perfect mirror, 
@@ -590,7 +591,7 @@ eta<-.5*(pi/2-pi/3)
 theta<-pi/2-pi/6
 dX<-Y*tan(theta)
 lightPath<-c(  c(X/2-dX, 0), c(X/2, Y), c(X/2+dX,0) )
-normVecs=c(
+normVecs<-c(
 c(X/2,Y), c(X/2,Y) - R*c(-sin(theta), cos(theta)),
 c(X/2,Y), c(X/2,Y) - R*c(0,1),
 c(X/2,Y), c(X/2,Y) - R*c(sin(theta), cos(theta)),
@@ -662,6 +663,8 @@ $$I = \kappa \times ( \hat h \cdot \hat n )^s  L $$
 
 ```{r, echo=F, results='asis'}
 library(svgR)
+path<-"~/R/svgRUserGuide/"
+source(paste0(path,"Util.R"))
 WH=c(800, 300) # window rect
 
 R<-100
@@ -692,32 +695,40 @@ c(X/2,Y) - 1.2*R*c(-sin(beta), cos(beta))
 ),2,5
 )
 txt<-c("r","n","i","v", "h")
+polyPts<- c( c(X/2,Y), c(X/2,Y) + R*c(sin(beta), -cos(beta) ), c(X/2,Y) + R*c(0, -cos(beta) ))
+
+
 svgR( wh=WH, 
-rect(xy=c(0,Y),wh=c(X,S/2), fill='lightblue'),
-polyline(points=lightPath, stroke.width=4, fill='none', stroke='orange', stroke.dasharray=2),
-text(xy=c(20,20), "source", stroke="orange"),
-text(xy=c(X-80,20), "reflection", stroke="orange"),
-#viewer
-line(xy1=c(X/2,Y ), xy2=c(X/2,Y) + .8*Y*c(sin(eta), -cos(eta) ), stroke.width=4,  stroke='grey', stroke.dasharray=6, opacity=.5),
-text( cxy=c(X/2,Y) + .9*Y*c(sin(eta), -cos(eta) ), "eye of viewer", stroke='grey', opacity=.5  ),
+  
+  rect(xy=c(0,Y),wh=c(X,S/2), fill='lightblue'),
+  polyline(points=lightPath, stroke.width=4, fill='none', stroke='orange', stroke.dasharray=2),
+  text(xy=c(20,20), "source", stroke="orange"),
+  text(xy=c(X-80,20), "reflection", stroke="orange"),
+  #viewer
+  line(xy1=c(X/2,Y ), xy2=c(X/2,Y) + .8*Y*c(sin(eta), -cos(eta) ), stroke.width=4,  stroke='grey', stroke.dasharray=6, opacity=.5),
+  text( cxy=c(X/2,Y) + .9*Y*c(sin(eta), -cos(eta) ), "eye of viewer", stroke='grey', opacity=.5  ),
 
 # half circle
-pie( cxy=c(X/2,Y), theta1=pi/2-theta, theta2=pi/2+theta, r=R/3, stroke="red", stroke.width=2, opacity=.5, fill="pink"),
+  pie( cxy=c(X/2,Y), theta1=pi/2-theta, theta2=pi/2+theta, r=R/3, stroke="red", stroke.width=2, opacity=.5, fill="pink"),
 # unit normal
-matrix2Arrows(normVecs, stroke='black'),
-lapply(1:5, function(i){
-  text(txt[i],cxy=tcxy[,i], stroke='black')
-}),
+  matrix2Arrows(normVecs, stroke='black'),
+  lapply(1:5, function(i){
+    text(txt[i],cxy=tcxy[,i], stroke='black')
+  }),
 
-polygon(
- points=c( c(X/2,Y), c(X/2,Y) + R*c(sin(beta), -cos(beta) ), c(X/2,Y) + R*c(0, -cos(beta) )), fill='lightgreen', opacity=.5),
- brace(
- c(.55*X,Y) + .5*R*c(0, -cos(beta) ),
- c(X/2,Y) + R*c(0, -cos(beta) ),
- c(X/2,Y)   ,
- stroke='green'
- ),
- text("h.n", xy= c(.55*X,Y) + .5*R*c(0, -cos(beta) ), stroke='lightgreen')
+  polygon(
+    points=polyPts, 
+    fill='lightgreen', opacity=.5
+  ),
+ 
+  brace(
+    c(.55*X,Y) + .5*R*c(0, -cos(beta) ),
+    c(X/2,Y) + R*c(0, -cos(beta) ),
+    c(X/2,Y)   ,
+    stroke= 'green'
+  ) ,
+  text("h.n", xy= c(.55*X,Y) + .5*R*c(0, -cos(beta) ), stroke='lightgreen')
+
 # unit to light
 # unit to reflection
 # label angle from normal
@@ -767,7 +778,7 @@ specularConstant| numeric | 1 | $\kappa_s$ from the Phong model
 specularExponent| numeric in range 1-128 |1 | Exponent of specular term
 kernelUintLength| numeric vector pair | small | granularity of facets
 
-#### feSpecularLighting: surfaceScale
+### feSpecularLighting: surfaceScale
 
 ```{r, echo=T, results='asis'}
 library(svgR)
@@ -806,7 +817,7 @@ svgR(wh=WH,
 cat("'",as.character(doc),"'")
 ```
 
-#### feSpecularLighting: specularConstant
+### feSpecularLighting: specularConstant
 
 ```{r, echo=T, results='asis'}
 library(svgR)
@@ -904,7 +915,7 @@ An implementation may detect this and calculate both maps in one pass, instead o
     
 
 
-### Light Sources
+## Light Sources
 
 
 There are 3 possible of light sources:
@@ -918,7 +929,7 @@ library(svgR)
 WH<-c(800, 200) # window rect
 cxy<-rbind(seq(0,WH[1],length.out=2*4+1)[2*(1:4)],WH[2]/2)
 txt<-c("No Light","feDistantLight","fePointLight","feSpotLight")
-lighting<-function(lightsource){
+lighting %<c-% function(lightsource){
   filter( feComposite( operator="arithmetic", k1234=c(1,0,0,0),
     in1="SourceGraphic",
     in2=feDiffuseLighting(in1="SourceGraphic", light.color="white", lightsource)
@@ -941,7 +952,7 @@ svgR( wh=WH,
 )
 ```
 
-#### feDistantLight
+## feDistantLight
 
 A distant light is assumed to be very bright and distant, so that the light rays striking the
 surface are essentially parallel. In particular, it is assumed that the location of the light source
@@ -959,7 +970,7 @@ elevation| numeric | angle in degrees from the xy-plane
 azimuth | numeric | 1 | angle in degrees from the x-axis in a clockwise direction
 
 
-##### Varying DistantLight Positions: Diffuse 
+### Varying DistantLight Positions: Diffuse 
 ```{r, echo=T, results='asis'}
 library(svgR)
 WH<-c(800, 1100) # window rect
@@ -1004,7 +1015,7 @@ svgR(wh=WH,
 cat("'",as.character(doc),"'")
 ```
 
-#### Varying DistantLight Positions: Specular
+## Varying DistantLight Positions: Specular
 ```{r, echo=T, results='asis'}
 library(svgR)
 WH<-c(800, 1100) # window rect
@@ -1053,7 +1064,7 @@ cat("'",as.character(doc),"'")
 ```
 
 
-#### PointLight
+## PointLight
 
 A point light is a light source located at a single point in space. As a result, the light rays are not
 parallel, but rather spread out. Hence, even across a flat surface, the light is not distributed uniformly.
@@ -1110,11 +1121,11 @@ svgR(wh=WH+c(0,60),
 ```
 
 
-##### Varying PointLight  Positions: Diffuse , constant dist.
+### Varying PointLight  Positions: Diffuse , constant dist.
 
 Here we repeat, but with a constant distance from the center
 
-##### Varying PointLight Positions: Diffuse
+### Varying PointLight Positions: Diffuse
 
 ```{r, echo=T, results='asis'}
 library(svgR)
@@ -1233,7 +1244,7 @@ svgR(wh=WH,
 ```
 
 
-#### feSpotLight
+## feSpotLight
 
 <table >
 <tr><td width="300">
@@ -1305,7 +1316,7 @@ limitingConeAngle| numeric | value in degrees describing the limiting cone
 
 The spotlight is best understood by observing it's behaviour on a flat surface.
 
-##### Diffuse SpotLight on Flat surface Rotated About Boundry, Pointing at Center
+### Diffuse SpotLight on Flat surface Rotated About Boundry, Pointing at Center
 
 Here we move a spot light about a circle while keeping the the spotlight
 pointed at the circles center. 
@@ -1349,7 +1360,7 @@ svgR(wh=WH,
 cat("'",as.character(doc),"'")
 ```
 
-### Diffuse Spot Light Located Above Center, Point Along Boundry
+## Diffuse Spot Light Located Above Center, Point Along Boundry
 
 Here we the light source  as spot light centered at c(0,0,R) and move the focus (where it points to)
 
@@ -1391,7 +1402,7 @@ svgR(wh=WH,
 cat("'",as.character(doc),"'")
 ```
 
-##### Varying feSpotLight Positions: Diffuse
+### Varying feSpotLight Positions: Diffuse
 
 ```{r, echo=T, results='asis'}
 library(svgR)

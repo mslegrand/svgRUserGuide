@@ -13,9 +13,7 @@ stopifnot(require(svgR, quietly=TRUE))
 ```
 
 ```{r, echo=FALSE}
-if(!exists("newId")){
   source('Util.R')
-}
 ```
 
 In this section we discuss shapes.

@@ -7,38 +7,18 @@ output:
 ---
 
 
+
 ```{r, echo=FALSE}
 stopifnot(require(svgR, quietly=TRUE))
 ```
 
 ```{r, echo=FALSE}
-if(!exists("newId")){
   source('Util.R')
-}
-```
-
-
-
-The svgR package provides a DSL to create SVG markup from R. It is similar to
-grid graphics, in that it is a low level api upon which higher level graphics
-constructs can be built.
-
-## A Short Example
-
-We start by first considering the short example show below together
-with the rendered result.
-
-```{r, echo=TRUE, results="asis"}
-svgR( wh=c(100,50),
-  text( xy=c(20,10), "line 1", 
-    tspan(dy=10, "line2 ")
-  )
-)
 ```
 
 ```{r, echo=FALSE}
 library(stringr)
-showCode<-function(txt){
+showCode %<c-% function(txt){
   indentCount<-function(s){
     if(grepl(pattern="^ +", s)){
       nchar(str_match(pattern="^ +", s))   
@@ -78,13 +58,36 @@ showCode<-function(txt){
 
 WH<-c(910,100)
 
-codeBlock<-function(wh){
+codeBlock  %<c-% function(wh){
   rect(xy=c(1,1), wh=wh-c(2,2), fill="#F4F4F4", stroke='#444', rxy=c(5,5), stroke.width=.3)
 }
 ```
 
-To get the above result in this document we embedded the code with the
-usual 3 backtics and set the options to *echo=FALSE* and *results="asis"* (shown below in red)
+
+
+The svgR package provides a DSL to create SVG markup from R. It is similar to
+grid graphics, in the sense that it is a low level api upon which higher level graphics
+constructs can be built.
+
+The best way to learn is by example, so here is a short example.
+
+## A Short Example
+
+We start by first considering the short example show below together
+with the rendered result.
+
+```{r, echo=TRUE, results="asis"}
+svgR( wh=c(100,50),
+  text( xy=c(20,10), "line 1", 
+    tspan(dy=10, "line2 ")
+  )
+)
+```
+
+What is hidden in the above code listing is 
+the
+usual 3 backtics and the options *echo=FALSE* and *results="asis"* 
+For completeness, we show these below in red.
 
 ```{r, echo=FALSE, results="asis"}
 WH<-WH+c(0,40)
@@ -110,7 +113,7 @@ txt1<-
   text( xy=c(20,10), "line 1", 
     tspan(dy=10, "line2 ")
   )
-\\red )
+)
 '
 svgR( wh=WH, font.family='sans-serif', font.size=12, stroke.width=0.2, letter.spacing=2,
   codeBlock(WH),
@@ -150,7 +153,7 @@ txt1<-
   \\blue text( \\black xy=c(20,10), "line 1", 
     tspan(dy=10, "line2 ")
   )
-\\red )
+ )
 '
 svgR( wh=WH, font.family='sans-serif', font.size=12, stroke.width=0.2, letter.spacing=2,
   codeBlock(WH),
@@ -165,9 +168,9 @@ and a child element named **tspan** (in blue).
 txt1<-
 'svgR(  wh=c(100,50),
   text( \\orange xy=c(20,10), \\green "line 1", 
-    \\blue tspan( \\black dy=10, "line2 ")
-  )
-\\red )
+    \\blue tspan( \\black dy=10, "line2 " \\blue ) 
+  \\black )
+ )
 '
 svgR( wh=WH, font.family='sans-serif', font.size=12, stroke.width=0.2, letter.spacing=2,
   codeBlock(WH),
@@ -183,7 +186,7 @@ txt1<-
   text( xy=c(20,10), "line 1", 
     tspan( \\orange dy=10,  \\green "line2 " \\black )
   )
-\\red )
+ )
 '
 svgR( wh=WH, font.family='sans-serif', font.size=12, stroke.width=0.2, letter.spacing=2,
   codeBlock(WH),
@@ -209,46 +212,120 @@ The  generated **SVG** markup is
 ## Taxonomy
 
 In the previous section we walked though an example where we
-encountered  elements (text, tspan), attributes (xy, wh, dy )and text content (line1, line2).
-However, there are many more elements and attributes to consider. 
+encountered  
 
-The elements (functions within an svgR call) can be broken into 
+- elements (text, tspan), 
+- attributes (xy, wh, dy ) and 
+- text content (line1, line2).
+
+However, this is only small fragment of the available elements and attributes.  
+
+The elements (functions within an svgR call) can be broadly broken into 
 several categories:
 
+```{r, echo=FALSE, results="asis"}
+nodeMapping<-data.frame(
+parent=c( 1,1,1,1,1, 2, 2, 5, 5, 5, 5),
+child= c( 2,3,4,5,6, 7, 8,9, 10, 11, 12)
+)
+WH<-c(800,500)
+nodeLabels<-c('elements', 'graphical', 'containers', 'animators', 'modifiers', 'other', 
+'shape related', 'text related', 'filters', 'gradients', 'masks', 'markers')
+svgR(wh=WH,
+  svgRTree(nodeMapping, nodeLabels)
+)
+```
 
-category | description
-------|------------
-Text | used to display text (text, tspan,...)
-Shapes | used to draw shapes (circle, rect, ...)
-Containers | used to group shapes, text, (g, svg, ...)
-Animators | used to animate the display (set, animate, animatemotion)
-the rest | mask, filter elements, script, ...
-
-
-*Text* and *Shapes* are the building blocks of the image. Prominent attributes
-that can be applied to these are 
+### Graphical Elements
+The Graphical Elements, *Text* and *Shapes*, are the building blocks of an **SVG** image. 
+Hence it is fundamental to understand their usage. This means that one needs to understand
+the attributes that can be applied to *Text* and *Shapes*. 
+Some of the relevant prominent attributes are 
 
 attribute | description
 -----------|----------------
-xy,wh,cxy, ..| related to positioning
-transform | repositioning
-fill (shape) | what to fill the interior with
-filter| modify the image
+xy,wh,cxy, ...| intial positioning
+transform | for repositioning 
+fill  | to specify how to fill the interior
+filter | modify the image
 mask | to hide a portion
 clip.path | to trim a portion
 
-To apply the
-same attribute to a group of shapes, we often group them together,
-either with the g element or the svg element. 
-The distinction between these are the attributes that can be applied. 
 
-- svg can has *coordinate attributes xy, wh* but not a *transform attribute*
-- g has the *transform attribute*, but no coordinates
+### Containers
 
-Other containers are *defs* for reusable components, *symbol* to designate a shape
-or group. These are not displayed directly, but are used by reference. 
+To apply the same value of an attribute to 
+a collection of shapes and text, it is customary to group them together using a
+container element such as 
+either a **g** element or the **svg** element. 
+The distinction between  **g** and **svg**  lies in which attributes the can take. 
 
-The remainder of this document is broken into sections and subsections reflecting
-the above decomposition.  Each section contains multiple short examples of each topic.
+- **svg** can has *coordinate attributes xy, wh* but not a *transform attribute*
+- **g** has the *transform attribute*, but no coordinates
+
+Other containers elements are **defs**, **symbol**.  
+However, these are not displayed directly, but are used by reference. 
+
+### Animators
+
+Animation can be either instaneous or transitional, i.e. occuring over period of time.
+
+The Prominent Animation Elements are
+
+element | description
+-----------|----------------
+Set | Instaneous change
+Animate | Continous change
+Animate Transform | Continous Change
+Animate Motion | Continous Chagne
+
+Animators are often given as a child of the element to be animated, i.e., 
+an unnamed argument of the shape/text element.
+
+### Modifiers: Gradients, Filters, Masks, Markers
+
+These Modifiers modify the appearence graphical element. More specifically,
+
+- Gradients: provide a continous flow of the fill color from one spectrum to another
+- Masks: hides the portion of an image given by the mask
+- Markers: decorates the endpoints of a line, allow us to create arrow heads, tails, etc.
+- Filters: are containers for filter primitives, used to provide, lighting, dropshawdow, 
+and mamy special effects.
+
+These elements are specified by the value of a named parameter of  the 
+element they are to influence. For example:
+
+element | parameter usage
+-----------|----------------
+Gradients |  fill=linearGradient(...) or fill=radialGradient(...)
+Filter | filter=filter(...)
+Mask | mask=mask(...)
+marker | marker.end=marker(...), marker.start=marker(...), marker.mid=marker(...)
+
+
+## Structure of This Document
+
+As stated before, the graphical elements are the building blocks of any **SVG** image. 
+However, in order to use those building blocks, we need to know where to put them
+and how to glue them together.  
+
+The sections 
+
+section | description
+---------|-----------------------------
+Coordinates, Viewports and Containers | placement of shapes
+Transform Attribute | placement of shapes
+Shapes,  Paths, Markers | Basic Shapes
+Text | Text related
+The Fill Attribute | Gradients, Patterns
+The Filter Attribute | Gaussian Blur, Filter Coords
+Color Filters | Filters that influence color
+Combining Filter Primitives| feComposite, feBlend, 
+Texture Filter | Textures and Marbling
+Lighting Filters | shiny bevel
+Shape Shifters | clip.path
+Animating | Set, Animation, Animation Transform, Animate Motion
+
+Each section contains multiple short examples of each topic.
 Enjoy!
 

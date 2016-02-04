@@ -12,9 +12,7 @@ stopifnot(require(svgR, quietly=TRUE))
 ```
 
 ```{r, echo=FALSE}
-if(!exists("newId")){
   source('Util.R')
-}
 ```
 
 Almost always, more than one filter component is required by the filter, and those components need to be combined. There are
@@ -119,11 +117,12 @@ The following example illustrates various combinations of values
 ```{r, echo=T, results="asis"}
 WH=c(800, 800) # window rect
 WH2=WH/4
-kappa<-expand.grid( c(0,1),c(0,2),0:1,c(0,-.5))
+kappaXX<-expand.grid( c(0,1),c(0,2),0:1,c(0,-.5))
 pos<-expand.grid(0:3,0:3)
 svgR( wh=WH,
       lapply( 1:16, function(i){
         xy=pos[i,]*WH2
+        kap<-kappaXX[i,]
         svg( xy=xy, wh=WH2,
           #rect(xy=c(5,5), wh=WH2-c(10,10), fill='black'),
           #circle(cxy=WH2/2, r=WH2[1]/8, stroke='black', fill='red'),
@@ -131,7 +130,7 @@ svgR( wh=WH,
             filter=filter(  wh=c("200%","100%"), xy=c(0,0), 
               feComposite(  
                 operator= "arithmetic", 
-                k1234=as.numeric(kappa[i,]),
+                k1234=as.numeric(kap),
                 in1="SourceGraphic",
                 in2=feOffset(  dxy=c(20, 0), 
                    in1=feColorMatrix( type="hueRotate", values=140, "SourceGraphic")
@@ -139,7 +138,7 @@ svgR( wh=WH,
               )
             )
           ),
-          text( paste(kappa[i,], collapse=", "), xy=c(.1,.9)* WH2, font.size=15 , fill='black')
+          text( paste(kap, collapse=", "), xy=c(.1,.9)* WH2, font.size=15 , fill='black')
         )
     })
 )->doc
@@ -179,11 +178,7 @@ svgR( wh=WH,
 ```
 
 
-
-
-
 ### feMerge
-
 
 Finally feMerge
 

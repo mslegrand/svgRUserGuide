@@ -11,51 +11,125 @@ stopifnot(require(svgR, quietly=TRUE))
 ```
 
 ```{r, echo=FALSE}
-if(!exists("newId")){
   source('Util.R')
+```
+```{r, echo=FALSE}
+library(stringr)
+showCode %<c-% function(txt){
+  indentCount<-function(s){
+    if(grepl(pattern="^ +", s)){
+      nchar(str_match(pattern="^ +", s))   
+    } else {
+      0
+    }
+  }
+  line2span<-function(s, default='black'){
+    pattern='\\\\\\w+'
+    #browser()
+    if(grepl(pattern,s)){
+      spns<-str_split(pattern=pattern,s)[[1]]
+      cols<-as.character(str_match_all(pattern=pattern,s)[[1]])
+      cols<-gsub("\\\\","",cols)
+      if(length(cols)<length(spns)){
+        cols<-c('black',cols)
+      }
+    } else {
+      spns<-s
+      cols<-'black'
+    }
+    lapply(1:length(spns), function(i){
+      font.size=ifelse( cols[i]=="black",12,16 )
+      stroke.width=ifelse( cols[i]=="black",.2,1 )
+      tspan(spns[i], stroke=cols[i], fill=cols[i], font.size=font.size, stroke.width=stroke.width)
+    })
+  }
+  
+  lines<-str_split(pattern="\\n",txt1)[[1]]  
+  lapply(1:length(lines), function(i){
+    line<-lines[i]
+    ic<-indentCount(line)
+    xy<-c(ic*10+20, i*18+10)
+    text(xy=xy, line2span(line))
+  })
+}
+
+WH<-c(910,100)
+
+codeBlock %<c-% function(wh){
+  rect(xy=c(1,1), wh=wh-c(2,2), fill="#F4F4F4", stroke='#444', rxy=c(5,5), stroke.width=.3)
 }
 ```
 
 ## To install from github
 
+The easiest way to install is to use devtools to install from github:
+
 ```
 install.packages("devtools")
-install_github("svgR")
+install_github("mslegrand/svgR")
 ```
 
 ## To render in an RPres or R Markdown document 
-- Include prior to any calls to svgR a block with
+- Include prior to any calls to svgR include a block with
+
+```{r, echo=FALSE, results="asis"}
+txt1<-'\\`\\`\\`{r, echo=FALSE}
+   \\purple library(svgR)
+\\`\\`\\`
+'
+WH=c(800,80)
+svgR( wh=WH, font.family='sans-serif', font.size=12, stroke.width=0.2, letter.spacing=2,
+  codeBlock(WH),
+  showCode(txt1)
+)
 ```
-'''{r, echo=FALSE}
-library(svgR)
-'''
+
+### To render 
+
+either 
+
+- a simple call to svgR inside a block with results='asis'
+
+```{r, echo=FALSE, results="asis"}
+txt1<-' \\`\\`\\`{r, echo=TRUE, \\red results="asis"}
+   \\purple svgR( \\black wh=c(600, 100), circle(cxy=c(200,50),r=50, fill="red") \\purple )
+\\`\\`\\`
+'
+WH=c(800,80)
+svgR( wh=WH, font.family='sans-serif', font.size=12, stroke.width=0.2, letter.spacing=2,
+  codeBlock(WH),
+  showCode(txt1)
+)
 ```
-- To render either 
-  + a simple call to svgR inside a block with results='asis'
-```
-'''{r, echo=T, results="asis"}
+
+```{r, echo=FALSE, results="asis"}
 svgR(  wh=c(600, 100), circle(cxy=c(200,50),r=50, fill='red') )
-'''
 ```
-```{r, echo=T, results="asis"}
-svgR(  wh=c(600, 100), circle(cxy=c(200,50),r=50, fill='red') )
-```
+
 
 or
 
-  + call to svgR to create an svg markup object and echo back within a block with results='asis'
+- a call to svgR to create an svg markup object and echo back within a block with results='asis'
+
+```{r, echo=FALSE, results="asis"}
+txt1<-'\\`\\`\\`{r, echo=TRUE, \\red results="asis"}
+   \\purple svgM<-svgR( \\black wh=c(600, 100), circle(cxy=c(200,50),r=50, fill="red") \\purple )
+   \\purple svgM 
+\\black \\`\\`\\`
+'
+WH=c(800,80)
+svgR( wh=WH, font.family='sans-serif', font.size=12, stroke.width=0.2, letter.spacing=2,
+  codeBlock(WH),
+  showCode(txt1)
+)
 ```
-'''{r, echo=F, results="asis"}
-svgM<-svgR(  wh=c(600, 100), circle(cxy=c(200,50),r=50, fill='red') )
-svgM
-'''
-```
+
 ```{r, echo=F, results="asis"}
 svgM<-svgR(  wh=c(600, 100), circle(cxy=c(200,50),r=50, fill='red') )
 svgM
 ```
 
-**Note** Note the mustache should be three backticks 
+**Note** Note the mustache is  three backticks 
 
 
 ## To Rendered in an RStudio **Shiny-server**

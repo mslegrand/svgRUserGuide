@@ -12,16 +12,16 @@ stopifnot(require(svgR, quietly=TRUE))
 ```
 
 ```{r, echo=FALSE}
-if(!exists("newId")){
   source('Util.R')
-}
 ```
-
-
-## Changing Shapes with feMorphology
 
 feMorphology allows thickening and thinning of graphics.
 To thicken we use the dilate attribute, to thin we use the erode attribute. The radius specifies the amount, which can be different for x and y, ie. dilate=c(3,1) will dilate in the x direction, but not in the y. Also, dilate=3 is equivalent to dilate=c(3,3) 
+
+
+### Dilation
+
+In this example we dialate with a value of 3.
 
 ```{r, echo=T, results="asis"}
 WH=c(800, 220) # window rect
@@ -51,8 +51,11 @@ svgR( wh=WH,
   )
 )
 ```
-Erosion is the opposite of dilation:
 
+### Erosion
+
+Erosion is the opposite of dilation. 
+Here we erode with a value of 3
 ```{r, echo=T, results="asis"}
 WH=c(800, 220) # window rect
 svgR( wh=WH,

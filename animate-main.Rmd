@@ -17,35 +17,74 @@ if(!exists("newId")){
 }
 ```
 
-## Animation Technique Overview
-In this chapter we discuss animation using the following:
+## Animation Overview
 
-- [**set**](#setAnimation): an animation element providing a simple way for setting a single attribute value for a specified duration.
-- [**animate**](#animateAnimation): an animation element used to animate over time a single attribute or a single CSS property
-- [**animateMotion**](#animateMotion): an animation element used to move an element along a path.
-- **animateColor**: specifies a color transformation over time. This is a deprecated element, since animate does the same. Do not use it !
-- [**animateTransform**](#animateTransform): an animation element used to animate the transformation attribute on a target element, thereby allowing animations to control translation, scaling, rotation and / or inclination.
+Animatinon can be broke into two basic types:
 
-However each animation must be triggered by some event. 
-For ease of presentation, most of the examples in this document are triggered by some canned functions. 
-However, in practice one may want to employ custom trigges. 
-Thus the first topic we will explore is [Animation Events](#animatonEvents)
+- discrete: animation in which an attribute value changes instaneously at a given point in time.
+- continous: animation in which an attribute value changes or evolves over a period of time.
 
-Animation Events. In that section only set elements will be used.
+Discrete Animation is accomplished by using
+the **set** element,  Discrete Animation is discussed further 
+in the section [Discrete Animation](discrete-animation)
+
+Continous animition is accomplished using one of three elemens: 
+
+- **animate**: transitions most attributes (or a CSS property) from one value to another over a period of time.
+- **animateTransform**: transitions *transform attribute* from one value to another over a period of time.
+- **animateMotion**: moves a graphical object according to a specified path description
+
+Another way of putting this is
+
+- if *no* *movement* is involved: use **animate**
+- if *movement* is involved:
+    + if the movement is defined by simple coordinates: use **animate**
+    + if the movement is defined by the *transfrom attribute* (such as rotation): use **animateTransform**
+    + if the movement is to be specified by a path, use **animateMotion***
+    
+
+Continous Animations using the **animate** element are discussed further 
+in the section [Continous Animation](#continous-animation)  Continous transistioning of the
+*transform attribute* is discussed in the section 
+[Continous Movement via the Transform Attribute](#continous-movement-via-the-transform-ttribute)
+Continous Movement by path specificaton is discussed in the section
+[Continous Movement along a Path](continous-movement-along-a-path).
+
+For any animation, whether discrete or continuous, 
+that animation begins by being triggered by an event. That event might be a button press, or page loading,
+or completion of some animation. Events are discussed in [Animation Events](#animation-events)
+
+For ease of presentation, all animation examples outside of sections [Animation Events](#animaton-events) section  and  
+[One Line Teasers](#one-line-teasers),
+are triggered using a button at the bottom right hand corner of the svg.
+These buttons are constructed by invoking either the toggle or playBar function. 
+The code for both functions are provided in the utilities section.
+However, in practice one may want to trigger an events with other customes functions. 
 
 
-<a name="animatonEvents"></a> 
+For better understanding of we begin by next exploring is [Animation Events](#animaton-events)
+
+**Note**: We do not discuss - **animateColor**, which specifies a color transformation over time. 
+This is a deprecated element, since animate can perform the same task . We strongly recommend 
+using **animate** in place of **animateColor**.
+
 
 ## Animation Events
+<a name="animatonEvents"></a> 
 
-Except for the examples contained in this section and the teasers section , all animations are triggered using a button at the bottom right hand corner of the svg. That button and the frame containing it are constructed by invocating either the toggle or playBar function. The code for both functions are provided in the utilities section.
 
-This section explains triggering animation events. By examining this section, one can discover how to create custom event triggers.
+
+This section explains triggering animation events. 
+By examining this section, one can discover how to create custom event triggers.
+
+For simplicity, the animations here will be restricted to discreted animations, thus the **set** element will be used.
+
 
 ### Onload
 <a name="Onload"></a> 
 
-The simplest animation triggering is to trigger the animation  upon loading the document (web page).  This was illustrated in the short teasers section, however I repeat the code here.  
+The simplest animation triggering is to trigger the animation  upon loading the document (web page).  
+This was illustrated in the short teasers section, however I repeat the code here.  
 
 ```
 # not run
@@ -299,7 +338,7 @@ WH<-c(800,200)
 startButton<-newId()
 stopButton<-newId()
 
-button<-function( ...){
+button %<c-% function( ...){
   args<-list(...)
   stopifnot("id" %in% names(args) & "text" %in% names(args))
   defaults<-list( cxy=c(100,100), wh=c(140,60), rxy=c(30,30), font.size=24, text.fill='white', fill='green')

@@ -13,9 +13,7 @@ stopifnot(require(svgR, quietly=TRUE))
 ```
 
 ```{r, echo=FALSE}
-if(!exists("newId")){
   source('Util.R')
-}
 ```
 
 
@@ -63,7 +61,7 @@ tmp<-data.frame(
 )
 ```
 
-### Font Styling
+## Font Families and Styling
 
 Attribute    | Values                              | Initial    | Comment
 -------------|-------------------------------------|------------|----------------------------------------------------------
@@ -107,33 +105,34 @@ svgR( wh=WH,
 ```
 
 
-### Text Positioning
+## Text Positioning
 
 ```{r, echo=F}
-refLines<-function(wh){
+refLines %<c-% function(wh){
   x<-wh[1]/2
   y<-wh[2]/2
-  list(
+  return(list(
     line(xy1=c(0,y),xy2=c(wh[1],y), stroke='red', stroke.width=2),
     line(xy1=c(x,0),xy2=c(x,wh[2]), stroke='red', stroke.width=2),
     text("baseline" ,xy=c(5,y-5), stroke='red',  font.size=16),
-    text("anchor" ,xy=c(x+5,wh[2]-5), stroke='red',  font.size=16)          )
+    text("anchor" ,xy=c(x+5,wh[2]-5), stroke='red',  font.size=16)          
+  ))
 }
-baseLineAt<-function(y, wh){
-  list(
+baseLineAt %<c-% function(y, wh){
+  return(list(
     line(xy1=c(0,y),xy2=c(wh[1],y), stroke='red', stroke.width=2),
     text("baseline" ,xy=c(0,y-5), stroke='red',  font.size=16)
-  )
+  ))
 }
-anchorAt<-function(x, wh){
-  list(
+anchorAt %<c-% function(x, wh){
+  return(list(
     line(xy1=c(x,0),xy2=c(x,wh[2]), stroke='red', stroke.width=2),
     text("anchor" ,xy=c(x,wh[2]-5), stroke='red',  font.size=16)
-  )
+  ))
 }
 ```
 
-#### text-anchor
+### text-anchor
 By default, text begins at the x value, however the this can be modified by the text.anchor attribute (parameter). The text.anchor attribute can take one of four values: "start" , "middle" , "end" , "inherit". These are illustrated below.
 
 ```{r, echo=T, results="asis"}
@@ -143,9 +142,10 @@ svgR( wh=WH,
       graphPaper(WH, dxy=c(40,40), labels=TRUE),
       anchorAt(WH[1]/2,WH),
       lapply(1:4, function(i){
+        y<-i*40
         g(
-          baseLineAt(i*40,WH),
-          text( textAnchor[i], xy=c(400, i*40), fill=rrgb(), text.anchor=textAnchor[i],
+          baseLineAt(y,WH),
+          text( textAnchor[i], xy=c(400, y), fill=rrgb(), text.anchor=textAnchor[i],
                 font.size=40, font.weight="bold", stroke='black',  stroke.width=0.5)
         )
       }
@@ -154,12 +154,13 @@ svgR( wh=WH,
 ```
 
 
-#### dominant.baseline
+### dominant.baseline
 By default, text lies directly above the y coordinate (the baseline) This alignment can be adjusted by setting the dominant.baseline attribute (parameter).
 The baseline is the y coordinate given to the text element. By default, the text is aligned
 using the **alphabetic** option as the baseline. Other alignments are possible by setting the
 alignment.baseline parameter, as illustrated in the following:
-  #### alignment.baseline
+
+### alignment.baseline
   
   The baseline is the y coordinate given to the text element. By default, the text is aligned
 using the **alphabetic** option as the baseline. Other alignments are possible by setting the
@@ -171,18 +172,19 @@ baseLine<-c( "alphabetic","ideographic","hanging","mathematical","central","midd
              "text-before-edge","text-after-edge")
 svgR( wh=WH,
       graphPaper(WH, dxy=c(40,40), labels=TRUE),
-      anchorAt(WH[1]/2,WH),
+      anchorAt(WH[1]/2,WH), 
       lapply(1:8, function(i){
+        y<-i*80
         g(
-          baseLineAt(i*80,WH),
-          text( baseLine[i], xy=c(400, i*80), fill=rrgb(), dominant.baseline=baseLine[i],
+          baseLineAt(y,WH),
+          text( baseLine[i], xy=c(400, y), fill=rrgb(), dominant.baseline=baseLine[i],
                 font.size=40, font.weight="bold", stroke='black',  stroke.width=0.5)
         )
       }
       )
 )
 ```
-#### tspan
+## tspan
 
 Within a text element we can change the positioning, style, color of component words using the tspan element child element.
 
@@ -207,7 +209,7 @@ svgR( wh=WH,
 ```
 
 
-#### baseline.shift for superscripts and subscriptss
+### baseline.shift for superscripts and subscriptss
 
 Baseline.shift can be used to create super/subscripts.
 Values for baseline.shift are
@@ -238,7 +240,7 @@ svgR( wh=WH,
 ```
 
 
-#### Math equations: Superscripts, subscripts
+## Math equations: Superscripts, subscripts
 
 
 
@@ -259,7 +261,7 @@ svgR( wh=WH,
 )
 ```
 
-### Text Along a Path
+## Text Along a Path
 
 Here we create text in a circle.
 ```{r, echo=T, results="asis"}
@@ -301,7 +303,7 @@ svgR( wh=WH,
 ```
 
 
-### Reflection Transformation
+## Reflection Transformation
 
 ```{r, echo=T, results="asis"}
 WH=c(800,250)
@@ -322,7 +324,7 @@ svgR( wh=WH,
 
 
 
-#### Writing mode
+## Writing mode
 
 The writing mode is useful to change text orientation to top-bottom
 ```{r, echo=T, results="asis"}

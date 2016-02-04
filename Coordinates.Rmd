@@ -12,9 +12,7 @@ stopifnot(require(svgR, quietly=TRUE))
 ```
 
 ```{r, echo=FALSE}
-if(!exists("newId")){
   source('Util.R')
-}
 ```
 
 
@@ -24,7 +22,7 @@ This section discusses some of the basics of coordinates systems, viewports and 
 
 
 ## Viewports and Viewboxes
-<a name="viewpors"></a> 
+<a name="viewports"></a> 
 
 The **viewport** is the viewing area through which image is rendered. Essentially, it is a rectangular window on the page. 
 
@@ -78,8 +76,8 @@ svgR(wh=WH,
   text("viewPort", stroke='green', font.size=26, 
        cxy=svg.lhs$XY+svg.lhs$WH/2
   ),
-  text("viewBox", stroke='blue', font.size=16, 
-       cxy=svg.rhs$XY+svg.rhs$WH/2
+  text("viewBox", stroke='blue', font.size=14, 
+       cxy=svg.rhs$XY+svg.rhs$WH/2+c(10,0)
   ),
   lapply(1:4, function(i){
      line(
@@ -98,7 +96,7 @@ write(as.character(tmp), "tmp.svg")
 ##  Specifying the Viewport and the Viewbox
 
 When the **svgR** function is called, it generates an SVG tree of nodes, with to top most node being an **svg** element.  
-(For more details see ???)
+
 
 The dimensions of the viewPort is determined by the **wh** attributes supplied in the call to **svgR**.  Thus a larger **wh** produces a larger display area on the screen.  
 

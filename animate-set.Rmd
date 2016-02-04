@@ -12,14 +12,12 @@ stopifnot(require(svgR, quietly=TRUE))
 ```
 
 ```{r, echo=FALSE}
-if(!exists("newId")){
   source('Util.R')
-}
 ```
 
-<a name="setAnimation"></a> 
+ <a name="setAnimation"></a> 
 
-## Set Animation
+
 
 ### Overview 
 The examples in the [Chaining Events section](#chainingEvents) use the set command to achieve animation. The set command  can change a graphics attribute, but that change is instaneous. The set command is discrete, not continous. 
@@ -30,49 +28,50 @@ Specifying a duration  (**dur** attribute) within a **set** element,  determines
 
 If a **dur** or **end** is not specified, then the new attribute value persists indefinitely. In all examples in this section, an **end** or a **dur** will be specified.
 
-#### Set  Color
+## Fill
+
+The fill attribute can be reset using the set command.
+
+In this example we toggle the fill color of some text.
+
 ```{r, echo=T, results="asis"}
 WH<-c(800,200)
 svgR( wh=WH,
-    toggleBar(WH),
+   toggleBar(WH),
    text( 'svgR', xy=c(40,120),  font.size=100, stroke="black", fill="lightgreen",
       set(attributeName="fill", to="green",
-          begin=toggleButton.click['left'], 
-          end=toggleButton.click['right']
+          begin=toggleButton.click('left'), 
+          end=toggleButton.click('right')
           )
     )
 )
 ```
 
-#### Set  Font Family
-```{r, echo=T, results="asis"}
-WH<-c(800,200)
-svgR( wh=WH,
-    toggleBar(WH),
-   text( 'svgR', xy=c(40,100),  font.size=100,  fill="lightgreen", stroke='black',
-      set(attributeName="font.family", to="fantasy",
-          begin=toggleButton.click['left'], 
-          end=toggleButton.click['right']
-          )
-    )
-)
-```
 
-#### Set  Visibility
+## Visibility & Opacity 
+
+The *Opacity* attributes specifies a level of transparncy, with 1 being opaque, and 0 being essentially
+invisible, and .5 being mid-way between. In contrast, the *visibility* attribute
+is either visible or hidden. 
+
+### Set  Visibility
+Our first example toggles visibility
 ```{r, echo=T, results="asis"}
 WH<-c(800,200)
 svgR( wh=WH,
     toggleBar(WH),
    text( 'svgR', xy=c(40,120),  font.size=100, stroke="black", fill="lightgreen",
       set(attributeName="visibility", to="hidden",
-          begin=toggleButton.click['left'], 
-          end=toggleButton.click['right']
+          begin=toggleButton.click('left'), 
+          end=toggleButton.click('right')
           )
     )
 )
 ```
 
-#### Set  Opacity
+
+### Set Opacity
+This second example toggles Opacitiy between opaque and semi-transparent.
 ```{r, echo=T, results="asis"}
 WH<-c(800,200)
 svgR( wh=WH,
@@ -81,59 +80,81 @@ svgR( wh=WH,
    ellipse(cxy=WH/2-c(0,30), rxy=WH/2-c(0,40), fill='lightblue',
            stroke='blue',
       set(attributeName="opacity", to=.5,
-          begin=toggleButton.click['left'], 
-          end=toggleButton.click['right']
+          begin=toggleButton.click('left'), 
+          end=toggleButton.click('right')
           )
     )
 )
 ```
 
-#### Set  Position x
+##  Positioning
+
+### Set  Position x
 
 ```{r, echo=T, results="asis"}
 WH<-c(800,200)
 svgR( wh=WH,
-    toggleBar(WH),
+   toggleBar(WH),
    text( 'svgR', xy=c(50,120),  font.size=100, stroke="black", fill="lightgreen",
       set(attributeName="x", to="550",
-          begin=toggleButton.click['left'], 
-          end=toggleButton.click['right']
+          begin=toggleButton.click('left'), 
+          end=toggleButton.click('right')
           )
     )
 )
 ```
 
-#### Set  Position xy
+### Set  Position xy
 
 ```{r, echo=T, results="asis"}
-WH<-c(800,200)
-svgR( wh=WH,
-    toggleBar(WH),
-   text( 'svgR', xy=c(50,120),  font.size=50, stroke="black", fill="lightgreen",
-      set(attributeName="xy", to=c(200,50),
-          begin=toggleButton.click['left'], 
-          end=toggleButton.click['right']
-          )
-    )
-)
+# WH<-c(800,200)
+# svgR( wh=WH,
+#    toggleBar(WH),
+#    text( 'svgR', xy=c(50,120),  font.size=50, stroke="black", fill="lightgreen",
+#       set(attributeName="xy", to=c(200,50),
+#           begin=toggleButton.click('left'), 
+#           end=toggleButton.click('right')
+#           )
+#     )
+#)
 ```
 
-#### Set  Dimensions wh
+### Set  Dimensions wh 
 
 ```{r, echo=T, results="asis"}
-WH<-c(800,200)
+# WH<-c(800,200)
+# svgR( wh=WH,
+#     toggleBar(WH),
+#    rect(  xy=c(50,50),  wh=c(600,50), stroke="black", fill="lightgreen",
+#       set(attributeName="wh", to=c(200,100),
+#           begin=toggleButton.click('left'), 
+#           end=toggleButton.click('right')
+#           )
+#     )
+# )
+```
+
+### Set ViewBox (Zooming)
+
+```{r, echo=T, results="asis"}
+WH<-c(800,300)
 svgR( wh=WH,
     toggleBar(WH),
-   rect(  xy=c(50,50),  wh=c(600,50), stroke="black", fill="lightgreen",
-      set(attributeName="wh", to=c(200,100),
-          begin=toggleButton.click['left'], 
-          end=toggleButton.click['right']
-          )
+    svg(xy=c(0,0),wh=c(200,200), viewBox=c(0,0,40,40),
+      fill='lightgreen',
+      rect(xy=c(1,1), wh=c(2,2), fill='red', stroke='black'),
+      set(attributeName="viewBox", to=paste(0,0,4,4),
+            begin=toggleButton.click('left'), 
+            end=toggleButton.click('right')
+      )
     )
 )
 ```
 
-#### Set  Stroke
+## Stroke Related 
+
+### Set  Stroke  
+
 ```{r, echo=T, results="asis"}
 WH<-c(800,200)
 svgR( wh=WH,
@@ -141,8 +162,8 @@ svgR( wh=WH,
    line(  xy1=c(40,120), xy2=c(700,20), stroke.width=10 ,
          stroke="black", fill="lightgreen",
       set(attributeName="stroke", to="red",
-          begin=toggleButton.click['left'], 
-          end=toggleButton.click['right']
+          begin=toggleButton.click('left'), 
+          end=toggleButton.click('right')
           )
     )
 )
@@ -160,32 +181,18 @@ svgR( wh=WH,
          stroke="black", stroke.dasharray=100,
       lapply(1:4, function(i){
         set(attributeName=attr[i], to=val[i],
-            begin=toggleButton.click['left'], 
-            end=toggleButton.click['right']
+            begin=toggleButton.click('left'), 
+            end=toggleButton.click('right')
             )
       })
    )
 )
 ```
 
-### Set ViewBox (Zooming)
+## Text Setting
 
-```{r, echo=T, results="asis"}
-WH<-c(800,300)
-svgR( wh=WH,
-    toggleBar(WH),
-    svg(xy=c(0,0),wh=c(200,200), viewBox=c(0,0,40,40),
-      fill='lightgreen',
-      rect(xy=c(1,1), wh=c(2,2), fill='red', stroke='black'),
-      set(attributeName="viewBox", to=paste(0,0,4,4),
-            begin=toggleButton.click['left'], 
-            end=toggleButton.click['right']
-      )
-    )
-)
-```
+### Set Font Size 
 
-### Set Stroke Size
 
 In this example letters change size sequentially. This effect is achieved by
 using set on each tspan element and triggering them using an offset to the button click.
@@ -196,9 +203,22 @@ svgR( playBar(wh=WH),
       text( xy=c(40,100), lapply(1:26, function(i){
         tspan( LETTERS[i] , font.size=30, fill=rrgb(),
             set(attributeName='font.size', from=20,to=50,
-                dur=.1, begin=paste0(playButton.click,' + ',.1*i))
+                dur=.1, begin=paste0(playButton.click(),' + ',.1*i))
         )}
       ))
 )
 ```
 
+### Set  Font Family
+```{r, echo=T, results="asis"}
+WH<-c(800,200)
+svgR( wh=WH,
+   toggleBar(WH),
+   text( 'svgR', xy=c(40,100),  font.size=100,  fill="lightgreen", stroke='black',
+      set(attributeName="font.family", to="fantasy",
+          begin=toggleButton.click('left'), 
+          end=toggleButton.click('right')
+          )
+    )
+)
+```

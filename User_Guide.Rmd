@@ -15,19 +15,49 @@ output:
 ---
 
 
-This document describes some of the basics of svgR.  This document has been created from an R Markdown document using svgR. 
-For more details on using R Markdown see <http://rmarkdown.rstudio.com>. 
-For a good starting place on using SVG see <https://github.com/willianjusten/awesome-svg>
 
 
 <style>
 h1 {
-   color: darkblue;
+   background: linear-gradient(#c8da3d, #220066);
+   border-style: groove;
+   border-width: 3px;
+   border-left-width: 10px;
+   border-right-width: 10px;
+   border-color: #440044;
+   line-height: 1.1;
+   text-align: left;
+   color: white;
+   padding: 10px;
    font-size:3.5em;
+   border-radius: 10px;
+   text-shadow: -2px -2px 2px #222;
 }
 </style>
 
+<style>
+.line-center{
+    margin:0;padding:0 10px;
+    background:#fff;
+    display:inline-block;
+}
+h6{
 
+    text-align:center;
+    position:relative;
+    z-index:2;
+
+}
+h6:after{
+    content:"";
+    position:absolute;
+    top:50%;
+    left:0;
+    right:0;
+    border-top:solid 1px #DDD;
+    z-index:-1;
+}
+</style>
 
 
 <style>
@@ -49,62 +79,73 @@ body {
 
 
 
-
-
-
-
 ```{r, echo=FALSE}
 stopifnot(require(svgR, quietly=TRUE))
 ```
 ```{r, echo=FALSE}
-if(!exists("newId")){
   source('Util.R')
-}
 ```
 
-<hr><br/><br/> 
+
+This document describes some of the basics of svgR.  This document has been created from an R Markdown document using svgR. 
+For more details on using R Markdown see <http://rmarkdown.rstudio.com>. 
+For a good starting place on using SVG see <http://tutorials.jenkov.com/svg> and 
+<https://github.com/willianjusten/awesome-svg>
+
+###### ∞
+<br/><br/><br/><br/> 
+<!-- sp -->
 
 One Line Teasers
-===
+===============================================
 
 ```{r child = 'OneLineTeasers.Rmd'}
 ```
 
-<hr><br/><br/> 
+###### ∞
+<br/><br/><br/><br/> 
+<!-- sp -->
 
-```
+
 Setting Up
 ========================================================
+
 ```{r child = 'SetUp.Rmd'}
 ```
 
+<hr><br/><br/><br/><br/> 
+<!-- sp -->
 
-<hr><br/><br/> 
-
-```
+<h6 end section/>
 
 Overview
-=====
+===============================
 ```{r child = 'overView.Rmd'}
 ```
 
+###### ∞
+<br/><br/><br/><br/> 
+<!-- sp -->
 
 Coordinates, Viewports, and Containers
 =======================================================
 ```{r child = 'Coordinates.Rmd'}
 ```
 
-
-<hr><br/><br/> 
+###### ∞
+<br/><br/><br/><br/> 
+<!-- sp -->
 
 The Transform Attribute
 =======================================================
+
 ```{r child = 'Transforms.Rmd'}
 ```
 
 
-
-<hr><br/><br/> 
+###### ∞
+<br/><br/><br/><br/> 
+<!-- sp -->
 
 
 <!-- shapes and structures, groups symbols, use -->
@@ -120,33 +161,41 @@ Shapes,  Paths, Markers
 ```{r child = 'Marker.Rmd'}
 ```
 
+###### ∞
+<br/><br/><br/><br/> 
+<!-- sp -->
 
-<hr><br/><br/> 
 
-```
-The Text Element
+Text
 =======================================================
+
 ```{r child = 'text.Rmd'}
 ```
 
 
-<hr><br/><br/> 
+###### ∞
+<br/><br/><br/><br/> 
+<!-- sp -->
 
 
 The Fill Attribute
 =======================================================
+
 ```{r child = 'Fill.Rmd'}
 ```
 
-
+<hr><br/><br/> <br/>
 <hr>
 ```{r, echo=F, results="asis"}
 svgR(  logo2(wh=c(600,50)))
 ```
 
+<hr><br/><br/><br/><br/> 
+<!-- sp -->
 
 The Filter Attribute
 =======================================================
+
 ```{r child = 'filter-Overview.Rmd'}
 ```
 
@@ -157,75 +206,137 @@ The Filter Attribute
 ## Filter Coordinates
 ```{r child = 'filter-Coordinates.Rmd'}
 ```
+###### ∞
+<br/><br/><br/><br/> 
+<!-- sp -->
 
+Manipulationg Colors
+================================
 
-
-# Color Filters
 ```{r child = 'filter-Colors.Rmd'}
 ```
 
 ```{r child = 'filter-feComponentTransfer.Rmd'}
 ```
 
-# Combining Filter Primitives
+###### ∞
+<br/><br/><br/><br/> 
+<!-- sp -->
+
+Combining Filter Primitives
+==============
 ```{r child = 'filter-Combining.Rmd'}
 ```
 
-## DropShadows
+###### ∞
+<br/><br/><br/><br/> 
+<!-- sp -->
+
+DropShadows
+=====
 ```{r child = 'filter-DropShadows.Rmd'}
 ```
-<!-- Textures -->
-# Texture Filters
+
+###### ∞
+<br/><br/><br/><br/> 
+<!-- sp -->
+
+Textures
+==============
 ```{r child = 'filter-Textures.Rmd'}
 ```
 
-# Lighting Filters
+###### ∞
+<br/><br/><br/><br/> 
+<!-- sp -->
+
+Lighting
+=============
 ```{r child = 'filter-Lighting.Rmd'}
 ```
 
 ```{r child = 'caseStudy_lighting.Rmd'}
 ```
 
+###### ∞
+<br/><br/><br/><br/> 
+<!-- sp -->
 
+Creating Shiny Bevels
+===
 
-## The Shiny Bevel
 ```{r child = 'filter-ShinyBevel.Rmd'}
 ```
 
+###### ∞
+<br/><br/><br/><br/> 
+<!-- sp -->
 
-
-<!-- shapes modification: mask and markers -->
-Shape Shifters
+Shape Shifting
 =======================================================
 
-## The clip.path attibute
+## Clipping
 ```{r child = 'ClipPath.Rmd'}
 ```
-## The mask attribute
+## Masking
 ```{r child = 'Mask.Rmd'}
 ```
 
-## Morpolgy filtering
+## Morpolgy
 ```{r child = 'filter-ChangingShapes.Rmd'}
 ```
-## Changing Shapes feDisplacementMap (Warping)
+
+## Displacing (aka. Warping)
 ```{r child = 'filter-Displacement.Rmd'}
 ```
 
+###### ∞
+<br/><br/><br/><br/> 
+<!-- sp -->
+>
 Animating
 =======================================================
 
 ```{r child = 'animate-main.Rmd'}
 ```
 
+###### ∞
+<br/><br/><br/><br/> 
+<!-- sp -->
+
+Discrete Animation
+===
 ```{r child = 'animate-set.Rmd'}
 ```
 
+###### ∞
+<br/><br/><br/><br/> 
+<!-- sp -->
+
+Continous Animation 
+===
 ```{r child = 'animate-animate.Rmd'}
 ```
+
+###### ∞
+<br/><br/><br/><br/> 
+<!-- sp -->
+
+Continous Movement via the Transform Attribute
+===
 
 ```{r child = 'animate-animateTransform.Rmd'}
 ```
 
+###### ∞
+<br/><br/><br/><br/> 
+<!-- sp -->
+
+Continous Movement along a Path
+===
 ```{r child = 'animate-animateMotion.Rmd'}
 ```
+
+###### ∞
+<br/><br/><br/><br/> 
+<!-- sp -->

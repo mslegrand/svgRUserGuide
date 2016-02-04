@@ -16,9 +16,7 @@ stopifnot(require(svgR, quietly=TRUE))
 ```
 
 ```{r, echo=FALSE}
-if(!exists("newId")){
   source('Util.R')
-}
 ```
 
 ## Transform operations
@@ -50,7 +48,7 @@ In the remainging of this section we give some examples, but first we build a us
 
 **Remember** A *transform* is not an element, it is an attribute, like *xy*. 
 
-## The Tale of Two Circles, a Square and some Lines
+## The Tale of Two Circles, a Square and Some Lines
 
 ### The cirCirSqr element
 
@@ -63,7 +61,7 @@ To illustrate the effects of transform we first create a custom element, for our
 - a semi-transparent gree circle centered on the upper right corner of the blue rectangle
 ```{r}
 # A function to tell the tale of two circles and a rectangle
-cirCirSqr<-function(...){
+cirCirSqr %<c-% function(...){
   attrs<-list(...)
   stopifnot("cxy" %in% names(attrs))
   centerPt<-attrs[['cxy']]
@@ -87,10 +85,10 @@ cirCirSqr<-function(...){
 }
 ```
 
-And also for convenience we create a function for showing a background of graphPaper and and a title. 
+And also for convenience we create a function for showing a background of graphPaper  and a title. 
 ```{r, echo=T}
 # Utility to cover my back
-myBack<-function(WH, txt){
+myBack %<c-% function(WH, txt){
   list(wh=WH, #sets the viewPort dimension
       text(txt, xy=c(20,25), font.size=18),
       graphPaper(wh=WH, dxy=c(50,50), labels=TRUE),
