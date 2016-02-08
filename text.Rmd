@@ -32,8 +32,8 @@ svgR( wh=WH,
 A good reference is:
   http://www.hongkiat.com/blog/scalable-vector-graphics-text/
   
-  ### Simple Text
-  ```{r, echo=FALSE}
+### Simple Text
+```{r, echo=FALSE}
 tmp<-data.frame(
   Attribute=c(
     "font.family",
@@ -361,7 +361,7 @@ svgR( wh=WH,
 WH=c(800,120)
 svgR( wh=WH,
       graphPaper(WH, dxy=c(50,50), labels=TRUE),
-      text( "svgR has it All", xy=c(50,100), 
+      text( "svgRRocks", xy=c(50,100), 
             font.size=100, font.weight="bold", 
             stroke='black',  stroke.width=0.5, fill='red')
 )
