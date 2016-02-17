@@ -107,31 +107,31 @@ svgR( wh=WH,
 ### Set  Position xy
 
 ```{r, echo=T, results="asis"}
-# WH<-c(800,200)
-# svgR( wh=WH,
-#    toggleBar(WH),
-#    text( 'svgR', xy=c(50,120),  font.size=50, stroke="black", fill="lightgreen",
-#       set(attributeName="xy", to=c(200,50),
-#           begin=toggleButton.click('left'), 
-#           end=toggleButton.click('right')
-#           )
-#     )
-#)
+ WH<-c(800,200)
+ svgR( wh=WH,
+    toggleBar(WH),
+    text( 'svgR', xy=c(50,120),  font.size=50, stroke="black", fill="lightgreen",
+       set(attributeName="xy", to=c(200,50),
+           begin=toggleButton.click('left'), 
+           end=toggleButton.click('right')
+           )
+     )
+)
 ```
 
 ### Set  Dimensions wh 
 
 ```{r, echo=T, results="asis"}
-# WH<-c(800,200)
-# svgR( wh=WH,
-#     toggleBar(WH),
-#    rect(  xy=c(50,50),  wh=c(600,50), stroke="black", fill="lightgreen",
-#       set(attributeName="wh", to=c(200,100),
-#           begin=toggleButton.click('left'), 
-#           end=toggleButton.click('right')
-#           )
-#     )
-# )
+ WH<-c(800,200)
+ svgR( wh=WH,
+     toggleBar(WH),
+    rect(  xy=c(50,50),  wh=c(600,50), stroke="black", fill="lightgreen",
+       set(attributeName="wh", to=c(200,100),
+           begin=toggleButton.click('left'), 
+           end=toggleButton.click('right')
+           )
+     )
+ )
 ```
 
 ### Set ViewBox (Zooming)
