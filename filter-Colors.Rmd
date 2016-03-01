@@ -13,6 +13,7 @@ stopifnot(require(svgR, quietly=TRUE))
 ```{r, echo=FALSE}
   source('Util.R')
 ```
+## Gaussian
 
 
 ## Color Flooding
@@ -25,12 +26,15 @@ A simple example of feFlood is
 WH=c(800, 100) # window rect
 svgR( wh=WH,
   use(
-    filter=filter( feFlood(flood.color='yellow') )
+    filter=filter( filterUnits="userSpaceOnUse",
+                   feFlood(flood.color='yellow') )
   )
 )
 ```
 
-The filter as shown above, assigns an filter element to a filter attribute directly.  This filter=filter(...) is a shortcut introduced in svgR for programming convienience. 
+The filter as shown above, assigns an filter element to a filter attribute directly.  Here we use filterUnits="userSpaceOnUse" to flood the entire region.
+
+This filter=filter(...) is a shortcut introduced in svgR for programming convienience. 
 
 The more traditional approach is to place the filter as a child of a defs element and use a reference to the filter when when assigning to an attribute.
 
@@ -40,7 +44,7 @@ For example
 WH=c(800, 100) # window rect
 svgR( wh=WH,
   defs(
-    filter(id='myFlood',
+    filter(id='myFlood', filterUnits="userSpaceOnUse",
            feFlood(flood.color='yellow')
     )
   ),
@@ -63,15 +67,17 @@ svgR( wh=WH,
     rect(cxy=WH/2, wh=c(1,.2)*WH, fill='blue'),
     lapply(1:10, 
       function(i){g(
-           filter=filter( xy=c(i*60,10),  wh=c(30,90), feFlood(flood.color='yellow', flood.opacity='.5'))
+           filter=filter( xy=c(i*60,10),  wh=c(30,90), filterUnits="userSpaceOnUse",
+                    feFlood(flood.color='yellow', flood.opacity='.5'))
            ) 
       }
       )
 )
 ```
 
-Caution: feFlood floods the filters bounding box defined by the filter xy and wh. To flood the interior of a graphics, one needs
-to use one of feComposite, feBlend, feMerge.
+**Note**: In all of the preceding examples we used *filterUnits="userSpaceOnUse"*,
+however the default is *filterUnits="objectBoundingBox"*.  When applying a this **feFlood** to an object using the *filterUnits="objectBoundingBox"*,
+the entire region defined by the bounding is flooded with color.  To flood the interior of a graphics object, one can additionally employ an feComposite or feBlend for the desired effect.
 
 ## Rotating Hues
 
@@ -115,7 +121,7 @@ svgR( wh=WH,
         rect(xy=c(i*2,10), wh=c(30,96), 
           fill=linearGradient( xy1=c(0,0), xy2=c(0,1),
             colors=c('red','yellow','green','blue')),
-           filter=filter( 
+           filter=filter( filterUnits="userSpaceOnUse",
              feColorMatrix(
                type="hueRotate", values=i
              )  

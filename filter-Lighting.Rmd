@@ -13,7 +13,7 @@ stopifnot(require(svgR, quietly=TRUE))
 
 ```{r, echo=FALSE}
 if(!exists("newId")){
-  source('~/R/svgRUserGuide/Util.R')
+  source('./Util.R')
 }
 ```
 
@@ -22,7 +22,6 @@ if(!exists("newId")){
 
 <table ><tr><td>
 ```{r, echo=F, results='asis'}
-library(svgR)
 WH=c(400, 300) # window rect
 elevation<-20 #seq(10,30, length.out=4) # in degrees
 azimuth<-180 #seq(0,270, length.out=4) # in degrees
@@ -662,9 +661,7 @@ i.e.
 $$I = \kappa \times ( \hat h \cdot \hat n )^s  L $$
 
 ```{r, echo=F, results='asis'}
-library(svgR)
-path<-"~/R/svgRUserGuide/"
-source(paste0(path,"Util.R"))
+source("./Util.R")
 WH=c(800, 300) # window rect
 
 R<-100

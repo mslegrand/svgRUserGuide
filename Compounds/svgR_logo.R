@@ -107,4 +107,4 @@ svgR( wh=WH3,
 logo3(WH=WH3, txt="Whirlwind Tutorial")
 )->tmp
 
-as.character(tmp,file="whirlwind.svg")
+cat(as.character(tmp),file="whirlwind.svg")

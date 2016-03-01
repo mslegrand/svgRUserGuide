@@ -16,51 +16,73 @@ stopifnot(require(svgR, quietly=TRUE))
   source('Util.R')
 ```
 
-##Overview
+##Overview of Filters
+
+###Introduction
 
 
-The Filter attribute can only have a filter element or a reference to a filter element as it's value.
-A Filter element is a container for fe-elements, which in this document we will refer to as .
-The fe-elements together form a directed graph, with root, 
-whose construction is discussed in the section [Combining Filter Primitives]
-
-That ensemble is used to
-create interesting effects by modifying existing images. 
-
-Many filter primitives  require  input of image data 
-(some require two), and these are supplied via the in1 and in2 attributes. 
-Two notable exceptions are feImage and feFlood.
-
+In the previous section we explored how the *fill* attribute can be applied to text and shapes.
+Another
+attribute for text and shapes, is the *filter* attribute. 
+*Filter *attributes  may take as  values  a **filter element** or a *reference* 
+to a **filter element**. 
+A **Filter element** is a container for **filter effect elements**, 
+also called **filter primitives** or **fe-elements**
+. The **fe-elements**  feed into each other to 
+form  a directed graph with a root. Typically, the fe elements are linked together using the
+*in1*, *in2* attributes. One might visualize a filter to look something like
 
 
-todo: diagrams
+
+```{r, echo=FALSE, results="asis"}
+WH<-c(800,150)
+svgR( wh=WH,
+     text(cxy=WH/2,"ToDo!!! Filter Diagram", font.size=60, fill='red', stroke='black')
+)
+```
 
 
-todo: 
+While the fill attribute is restricted to the interior of a shape, filters can effect the entire  shape.
+
+ 
+**Note** Pure *SVG* allows only references, but *svgR* allows to use
+the **filter element** directly as the value of a *filter attribute*.
+
+
+**Todo!!!:** 
 
 - feFunc***X*** 
 - feTile
 
 
 
-### The  In Attribute of  Filter components
+### The In Attributes of  Filter components
 
-As we noted before, filter components may have one or two ***in*** attributes: in1, in2.
-The in1 and in2 attributes can take the values SourceGraphic, SourceAlpha, BackgroundImage, BackgroundAlpha, FillPaint, StrokePaint, or a reference to another primitive's result. The behaviours for each are as follows:
-
-- SourceGraphic represents the original element to which the filter is applied (as full RGBA image data)
-- SourceAlpha represents just the alpha channel of the original element to which the filter is applied
-- BackgroundImage represents the area directly underneath the filter region
-- BackgroundAlpha represents just the alpha channel of the area underneath the filter region
-- FillPaint represents whatever fill was applied to the element in question
-- StrokePaint represents whatever stroke was applied to the element
-- Any other value should be a reference equal to the result attribute for any preceding filter primitive. In this case, the output of the referenced primitive will be used as the specified input.
+Most **fe-element** (filter primitive) require an input specification, which 
+is preformend by assigning
+values to their *in* attributes: *in1* and *in2*.
 
 
+(Two notable exceptions to this are the fe-elements: **feImage** and **feFlood**.)
+
+Values for the in *attributes* are given by the following table
+
+Value | Description
+----------------------|------------------------------------------------------------
+*SourceGraphic* |represents the original element to which the filter is applied (as full RGBA image data)
+*SourceAlpha* | represents just the alpha channel of the original element to which the filter is applied
+*BackgroundImage* | represents the area directly underneath the filter region
+*BackgroundAlpha* | represents just the alpha channel of the area underneath the filter region
+*FillPaint* | represents whatever fill was applied to the element in question
+*StrokePaint* | represents whatever stroke was applied to the element
+a reference | Any other value should be a reference equal to the result attribute for any preceding filter primitive. In this case, the output of the referenced primitive will be used as the specified input.
 
 
 
-### Filter Components Summary
+
+
+### The fe-Elements (Filter primitives)
+
 
 Element               |                Attributes                                  
 ----------------------|------------------------------------------------------------

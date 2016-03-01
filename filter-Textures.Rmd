@@ -31,7 +31,7 @@ A simple example of the former is:
 WH=c(800, 100) # window rect
 svgR( wh=WH,
       use(
-        filter=filter(
+        filter=filter( filterUnits="userSpaceOnUse",
           feTurbulence(baseFrequency=0.1, numOctaves=2 ) 
         )
       )
@@ -57,7 +57,7 @@ svgR( wh=WH,
     x<-((i-1)%%11)*70
     y<-(floor((i-1)/11))*90+50
     g(
-      use( filter=filter( xy=c(x,y), wh=c(60,60),
+      use( filter=filter( xy=c(x,y), wh=c(60,60), filterUnits="userSpaceOnUse",
           feTurbulence(baseFrequency=bfreq[i], numOctaves=2) 
         ) ),
       text(bfreq[i], xy=c(x,y-10))
@@ -84,7 +84,7 @@ svgR( wh=WH,
     lapply(numOctRng, function(j){text(0.005*(j-1), xy=c(20,yp(j)+50))}),
     apply(indx, 1, function(z){
       i=z[1];j=z[2]
-      use(filter=filter( xy=c(xp(i),yp(j)),  wh=c(120,90),
+      use(filter=filter( xy=c(xp(i),yp(j)),  wh=c(120,90), filterUnits="userSpaceOnUse",
             feTurbulence(baseFrequency=0.005*c(i-1,j-1), numOctaves=1) 
           )
         ) 
@@ -110,7 +110,7 @@ svgR( wh=WH,
     lapply(numOctRng, function(j){text(2*j-1, xy=c(20,yp(j)+50))}),
     apply(indx, 1, function(z){
       i=z[1];j=z[2]
-      use(filter=filter( xy=c(xp(i),yp(j)),  wh=c(130,90),
+      use(filter=filter( xy=c(xp(i),yp(j)),  wh=c(130,90), filterUnits="userSpaceOnUse",
             feTurbulence(baseFrequency=.02*i, numOctaves=2*j-1 )
           )
         ) 
@@ -133,12 +133,12 @@ but the appears to be softer
 WH=c(800, 150) # window rect
 svgR( wh=WH,
       use(
-        filter=filter( xy=c(50,70),wh=c(150,60),
+        filter=filter( xy=c(50,70),wh=c(150,60), filterUnits="userSpaceOnUse",
           feTurbulence(type='turbulence', baseFrequency="0.1", numOctaves="2" ) 
         )
       ),
             use(
-        filter=filter( xy=c(250,70),wh=c(150,60),
+        filter=filter( xy=c(250,70),wh=c(150,60), filterUnits="userSpaceOnUse",
           feTurbulence(type='fractalNoise', baseFrequency="0.1", numOctaves="2" ) 
         )
       ),

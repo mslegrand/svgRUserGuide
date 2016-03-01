@@ -581,7 +581,7 @@ Instead of a list we can use a string as so:
 ```{r, echo=T, results="asis"}
 WH=c(600, 200) # window rect
 wh=c(80,30) # small rect
-pt=c(c,0)
+pt=c(0,0)
 svgR( 
   wh=WH, 
   graphPaper(wh=WH, dxy=c(50,50), labels=TRUE),

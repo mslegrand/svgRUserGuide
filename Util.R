@@ -1,7 +1,7 @@
 stopifnot(require(svgR, quietly=TRUE))
 library(svgR)
 
-path<-"~/R/svgRUserGuide/Compounds/"
+path<-"./Compounds/"
 source(paste0(path,"graphPaper.R"))
 source(paste0(path,"svgR_logo.R"))
 source(paste0(path,"svgRTree.R"))
