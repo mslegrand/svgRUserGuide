@@ -275,7 +275,7 @@ svgR( wh=WH,
           feMergeNode(in1= feFlood(xy=c(0,0), wh=WH,
           flood.color="#CCAC6C") ),
           feMergeNode(
-            feColorMatrix( type="matrix", values=m , 
+            in1=feColorMatrix( type="matrix", values=m , 
               in1=feTurbulence( baseFrequency=c(.008,.25), numOctaves=1)
             )
           )
@@ -305,7 +305,7 @@ svgR( wh=WH,
           feMergeNode(in1= feFlood(xy=c(0,0), wh=WH,
           flood.color="#CCDCDC"), flood.opacity=.5 ),
           feMergeNode(
-            feColorMatrix( type="matrix", values=m , 
+            in1=feColorMatrix( type="matrix", values=m , 
               in1=feTurbulence( baseFrequency=c(.2,.3), numOctaves=1)
             )
           )
@@ -332,7 +332,7 @@ svgR( wh=WH,
           feMergeNode(in1= feFlood(xy=c(0,0), wh=WH,
           flood.color="#FFDCDC"), flood.opacity=.5 ),
           feMergeNode(
-            feColorMatrix( type="matrix", values=m , 
+            in1=feColorMatrix( type="matrix", values=m , 
               in1=feTurbulence( baseFrequency=c(.5,.1), numOctaves=4)
             )
           )
@@ -359,7 +359,7 @@ svgR( wh=WH,
           feMergeNode(in1= feFlood(xy=c(0,0), wh=WH,
           flood.color="#CFFCDC"), flood.opacity=.5 ),
           feMergeNode(
-            feColorMatrix( type="matrix", values=m , 
+            in1=feColorMatrix( type="matrix", values=m , 
               in1=feTurbulence( baseFrequency=c(.1,.1), numOctaves=4)
             )
           )
@@ -387,7 +387,7 @@ svgR( wh=WH,
           feMergeNode(in1= feFlood(xy=c(0,0), wh=WH,
           flood.color="#CFFCDC"), flood.opacity=.5 ),
           feMergeNode(
-            feColorMatrix( type="matrix", values=m , 
+            in1=feColorMatrix( type="matrix", values=m , 
               in1=feTurbulence( baseFrequency=c(.01,.01), numOctaves=1)
             )
           )
