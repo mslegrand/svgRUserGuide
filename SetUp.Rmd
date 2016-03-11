@@ -10,9 +10,7 @@ output:
 stopifnot(require(svgR, quietly=TRUE))
 ```
 
-```{r, echo=FALSE}
-  source('Util.R')
-```
+
 ```{r, echo=FALSE}
 library(stringr)
 showCode %<c-% function(txt){

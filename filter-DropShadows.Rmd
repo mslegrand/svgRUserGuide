@@ -11,9 +11,6 @@ output:
 stopifnot(require(svgR, quietly=TRUE))
 ```
 
-```{r, echo=FALSE}
-  source('Util.R')
-```
 
 Drop shadows of a figure can be made by applying 
 alpha channel of an image with a small offset and then combining it with the original image.  Specifically we 

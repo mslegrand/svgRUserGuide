@@ -10,11 +10,18 @@ theme: united
 
 ```{r, echo=FALSE}
 stopifnot(require(svgR, quietly=TRUE))
+
+#some phrazes in chinese
+hello<-"您好"
+dataScience<-"数据科学"
+statistics<-"统计"
+mathematics<-"数学"
+linearRegression<-"线性回归"
+integral<-"积分"
+normalDistribution<-"正态分布"
+
 ```
 
-```{r, echo=FALSE}
-  source('Util.R')
-```
 
 
 ```{r, echo=T, results="asis"}

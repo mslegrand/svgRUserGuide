@@ -11,10 +11,6 @@ output:
 stopifnot(require(svgR, quietly=TRUE))
 ```
 
-```{r, echo=FALSE}
-  source('Util.R')
-```
-
 With a defs clipPath works seamlessly, but
 ```{r, echo=T, results="asis"}
 #```{r, echo=T}

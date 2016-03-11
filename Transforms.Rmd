@@ -6,17 +6,12 @@ output:
     theme: united
 ---
 
-
 ```{r set-options, echo=FALSE, cache=FALSE}
 #options(width = SOME-REALLY-BIG-VALUE)
 ```
 
 ```{r, echo=FALSE}
 stopifnot(require(svgR, quietly=TRUE))
-```
-
-```{r, echo=FALSE}
-  source('Util.R')
 ```
 
 ## Transform operations

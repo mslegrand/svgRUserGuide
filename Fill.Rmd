@@ -11,9 +11,6 @@ output:
 stopifnot(require(svgR, quietly=TRUE))
 ```
 
-```{r, echo=FALSE}
-  source('Util.R')
-```
 
 *Fill'er up*
 
@@ -184,14 +181,17 @@ Or using defs for the fill
 
 ```{r, echo=T, results="asis"}
 WH=c(600, 200) # window rect
+patternId<-autoId()
+patternUrl<-sprintf("url(#%s)",patternId)
 svgR( wh=WH,
-  g(
+  defs(
     pattern(
-        id="pattern2", xy=c(10,10), wh=c(40,40), patternUnits="userSpaceOnUse" ,
+        id=patternId, xy=c(10,10), wh=c(40,40), patternUnits="userSpaceOnUse" ,
         circle(cxy=c(10,10), r=10, fill='red')
-    ),
-    ellipse( cxy=c(250,100), rxy=c(200,80), fill="url(#pattern2)")
-  )
+    )
+  ),
+  ellipse( cxy=c(250,100), rxy=c(200,80), fill=patternUrl)
+
 )
 ```
 

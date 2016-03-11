@@ -10,9 +10,7 @@ output:
 stopifnot(require(svgR, quietly=TRUE))
 ```
 
-```{r, echo=FALSE}
-  source('Util.R')
-```
+
 ## Gaussian
 
 

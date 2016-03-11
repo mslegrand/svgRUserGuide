@@ -12,10 +12,6 @@ output:
 stopifnot(require(svgR, quietly=TRUE))
 ```
 
-```{r, echo=FALSE}
-  source('Util.R')
-```
-
 ## Markers
 
 Markers are used to decorate the ends paths and any adjoining segements.

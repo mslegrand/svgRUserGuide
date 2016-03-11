@@ -14,8 +14,12 @@ output:
     toc_depth: 2 
 ---
 
-
-
+```{r}
+library(svgR)
+path<-"./Compounds/"
+source(paste0(path,"svgR_logo.R"))
+source(paste0(path,"svgRTree.R"))
+```
 
 <style>
 h1 {
@@ -81,9 +85,6 @@ body {
 
 ```{r, echo=FALSE}
 stopifnot(require(svgR, quietly=TRUE))
-```
-```{r, echo=FALSE}
-  source('Util.R')
 ```
 
 

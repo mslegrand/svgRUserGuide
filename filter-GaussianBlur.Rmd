@@ -12,9 +12,6 @@ output:
 stopifnot(require(svgR, quietly=TRUE))
 ```
 
-```{r, echo=FALSE}
-  source('Util.R')
-```
 
 ```{r, echo=T, results="asis"}
 WH=c(800, 100) # window rect

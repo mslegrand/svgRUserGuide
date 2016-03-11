@@ -1,40 +1,6 @@
 stopifnot(require(svgR, quietly=TRUE))
 library(svgR)
 
-path<-"./Compounds/"
-source(paste0(path,"graphPaper.R"))
-source(paste0(path,"svgR_logo.R"))
-source(paste0(path,"svgRTree.R"))
-
-#---------------------------------------------------------------
-#utility to makes id Generators
-# IdGeneratorFactory<-function(prefix='docId'){
-#   count<-0
-#   function(){count<<-count+1;
-#              paste0(prefix,count)
-#   }
-# }
-IdGeneratorFactory<-function(prefix='docId'){
-  count<-0
-  function(inc=TRUE){
-    if(inc){
-      count<<-count+1;
-    }
-    return( paste0(prefix,count))
-  }
-}
-
-if(!(exists("newId"))){
-  newId<-IdGeneratorFactory()
-}
-#---------------------------------------------------------------
-
-
-
-#---------------------------------------------------------------
-
-source(paste0(path,"playBar.R"))
-source(paste0(path,"toggleBar.R"))
 
 
 #some phrazes in chinese
@@ -83,7 +49,7 @@ matrix2Arrows %<c-% function( points=matrix(c(0,0,100,100), 2,2), ... ){
   if( inherits(points, "matrix") && nrow(points)%%2!=0){
     stop("points must be a  2 by 2n matrix")
   }
-  mid<-newId()
+  mid<-autoId()
   points<-matrix(points, 4, )
   c(
     defs(

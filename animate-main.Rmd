@@ -11,12 +11,6 @@ output:
 stopifnot(require(svgR, quietly=TRUE))
 ```
 
-```{r, echo=FALSE}
-if(!exists("newId")){
-  source('Util.R')
-}
-```
-
 ## Animation Overview
 
 Animatinon can be broke into two basic types:
@@ -259,7 +253,7 @@ svgR( wh=WH,
 
 ```{r, echo=T, results="asis"}
 WH<-c(800,200)
-rectid<-newId()
+rectid<-autoId()
 svgR( wh=WH,
   script(
 paste0(
@@ -282,10 +276,10 @@ paste0(
 
 ```{r, echo=T, results="asis"}
 WH<-c(800,200)
-goStopCirAni<-newId()
-goStopButton<-newId()
-textStart<-newId()
-textStop<-newId()
+goStopCirAni<-autoId()
+goStopButton<-autoId()
+textStart<-autoId()
+textStop<-autoId()
 scriptGS<-paste0(
 'var gsOn=false; ',
 'function goStop() {
@@ -335,8 +329,8 @@ svgR( wh=WH,
 
 ```{r, echo=T, results="asis"}
 WH<-c(800,200)
-startButton<-newId()
-stopButton<-newId()
+startButton<-autoId()
+stopButton<-autoId()
 
 button %<c-% function( ...){
   args<-list(...)

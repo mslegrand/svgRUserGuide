@@ -12,9 +12,6 @@ output:
 stopifnot(require(svgR, quietly=TRUE))
 ```
 
-```{r, echo=FALSE}
-  source('Util.R')
-```
 
 In this section we discuss shapes.
 Shapes are circles, ellipses, lines, paths, polygons, polylines, rectangles. 

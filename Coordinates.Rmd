@@ -11,9 +11,6 @@ output:
 stopifnot(require(svgR, quietly=TRUE))
 ```
 
-```{r, echo=FALSE}
-  source('Util.R')
-```
 
 
 
@@ -32,7 +29,7 @@ A **viewBox** is the area of the graphics surface which is to be placed inside t
 
 ```{r, echo=FALSE}
 WH=c(800,300)
-cid<-newId()
+cid<-autoId()
 #coods lhs
 # XY.svg.lhs<-c(0,0)
 # WH.svg.lhs<-c(1,1)*WH[2]
@@ -193,7 +190,7 @@ Svg's can be nested: The simplest example being a single child svg, (the root sv
 ```{r, echo=TRUE, results="asis"}
 WH<-c(400,300)
 WH2<-WH/2
-id=newId()
+id=autoId()
 svgR(wh=WH, 
      use(filter=filter( feFlood(flood.color='blue') )),
      g( id=id,
@@ -227,7 +224,7 @@ Finally we go a step further and provide a viewbox when embeding a child svg.
 
 ```{r, echo=TRUE, results="asis"}
 WH<-c(800,300)
-id=newId()
+id=autoId()
 XY2<-c(600,40)
 WH2<-c(180,200)
 svgR(wh=WH, 

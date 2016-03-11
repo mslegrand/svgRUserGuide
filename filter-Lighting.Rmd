@@ -9,12 +9,8 @@ output:
 
 ```{r, echo=FALSE}
 stopifnot(require(svgR, quietly=TRUE))
-```
+source("Util.R")
 
-```{r, echo=FALSE}
-if(!exists("newId")){
-  source('./Util.R')
-}
 ```
 
 
@@ -262,7 +258,7 @@ elevation<-20 #seq(10,30, length.out=4) # in degrees
 azimuth<-180 #seq(0,270, length.out=4) # in degrees
 opacities=c(1,1,0,0)
 WH2<-c(.2,1)*WH
-rid<-newId()
+rid<-autoId()
 fill<-"#400088"
 font.size<-270
 cxy<-c(.5,.4)*WH2
@@ -377,9 +373,9 @@ triangle<-c(
 c(X/2,Y),
 c(X/2+R,Y), c(X/2+R,Y-S)
 )
-mid<-newId()
+mid<-autoId()
 murl<-paste0('url(#',mid,')')
-mid2<-newId()
+mid2<-autoId()
 murl2<-paste0('url(#',mid2,')')
 
 svgR( wh=WH, 
@@ -584,7 +580,7 @@ R<-100
 S<-50
 Y<-WH[2]-S
 X<-WH[1]
-mid<-newId()
+mid<-autoId()
 murl<-paste0('url(#',mid,')')
 eta<-.5*(pi/2-pi/3)
 theta<-pi/2-pi/6
@@ -661,14 +657,14 @@ i.e.
 $$I = \kappa \times ( \hat h \cdot \hat n )^s  L $$
 
 ```{r, echo=F, results='asis'}
-source("./Util.R")
+
 WH=c(800, 300) # window rect
 
 R<-100
 S<-50
 Y<-WH[2]-S
 X<-WH[1]
-mid<-newId()
+mid<-autoId()
 murl<-paste0('url(#',mid,')')
 eta<-.3*(pi/2-pi/3)
 theta<-pi/2-pi/8

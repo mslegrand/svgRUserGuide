@@ -11,9 +11,6 @@ output:
 stopifnot(require(svgR, quietly=TRUE))
 ```
 
-```{r, echo=FALSE, results="asis"}
-source('Util.R')
-```
 
 <a name="animateMotion"></a> 
 
@@ -145,8 +142,8 @@ da<-sapply(1:NumberOfJumps,function(i){
   c( "A", rxy, 0, 0, 1, endPt )
 })
 d<-c("M",startPt,da)
-ani.id<-newId()
-splat.id<-newId()
+ani.id<-autoId()
+splat.id<-autoId()
 splat.dur<-.1
 svgR( 
     playBar(wh=WH),
@@ -178,7 +175,7 @@ that using keySplines. See [Bouncing Ball With KeySplines](#bouncingBallWithKeyS
 ```{r, echo=T, results="asis"}
 WH<-c(800,150)
 d<-c("m", WH*c(0,.0), "l", WH*c(1,0))
-aniMotion<-newId()
+aniMotion<-autoId()
 svgR( 
     playBar(wh=WH),
     rect(xy=c(0,0),wh=WH, fill="#AAFFAA"),
@@ -206,7 +203,7 @@ being ignored
 ```{r, echo=T, results="asis"}
 WH<-c(800,150)
 d<-c("m", WH*c(0,.0), "l", WH*c(1,0))
-aniMotion<-newId()
+aniMotion<-autoId()
 svgR( 
     playBar(wh=WH),
     rect(xy=c(0,0),wh=WH, fill=linearGradient(x12=c(0,1),colors=c("lightgreen","pink"))),
@@ -240,8 +237,8 @@ da<-sapply(1:NumberOfJumps,function(i){
   c( "A", rxy, 0, 0, 1, endPt )
 })
 d<-c("M",startPt,da)
-ani.id<-newId()
-splat.id<-newId()
+ani.id<-autoId()
+splat.id<-autoId()
 splat.dur<-.1
 svgR( 
     playBar(wh=WH),

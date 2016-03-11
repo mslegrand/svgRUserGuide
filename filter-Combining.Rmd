@@ -11,9 +11,6 @@ output:
 stopifnot(require(svgR, quietly=TRUE))
 ```
 
-```{r, echo=FALSE}
-  source('Util.R')
-```
 
 Almost always, more than one filter component is required by the filter, and those components need to be combined. There are
 three elements that can be used to combine filter components.

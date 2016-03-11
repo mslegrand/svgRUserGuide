@@ -11,11 +11,6 @@ output:
 stopifnot(require(svgR, quietly=TRUE))
 ```
 
-```{r, echo=FALSE}
-if(!exists("newId")){
-  source('./Util.R')
-}
-```
 
 Recall, animation can be broken up as discrete or continous.
 
@@ -40,7 +35,6 @@ everything except transforms and motions along a path.
 
 ### Stroke Width
 ```{r, echo=T, results='asis'}
-library(svgR)
 WH<-c(800,200)
 svgR( 
     playBar(wh=WH),
@@ -208,7 +202,7 @@ svgR(
 ### Animating the Radial Gradient Focus (fxy)
 ```{r, echo=TRUE, results="asis"}
 WH=c(800,300)
-rgid<-newId()
+rgid<-autoId()
 rgUrl<-sprintf('url(#%s)',rgid)
 svgR(
     playBar(wh=WH),
@@ -235,7 +229,7 @@ svgR(
 
 ```{r, echo=TRUE, results="asis", fig.cap="radial gradient focus animation", fig.align='center'}
 WH=c(800,300)
-rgid<-newId()
+rgid<-autoId()
 rgUrl<-sprintf('url(#%s)',rgid)
 svgR(
     playBar(wh=WH),
@@ -264,7 +258,7 @@ svgR(
 ```{r, echo=TRUE, results="asis"}
 WH=c(800,300)
 colors=c('red','white','green')
-rgid<-newId()
+rgid<-autoId()
 rgUrl<-sprintf('url(#%s)',rgid)
 svgR(
     playBar(wh=WH),
@@ -736,7 +730,7 @@ $[ 2.85, 3]$ )
 ```{r, echo=T, results="asis"}
 WH<-c(800,150)
 d<-c("m", WH*c(0,.0), "l", WH*c(1,0))
-aniMotion<-newId()
+aniMotion<-autoId()
 svgR( 
     playBar(wh=WH),
     rect(xy=c(0,0),wh=WH, fill="#AAFFAA"),
