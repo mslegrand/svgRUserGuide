@@ -32,16 +32,146 @@ form  a directed graph with a root. Typically, the fe elements are linked togeth
 
 
 ```{r, echo=FALSE, results="asis"}
-WH<-c(800,150)
-svgR( wh=WH,
-     text(cxy=WH/2,"ToDo!!! Filter Diagram", font.size=60, fill='red', stroke='black')
+WH<-c(650,680)
+
+#Defined by mouse: edit with care!
+ptR<-list(
+  arrows=matrix(
+    c(c( 150.5,205 ),c( 150.5,150 ),c( 265.5,152 ),c( 276.5,108 ),c( 13.5,12 ),c( 451.5,204 ),c( 443.5,153 ),c( 347.5,154 ),c( 329.5,112 ),c( 26.5,9 ),c( 452.5,302 ),c( 452.5,272 ),c( 453.5,245 ),c( 21.5,22 ),c( 300.5,448 ),c( 298.5,396 ),c( 452.5,397 ),c( 453.5,344 ),c( 33.5,20 ),c( 150.5,601 ),c( 151.5,551 ),c( 279.5,549 ),c( 279.5,494 ),c( 33.5,33 ),c( 450.5,601 ),c( 451.5,549 ),c( 332.5,553 ),c( 327.5,494 )),
+  2,),
+  labels=matrix(
+    c(c( 201.5,138 ),c( 400.5,139 ),c( 438.5,279 ),c( 372.5,385 ),c( 219.5,539 ),c( 400.5,537 )),
+  2,),
+  uniboxes=matrix(
+    c(c( 301.5,62 ),c( 151.5,204 ),c( 452.5,203 ),c( 452.5,303 ),c( 300.5,450 ),c( 147.5,601 ),c( 453.5,603 )),
+  2,)
+)
+
+
+unifboxes%<c-%function(x=c(), txt="", wh=c(100,30), rxy=c(20,20), ...){ 
+  if(length(x)==0){
+    return(NULL)
+  }
+  n<-ncol(x)
+  if(length(txt)<n){   
+    txt<-c(txt, paste0(length(txt):c))
+  }
+  lapply(1:n, function(i){
+    xy<-x[,i]-c(.5,0)*wh
+    cxy<-xy+wh/2
+    g(
+      rect(xy=xy, wh= wh, rxy=rxy, ...),
+      if(nchar(txt[i])>0){
+        text(cxy=cxy, txt[i],  ...)
+      }  else {
+        NULL
+      }
+    )
+  })
+} 
+
+
+
+roundedPolyLine%<c-%function(x, r=5, ...){
+  nx<-length(x)
+  if(nx<=4){
+    return(nx)
+  }
+  n<-ncol(x)
+  if(n==2){
+    return(path(d=c("M", x[,1], "L", x[,n]), ...))
+  }
+
+  dv<-x[,-n]-x[,-1]
+  d<-apply( dv ,2, function(x)sqrt(sum(x)^2) )
+  lambda<-sapply(r/d, function(x)min(x,.5))
+  
+  m<- n-1
+  if(m==2){
+    mA<-matrix(c(lambda[1],1-lambda[1]),2,1)
+    mB<-matrix(c(1-lambda[2],lambda[2]),2,1)
+  } else {
+    mA<- rbind(diag(lambda[-m]),0) + rbind(0,diag(1-lambda[-m]))
+    mB<- rbind(0,diag(lambda[-1])) + rbind(diag(1-lambda[-1]),0)
+  } 
+  a<-x[,-n]%*%mA
+  b<-x[,-1]%*%mB   
+  rL<-rep("L", n-2)
+  rQ<-rep("Q", n-2)
+  if(m==2){
+    rr<-c(rL,a,rQ,x[,2],b)
+  } else {
+    rr<-rbind(rL, a, rQ, x[,-c(1,n)], b)
+  }
+  path(d=c("M", x[,1], rr, "L", x[,n]),  ...)
+  }
+
+roundedPolyLineArrays%<c-%function(p, ...){
+  if(length(p)<4){
+    return(NULL)
+  }
+  n<-ncol(p)
+  brks<-apply(p,2, function(x){ max(x)<50})
+  brkss<-(1+cumsum(brks))*(!brks)
+  if(max(brkss)==0){
+    return(NULL)
+  }
+  
+  lapply(1:max(brkss),function(i){
+    p_i<-p[,brkss==i]
+    roundedPolyLine(p_i, ...)
+  }) 
+}
+
+
+
+arrowHeadId<-autoId()
+arrowHeadUrl<-paste0("url(#",arrowHeadId,")")
+
+btxt<-c("feBlend",  "SourceGraphic", "feGaussianBlur",
+    "feOffset", "feComposite", "feFlood", "SourceGraphic" )
+
+labels<-c("in1","in2","in1", "in1", "in1","in2")
+svgR(wh=WH, 
+     #your custom code goes here
+     defs(
+       marker(id=arrowHeadId, viewBox=c(0, 0, 10, 10), refXY=c(9,5), 
+              markerWidth=6, markerHeight=6, orient="auto",
+              path( d=c("M", 0, 0, "L", 10, 5, "L", 0, 10, "z"),
+              fill='darkgreen'
+              )
+            )
+     ),
+    #  boxes(ptR$boxes, txt=btxt, stroke="black", 
+    #     fill='lightblue', rxy=c(20,20)
+    #  ),
+    #rect(xy=c(50,25), wh=c(500,650), stroke='black',
+        #fill='lightblue'),
+        #text(cxy=c(100,50),'filter',stroke='black',
+        #font.size=50),
+     unifboxes(ptR$uniboxes, txt=btxt, wh=c(150,40), 
+         stroke="darkgreen",
+        fill="white"),
+     roundedPolyLineArrays(ptR$arrows, r=30, 
+                          stroke.width=3, stroke='darkgreen', 
+                          fill="none",
+                          marker.end=arrowHeadUrl
+     ),
+     lapply(1:ncol(ptR$labels), function(i){
+        text(cxy=ptR$labels[,i], labels[i], stroke='darkgreen')
+     })
+     
+     
+     
 )
 ```
 
+One distinct difference between fills and filters, is that a fill
+is restricted to the interior, while filters are not.
 
-While the fill attribute is restricted to the interior of a shape, filters can effect the entire  shape.
+**Note** Technically this is not a tree, since the *SourceGraphics* label appears muliple places.
 
- 
+
 **Note** Pure *SVG* allows only references, but *svgR* allows to use
 the **filter element** directly as the value of a *filter attribute*.
 
@@ -56,7 +186,7 @@ the **filter element** directly as the value of a *filter attribute*.
 ### The In Attributes of  Filter components
 
 Most **fe-element** (filter primitive) require an input specification, which 
-is preformend by assigning
+is preformed by assigning
 values to their *in* attributes: *in1* and *in2*.
 
 

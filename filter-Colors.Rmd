@@ -11,9 +11,6 @@ stopifnot(require(svgR, quietly=TRUE))
 ```
 
 
-## Gaussian
-
-
 ## Color Flooding
 
 
