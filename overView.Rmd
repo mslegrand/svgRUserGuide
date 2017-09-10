@@ -315,18 +315,24 @@ The sections
 
 section | description
 ---------|-----------------------------
-Coordinates, Viewports and Containers | placement of shapes
-Transform Attribute | placement of shapes
-Shapes,  Paths, Markers | Basic Shapes
-Text | Text related
+Coordinates, Viewports and Containers | Placement and grouping of shapes
+Transform Attribute | Modifying the size/placement/orientation of shapes
+Shapes,  Paths, markers | basic shapes
+Text | Displaying shapes
 The Fill Attribute | Gradients, Patterns
 The Filter Attribute | Gaussian Blur, Filter Coords
-Color Filters | Filters that influence color
-Combining Filter Primitives| feComposite, feBlend, 
-Texture Filter | Textures and Marbling
-Lighting Filters | shiny bevel
-Shape Shifters | clip.path
-Animating | Set, Animation, Animation Transform, Animate Motion
+Manipulating Colors | Filters that influence color
+Combining Filter Primitives| Using feComposite, feBlend
+Drop Shadows | Adding shadows behind shapes/text
+Textures  | Different textures such as  marbling, wood, wtucco, ...
+Lighting | Types of lighting 
+Shiny Bevels | Examples using filters and compounds
+Shape Shifting | Clipping, masking, morphology, displacing
+Animating | Overview
+Discret Animation | Visibility, opacity, positioning, stroking
+Continous Animation | Filters, fill, shapes, lighting
+Continous Transform | Animating transforms: rotate, scale, skew
+Path Animation | Paths, key-splines, key-times
 
 Each section contains multiple short examples of each topic.
 Enjoy!

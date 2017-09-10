@@ -58,14 +58,53 @@ codeBlock %<c-% function(wh){
 }
 ```
 
-## To install from github
+## Two Ways To Install
 
-The easiest way to install is to use devtools to install from github:
+### 1. Using DevTools
+One to install is to use the **devtools** to install svgR from the github repository:
 
+From withing an R session
+
+A. Install the devtools package
 ```
 install.packages("devtools")
+```
+
+B.  Use devtools to install from github
+```
+library(devtools)
 install_github("mslegrand/svgR")
 ```
+
+### 2. Using Drat
+
+Another way to install is to use the **drat package manager**. 
+
+From within R session
+
+A.
+```
+install.packages("drat", repos="http://cran.rstudio.com")
+```
+
+B. 
+```
+library(drat)
+drat:::add("mslegrand")
+install.packages("svgR") #for R only.
+```
+
+One argument in favour of drat is the abiltily to seemlessly install/update, using the
+usual *install.packages*, *update.packages* commands. The only 
+caveat being that to make it seemless, one should add the .Rprofile the line 
+
+```
+drat:::add(mslegrand)
+```
+
+See [Setting up with drat](https://mslegrand.github.io/drat/)
+
+###
 
 ## To render in an RPres or R Markdown document 
 - Include prior to any calls to svgR include a block with

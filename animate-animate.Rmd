@@ -687,7 +687,7 @@ svgR(
                 )
         )
       ),
-      text("A Data Flow", xy=c(30,30), font.size=25, fill="blue", font='black'),
+      text("A Data Flow", xy=c(30,30), font.size=25, fill="blue"),
       g(
         lapply(1:30, function(i)text(cxy=runif(2)*.7*WH+c(50,50), 
                                      fill=rrgb(), "Flowing Data", font.size=sample(10:30,1)
@@ -735,9 +735,9 @@ svgR(
     playBar(wh=WH),
     rect(xy=c(0,0),wh=WH, fill="#AAFFAA"),
     rect(xy=c(0,0),wh=WH*c(0.2,1), fill="#FFAAAA"),  
-    text("Using animate for attribute='cx' with calcMode='linear'", xy=c(30,30), font.size=25, fill="blue", font='black'),
-    text("Slow", xy=c(30,WH[2]-30), font.size=20, fill="red", font='black'),
-    text("Fast", xy=c(WH[1]/2,WH[2]-30), font.size=20, fill="green", font='black'),
+    text("Using animate for attribute='cx' with calcMode='linear'", xy=c(30,30), font.size=25, fill="blue"),
+    text("Slow", xy=c(30,WH[2]-30), font.size=20, fill="red"),
+    text("Fast", xy=c(WH[1]/2,WH[2]-30), font.size=20, fill="green"),
         
     circle( cxy=c(0,.5)*WH, r=10, stroke="black", fill="yellow",
       animate( attributeName='cx', values=c(40, 144, 760),
@@ -761,7 +761,7 @@ The rate changes for calcMode Linear are step functions.
   svgR( 
       playBar(wh=WH),
       rect(xy=c(0,0),wh=WH, fill=linearGradient(x12=c(0,1),colors=c("lightgreen","pink"))),
-      text("Using animate for attribute='cx' with calcMode='spline'", xy=c(30,30), font.size=25, fill="blue", font='black'),
+      text("Using animate for attribute='cx' with calcMode='spline'", xy=c(30,30), font.size=25, fill="blue"),
       circle( cxy=c(40,100), r=30, stroke="black", fill="yellow",
         animate(attributeName='cx', values=c(40,760), calcMode="spline",
               keyTimes=c(0,1), keySplines="0 0.75 0.25 1",
@@ -775,7 +775,7 @@ The rate changes for calcMode Linear are step functions.
   svgR( 
       playBar(wh=WH),
       rect(xy=c(0,0),wh=WH, fill=linearGradient(x12=c(0,1),colors=c("pink","lightgreen"))),
-      text("Using animate for attribute='cx' with calcMode='spline'", xy=c(30,30), font.size=25, fill="blue", font='black'),
+      text("Using animate for attribute='cx' with calcMode='spline'", xy=c(30,30), font.size=25, fill="blue"),
       circle( cxy=c(40,100), r=30, stroke="black", fill="yellow",
         animate(attributeName='cx', values=c(40,760), calcMode="spline",
               keyTimes=c(0, 1), keySplines=".75 0 1 .25",
@@ -790,7 +790,7 @@ The rate changes for calcMode Linear are step functions.
   svgR( 
       playBar(wh=WH),
       rect(xy=c(0,0),wh=WH, fill=linearGradient(x12=c(0,1),colors=c("pink","lightgreen","pink"))),
-      text("Using animate for attribute='cx' with calcMode='spline'", xy=c(30,30), font.size=25, fill="blue", font='black'),
+      text("Using animate for attribute='cx' with calcMode='spline'", xy=c(30,30), font.size=25, fill="blue"),
       circle( cxy=c(40,100), r=30, stroke="black", fill="yellow",
         animate(attributeName='cx', values=c(40,760), calcMode="spline",
               keyTimes=c(0, 1), keySplines="0 0.5 0.5 1",
@@ -804,7 +804,7 @@ The rate changes for calcMode Linear are step functions.
   svgR( 
       playBar(wh=WH),
       rect(xy=c(0,0),wh=WH, fill=linearGradient(x12=c(0,1),colors=c("lightgreen","pink","lightgreen"))),
-      text("Using animate for attribute='cx' with calcMode='spline'", xy=c(30,30), font.size=25, fill="blue", font='black'),
+      text("Using animate for attribute='cx' with calcMode='spline'", xy=c(30,30), font.size=25, fill="blue"),
       circle( cxy=c(40,100), r=30, stroke="black", fill="yellow",
         animate(attributeName='cx', values=c(40,760), calcMode="spline",
               keyTimes=c(0, 1), 
@@ -821,7 +821,7 @@ The rate changes for calcMode Linear are step functions.
   svgR( 
       playBar(wh=WH),
       rect(xy=c(0,0),wh=WH, fill=linearGradient(x12=c(0,1),colors=c("lightgreen","pink","lightgreen", "pink","lightgreen"))),
-      text("Using animate for attribute='cx' with calcMode='spline'", xy=c(30,30), font.size=25, fill="blue", font='black'),
+      text("Using animate for attribute='cx' with calcMode='spline'", xy=c(30,30), font.size=25, fill="blue"),
       circle( cxy=c(40,100), r=30, stroke="black", fill="yellow",
         animate(attributeName='cx', values=c(40,(40+760)/2, 760), calcMode="spline",
               keyTimes=c(0, .5, 1), 
@@ -933,7 +933,7 @@ values=lapply(seq(0,4*pi,length.out=24), function(alpha){
 })
 svgR(
   playBar(wh=WH),
-  text("sin wave", xy=c(20,40),font="black", fill='blue', font.size=30),
+  text("sin wave", xy=c(20,40), fill='blue', font.size=30),
   path(
     fill='none', stroke='blue', 
     d=as.path( rbind(x, rep(WH[2]/2,NX))),
@@ -970,7 +970,7 @@ values=lapply(seq(0,8*pi,length.out=24), function(alpha){
 })
 svgR(
   playBar(wh=WH),
-  text("standing wave", xy=c(20,40),font="black", fill='blue', font.size=30),
+  text("standing wave", xy=c(20,40), fill='blue', font.size=30),
   path(
     fill='red', stroke='blue', 
     d=as.path( rbind(x, rep(WH[2]/2,NX))),
@@ -1010,7 +1010,7 @@ values=lapply(seq(0,8*pi,length.out=24), function(alpha){
 })
 svgR(
   playBar(wh=WH),
-  text("standing wave", xy=c(20,40),font="black", fill='blue', font.size=30),
+  text("standing wave", xy=c(20,40), fill='blue', font.size=30),
   path(
     fill='red', stroke='blue', 
     d=as.path( rbind(x, rep(WH[2]/2,NX))),

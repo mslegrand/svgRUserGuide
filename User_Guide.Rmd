@@ -14,7 +14,7 @@ output:
     toc_depth: 2 
 ---
 
-```{r}
+```{r, echo=FALSE}
 library(svgR)
 path<-"./Compounds/"
 source(paste0(path,"svgR_logo.R"))
@@ -211,7 +211,7 @@ The Filter Attribute
 <br/><br/><br/><br/> 
 <!-- sp -->
 
-Manipulationg Colors
+Manipulating Colors
 ================================
 
 ```{r child = 'filter-Colors.Rmd'}

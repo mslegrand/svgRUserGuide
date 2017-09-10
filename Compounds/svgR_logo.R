@@ -8,7 +8,7 @@ logo %<c-% function(WH, txt="Users Guide"){
     text( "svgR", cxy=WH*c(.25,.5), fill="darkblue", font.size=100,
           font.family="san serif", stroke.width=3),
     text( txt, cxy=WH*c(.7,.25), fill="darkblue", font.size=60,
-          font.family="fantasy", stroke.width=3),
+          font.family="fantasy", stroke.width=2),
     circle(cxy=WH*c(.25,.5), r=99, stroke.width=10, fill='none'  ),
     stroke='black',
     filter = filter(

@@ -70,7 +70,7 @@ svgR( wh=WH,
     filter = filter(
       feComposite(
         operator="in",
-        in1=feFlood(flood.color='red', full.opacity=1),
+        in1=feFlood(flood.color='red', flood.opacity=1),
         in2="SourceGraphic"
       )
     )
@@ -90,7 +90,7 @@ svgR( wh=WH,
         in2=feGaussianBlur( stdDeviation=3,
           in1=feOffset( dxy=c(3,3), 
               in1=feComposite( operator="in",
-                  in1=feFlood(flood.color='red', full.opacity=1), 
+                  in1=feFlood(flood.color='red', flood.opacity=1), 
                   in2="SourceGraphic"
               )
           )
@@ -122,7 +122,7 @@ svgR( wh=WH,
         in2=feGaussianBlur( stdDeviation=3,
           in1=feOffset( dxy=c(3,3), 
               in1=feComposite( operator="in",
-                  in1=feFlood(flood.color='blue', full.opacity=1), 
+                  in1=feFlood(flood.color='blue', flood.opacity=1), 
                   in2="SourceGraphic"
               )
           )
@@ -145,7 +145,7 @@ svgR( wh=WH,
         in2=feGaussianBlur( stdDeviation=3,
           in1=feOffset( dxy=c(3,3), 
               in1=feComposite( operator="in",
-                  in1=feFlood(flood.color='blue', full.opacity=1), 
+                  in1=feFlood(flood.color='blue', flood.opacity=1), 
                   in2="SourceGraphic"
               )
           )

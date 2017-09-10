@@ -109,9 +109,11 @@ Here the c(100,50) are measured in "pixels" of the "user space".  Other units av
 
 For example
 
-```{r, echo=FALSE, results="asis"}
+```{r, echo=TRUE, results="asis"}
 svgR(wh=c("2in","1in"), 
-     use(filter=filter( feFlood(flood.color='lightblue') )) #flood svg with lightBlue
+     use(filter=filter( 
+     filterUnits="userSpaceOnUse",
+     feFlood(flood.color='lightblue') )) #flood svg with lightBlue
 )
 ```
 
@@ -150,7 +152,7 @@ Nexe we reset the viewBox.  The region viewed is changes, but  the size of the d
 ```{r, echo=TRUE, results="asis"}
 WH<-c(300,300)
 svgR(wh=WH, viewBox=c(-WH,2*WH),
-  #use(filter=filter( feFlood(flood.color='blue') )),
+  use(filter=filter( filterUnits="userSpaceOnUse", feFlood(flood.color='lightblue') )),
   graphPaper(WH, dxy=c(50,50), labels=TRUE),
   circle(cxy=c(0,0),r=100, fill="pink", stroke='red'),
   text('Big  Data', xy=c(-40, 50), font.size=20),
@@ -166,7 +168,7 @@ And here is another more example, this time the image size increases.
 ```{r, echo=TRUE, results="asis"}
 WH<-c(300,300)
 svgR(wh=WH, viewBox=c(.1*WH,.5*WH),
-  #use(filter=filter( feFlood(flood.color='blue') )),
+  use(filter=filter( filterUnits="userSpaceOnUse", feFlood(flood.color='lightblue') )),
   graphPaper(WH, dxy=c(50,50), labels=TRUE),
   circle(cxy=c(0,0),r=100, fill="pink", stroke='red'),
   text('Big  Data', xy=c(-40, 50), font.size=20),
@@ -192,13 +194,13 @@ WH<-c(400,300)
 WH2<-WH/2
 id=autoId()
 svgR(wh=WH, 
-     use(filter=filter( feFlood(flood.color='blue') )),
+     use(filter=filter( filterUnits="userSpaceOnUse", feFlood(flood.color='lightblue') )),
      g( id=id,
         graphPaper(WH, dxy=c(50,50), labels=TRUE),
-        circle(cxy=c(0,0),r=r, fill="yellow")
+        circle(cxy=c(0,0),r=r, fill="pink")
      ),
      svg(xy=WH/4, wh=WH/2, 
-           use(filter=filter( feFlood(flood.color='red') )),
+           use(filter=filter( filterUnits="userSpaceOnUse", feFlood(flood.color='yellow') )),
            use(xlink.href=paste0("#",id))
     )
 )
