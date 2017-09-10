@@ -169,8 +169,7 @@ svgR(wh=WH,
 One distinct difference between fills and filters, is that a fill
 is restricted to the interior, while filters are not.
 
-**Note** Technically this is not a tree, since the *SourceGraphics* laeel appears muliple places.
-
+**Note** Technically this is not a tree, since the *SourceGraphics* label appears muliple places.
 
 **Note** Pure *SVG* allows only references, but *svgR* allows to use
 the **filter element** directly as the value of a *filter attribute*.
@@ -186,7 +185,7 @@ the **filter element** directly as the value of a *filter attribute*.
 ### The In Attributes of  Filter components
 
 Most **fe-element** (filter primitive) require an input specification, which 
-is preformend by assigning
+is preformed by assigning
 values to their *in* attributes: *in1* and *in2*.
 
 
