@@ -191,7 +191,7 @@ svgR( wh=WH,
   lapply( 1:5, function(i){
     x=20+(i-1)*150
     g( 
-      text( 'svgR', xy=c(x,55), font.size=50,  fill="black", stroke='black',
+      text( 'svgR', xy=c(x,55), font.size=50,  fill="blue", stroke='black',
         filter = filter(
           feComposite( x=x-10, width=200, 
             operator=operators[i],
