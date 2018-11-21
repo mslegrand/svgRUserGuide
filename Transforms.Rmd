@@ -566,50 +566,89 @@ svgR(
 
 
 
-### Alternatives to a list parameters
+### Some different ways to represent the transform sequence.
 
-To keep a clear conscience, here are some alternatives to
-using lists for transform values.
+To keep a clear conscience, we provide three alternatives for a value representing a transform sequence.
 
-Instead of a list we can use a string as so:
+Consider the tranlate, rotate scale sequence. 
 
-```{r, echo=T, results="asis"}
-WH=c(600, 200) # window rect
-wh=c(80,30) # small rect
-pt=c(0,0)
-svgR( 
-  wh=WH, 
-  graphPaper(wh=WH, dxy=c(50,50), labels=TRUE),
-  g(
-      rect( xy=pt, wh=wh, stroke ='black', fill='blue', opacity=.3),
-      circle(cxy=pt, r=wh[2], stroke="black", fill="red", opacity=.3),
-      transform="translate(200,100) rotate(-30) scale(.5,3) skewX(80)"
-  )
- )
+##### Representing the transform value as a list
+
+The value is a named list with name defining the operations, whose
+values determine the amount of that operation. For example:
+
+```
+list(translate=c(200,100) , rotate=-30, scale=c(1,2))
 ```
 
-Note the latter can become awkward for dynamic situations when the amount and sequence of translation, scaling, rotation
-are determined at runtime.  But this is easily overcome with some additional helper functions
- 
-  
-```{r, echo=T}
- translate<-function(...)paste0("translate(", paste(list(...),collapse=","), ")")   
- rotate<-function(...)paste0("rotate(", paste(list(...),collapse=","), ")")   
- skewX<-function(...)paste0("skewX(", paste(list(...),collapse=","), ")")   
- skewY<-function(...)paste0("skewX(", paste(list(...),collapse=","), ")")   
- scale<-function(...)paste0("scale(", paste(list(...),collapse=","), ")")   
-```
-
-Now with the helper functions
-```{r, echo=T, results="asis"}
+we have
+```{r, echo=T, results='asis'}
 WH=c(600, 200) # window rect
 wh=c(80,30) # small rect
 svgR( 
   wh=WH, 
   graphPaper(wh=WH, dxy=c(50,50),TRUE),
-  rect( xy=c(0,0), wh=wh, stroke ='blue', fill='green', opacity=.3,
-        transform=c(translate(200,100), rotate(-30),  scale(.5,3), skewX(80))
-        )
+  g(
+      rect( xy=pt, wh=c(60,30), stroke ='black', fill='blue', opacity=.3),
+      circle(cxy=pt, r=15, stroke="black", fill="red", opacity=.3),
+      transform=list(translate=c(200,100) , rotate=-30, scale=c(1,2))
+  )
  )
 ```
+
+##### Representing the transform value as a vector of operations.
+
+The operations defined by the 
+helper functions *translate*, *rotate*, and *scale*. 
+For example:
+
+```
+c(translate(200,100) , rotate(-30), scale(1,2))
+```
+
+We have
+
+```{r, echo=T, results='asis'}
+WH=c(600, 200) # window rect
+wh=c(80,30) # small rect
+svgR( 
+  wh=WH, 
+  graphPaper(wh=WH, dxy=c(50,50),TRUE),
+  g(
+      rect( xy=pt, wh=c(60,30), stroke ='black', fill='blue', opacity=.3),
+      circle(cxy=pt, r=15, stroke="black", fill="red", opacity=.3),
+      transform=c(translate(200,100) , rotate(-30), scale(1,2))
+  )
+ )
+```
+
+The helper functions, *translate*, *rotate*, *scale* are included as part of the svgR api. 
+
+
+##### Representing the transform value by a single character string
+
+And finally representing the value as a single character string for example:
+
+```
+"translate(200,100) rotate(-30) scale(1,2)"
+```
+we have
+
+```{r, echo=T, results='asis'}
+WH=c(600, 200) # window rect
+wh=c(30,30) # small rect
+pt=c(0,0)
+svgR( 
+  wh=WH, 
+  graphPaper(wh=WH, dxy=c(50,50), labels=TRUE),
+  g(
+      rect( xy=pt, wh=c(60,30), stroke ='black', fill='blue', opacity=.3),
+      circle(cxy=pt, r=15, stroke="black", fill="red", opacity=.3),
+      transform="translate(200,100) rotate(-30) scale(1,2)"
+  )
+ )
+```
+
+
+
 
