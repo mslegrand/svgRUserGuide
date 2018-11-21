@@ -427,7 +427,7 @@ svgR(
   text('Animating Simple Gaussing Blur', xy=c(20,30), font.size=20),
   text( 'svgR', cxy=c(.5,.4)*WH, font.size=100, fill="blue",
     filter=filter( y=-5, height=100,
-        feGaussianBlur(in1="SourceAlpha", stdDeviation=0, y="-",
+        feGaussianBlur(in1="SourceAlpha", stdDeviation=0,
           animate(attributeName='stdDeviation',
         from=0,to=20, dur=1, 
         begin=playButton.click())      
@@ -449,7 +449,7 @@ svgR(
   text('horizontal blurring repeated twice', xy=c(20,30), font.size=20),
   text( 'svgR', cxy=c(.5,.3)*WH, font.size=100, fill="blue",
        filter=filter( y=-5, height=100,
-          feGaussianBlur(in1="SourceGraphic", stdDeviation=c(0,0), y="-",
+          feGaussianBlur(in1="SourceGraphic", stdDeviation=c(0,0), 
             animate(attributeName='stdDeviation',
           from=c(0,0),to=c(20,0), dur=1, repeatCount=2,
           begin=playButton.click() )      
