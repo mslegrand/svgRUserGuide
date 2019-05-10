@@ -266,23 +266,22 @@ To create a wood texture we use
 
 ```{r, echo=T, results='asis'}
 WH=c(800, 200) # window rect
-m<-rbind( c(1,0,0,0,0), c(0,-1,0,0,0), c(0,0,-1,0,0), c(1,-1,1,0,0))
 svgR( wh=WH, 
   rect( cxy=WH/2, wh=WH, stroke.width=2, stroke='black',
     filter = filter(
       feDisplacementMap(  scale=9, xChannelSelector="R", yChannelSelector="B",
         in1=feMerge(
-          feMergeNode(in1= feFlood(xy=c(0,0), wh=WH,
-          flood.color="#CCAC6C") ),
           feMergeNode(
-            in1=feColorMatrix( type="matrix", values=m , 
+            in1= feFlood(xy=c(0,0), wh=WH, flood.color="#CCAC6C") 
+          ), 
+          feMergeNode(
               in1=feTurbulence( baseFrequency=c(.008,.25), numOctaves=1)
-            )
           )
         ),
-        in2=feTurbulence( baseFrequency=c(.04,.2), numOctaves=1) 
+        in2=feTurbulence( baseFrequency=c(.04,.2), numOctaves=.9) 
       )
-    ),
+    )
+    ,
     clip.path=clipPath(
       text("Wood", font.size=250, cxy=WH/2, font.face='bold')
     )
@@ -296,18 +295,15 @@ svgR( wh=WH,
 
 ```{r, echo=T, results='asis'}
 WH=c(800, 200) # window rect
-m<-rbind( c(3,0,0,0,0), c(0,0,0,0,0), c(0,0,-1,0,0), c(1,1,1,0,0))
 svgR( wh=WH, 
   rect( cxy=WH/2, wh=WH, stroke.width=2, stroke='black',
     filter = filter(
       feDisplacementMap(  scale=9, xChannelSelector="R", yChannelSelector="B",
         in1=feMerge(
-          feMergeNode(in1= feFlood(xy=c(0,0), wh=WH,
-          flood.color="#CCDCDC"), flood.opacity=.5 ),
           feMergeNode(
-            in1=feColorMatrix( type="matrix", values=m , 
-              in1=feTurbulence( baseFrequency=c(.2,.3), numOctaves=1)
-            )
+            in1= feFlood(xy=c(0,0), wh=WH, flood.color="#CCDCDC"), flood.opacity=.5 ),
+          feMergeNode(
+            in1=feTurbulence( baseFrequency=c(.2,.3), numOctaves=1)
           )
         ),
         in2=feTurbulence( baseFrequency=c(.006,.004), numOctaves=2) 
@@ -323,18 +319,16 @@ svgR( wh=WH,
 
 ```{r, echo=T, results='asis'}
 WH=c(800, 200) # window rect
-m<-rbind( c(3,0,0,0,0), c(0,0,0,0,0), c(0,0,-1,0,0), c(1,1,1,0,0))
 svgR( wh=WH, 
   rect( cxy=WH/2, wh=WH, stroke.width=2, stroke='black',
     filter = filter(
       feDisplacementMap(  scale=9, xChannelSelector="R", yChannelSelector="B",
         in1=feMerge(
-          feMergeNode(in1= feFlood(xy=c(0,0), wh=WH,
-          flood.color="#FFDCDC"), flood.opacity=.5 ),
           feMergeNode(
-            in1=feColorMatrix( type="matrix", values=m , 
+            in1= feFlood(xy=c(0,0), wh=WH, flood.color="#FFDCDC"), flood.opacity=.5 
+          ),
+          feMergeNode(
               in1=feTurbulence( baseFrequency=c(.5,.1), numOctaves=4)
-            )
           )
         ),
         in2=feTurbulence( baseFrequency=c(.006,.004), numOctaves=2) 
@@ -350,18 +344,16 @@ svgR( wh=WH,
 ## Jade
 ```{r, echo=T, results='asis'}
 WH=c(800, 200) # window rect
-m<-rbind( c(3,0,0,0,0), c(0,0,0,0,0), c(0,0,-1,0,0), c(1,1,1,0,0))
 svgR( wh=WH, 
   rect( cxy=WH/2, wh=WH, stroke.width=2, stroke='black',
     filter = filter(
       feDisplacementMap(  scale=9, xChannelSelector="R", yChannelSelector="B",
         in1=feMerge(
-          feMergeNode(in1= feFlood(xy=c(0,0), wh=WH,
-          flood.color="#CFFCDC"), flood.opacity=.5 ),
           feMergeNode(
-            in1=feColorMatrix( type="matrix", values=m , 
+            in1= feFlood(xy=c(0,0), wh=WH, flood.color="#CFFCDC"), flood.opacity=.5 
+          ),
+          feMergeNode(
               in1=feTurbulence( baseFrequency=c(.1,.1), numOctaves=4)
-            )
           )
         ),
         in2=feTurbulence( baseFrequency=c(.06,.004), numOctaves=2) 
@@ -378,7 +370,6 @@ svgR( wh=WH,
 
 ```{r, echo=T, results='asis'}
 WH=c(800, 300) # window rect
-m<-rbind( c(3,0,0,0,0), c(0,0,0,0,0), c(0,0,-1,0,0), c(1,1,1,0,0))
 svgR( wh=WH, 
   rect( cxy=WH/2, wh=WH, stroke.width=2, stroke='black',
     filter = filter(
@@ -387,9 +378,7 @@ svgR( wh=WH,
           feMergeNode(in1= feFlood(xy=c(0,0), wh=WH,
           flood.color="#CFFCDC"), flood.opacity=.5 ),
           feMergeNode(
-            in1=feColorMatrix( type="matrix", values=m , 
               in1=feTurbulence( baseFrequency=c(.01,.01), numOctaves=1)
-            )
           )
         ),
         in2=feTurbulence( baseFrequency=c(.006,.04), numOctaves=2) 

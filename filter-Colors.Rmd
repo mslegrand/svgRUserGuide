@@ -186,19 +186,22 @@ svgR( wh=WH,
 ```
 
 ## Applying  a color matrix
-(!!To fix)
 
-Applying satuate to a red rectangle
+Here we generate some random color matrices and apply them to a red rectangle placing the result on a black background.
+
 ```{r, echo=T, results="asis"}
-WH=c(800, 100) # window rect
+library(svgR)
+WH=c(800, 50) # window rect
 svgR( wh=WH,
+    use(filter=filter(feFlood(color='black'))),
     lapply(seq(from=0, to=1, by=.05), 
       function(i){
-        rect(xy=c(i*800,10), wh=c(32,32), fill="red",
+        values=runif(20,0,1)*sample(c(0,0.9,1),20, replace=TRUE)
+        rect(xy=c(i*800,10), wh=c(32,32), fill="red", 
            filter=filter( 
              feColorMatrix(
                type="matrix", 
-               values=paste(runif(25,-1,1),collapse=" ")
+               values=paste(values,collapse=" ")
              )  
            )
         )

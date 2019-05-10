@@ -317,7 +317,7 @@ svgR(
 )
 ```
 
-### Tranform Attribute using Matrix as a Value
+### Transform Attribute using a Matrix as a Value
 
 
 In the previous section, we discussed using the transform with the operation types: tranlate, scale, rotate, and skew. In this section we discuss using matrix opertion.  

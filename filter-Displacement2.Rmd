@@ -1,0 +1,158 @@
+---
+title: "ChangingShapes"
+output:
+  html_document:
+    toc: true
+    theme: united
+---
+
+
+```{r, echo=FALSE}
+stopifnot(require(svgR, quietly=TRUE))
+```
+
+### On Fire
+Another approach to shape modification is to perform some
+kind of ***warping** of a image shape. The  **feDisplacementMap** is filter primitive, which provides the reshaping of one image (in1) using the colors provided by a second image (in2) to dictate the amount of displacement.
+
+Here we illustrate using the feDisplacementMap filter applied to a one of two yellow rectangles. The displacment is being supplied by the output of an **feTurbulence** filter.
+
+```{r, echo=T, results="asis"}
+library(svgR)
+WH=c(800, 200) # window rect
+svgR( wh=WH, 
+      
+      text("feDisplacementMap on fire", xy=c(20,50), stroke='black', fill='white', font.size=20),
+#      text('Data Denier 4 Pres'
+      rect( cxy=WH/2, wh=c(600,20), fill='yellow', 
+           stroke='red', stroke.width=2,
+           filter=
+             filter( xy=c(0,0), filterUnits='userSpaceOnUse',
+                feDisplacementMap(
+                  in1="SourceGraphic",
+                  in2=feTurbulence( baseFrequency=0.05, numOctaves=3), 
+                  scale=30,
+                  yChannelSelector="R"                )
+          )
+      ),
+       rect( cxy=WH/2+c(0,20), wh=c(600,20), fill='yellow', stroke='none')
+)
+```
+
+<br><br>
+
+
+
+
+
+### Seville
+
+In the last section, we applied the  to a simple rectangle
+More often, the  **feDisplacementMap** is applied to images. In this example we choose
+an jpg of the palace in Seville.
+Here is the jpg image without any filtering.
+
+```{r, echo=T, results="asis"}
+library(svgR)
+WH=c(800, 600) # window rect
+svgR( wh=WH,       
+      image(cxy=WH/2, wh=WH, xlink.href="./IMG_4703.JPG"),
+      text("Seville", xy=c(600,100), font.size=46)
+)
+```
+<br><br>
+
+Next we apply a feDisplacement filter
+
+```{r, echo=T, results="asis"}
+library(svgR)
+WH=c(800, 600) # window rect
+svgR( wh=WH, 
+      image(cxy=WH/2, wh=WH, xlink.href="./IMG_4703.JPG",
+           filter=filter(
+                feDisplacementMap(
+                  in1="SourceGraphic",
+                  in2=feTurbulence( baseFrequency=0.066666666666667, numOctaves=3), 
+                  scale=15,
+                  yChannelSelector="R"
+                )
+           )
+      ),
+      text("Seville", xy=c(600,100), font.size=46)
+)
+```
+
+<br><br>
+
+To apply the filter to the text we simply include both a group
+
+```{r, echo=T, results="asis"}
+library(svgR)
+WH=c(800, 600) # window rect
+svgR( wh=WH, 
+      g(
+        image(cxy=WH/2, wh=WH, xlink.href="./IMG_4703.JPG"),
+        text("Seville", xy=c(600,100), font.size=46),
+        filter=filter(
+                feDisplacementMap(
+                  in1="SourceGraphic",
+                  in2=feTurbulence( baseFrequency=0.066666666666667, numOctaves=3), 
+                  scale=15,
+                  yChannelSelector="R"
+                )
+           )
+      )
+)
+```
+
+<br><br>
+
+And again, but with a larger scale factor
+
+```{r, echo=T, results="asis"}
+library(svgR)
+WH=c(800, 600) # window rect
+svgR( wh=WH, 
+      image(cxy=WH/2, wh=WH, xlink.href="./IMG_4703.JPG",
+           filter=filter(
+                feDisplacementMap(
+                  in1="SourceGraphic",
+                  in2=feTurbulence( baseFrequency=0.0066666666666667, numOctaves=3), 
+                  scale=150,
+                  yChannelSelector="R"
+                )
+           )
+      ),
+      text("Decay", xy=c(20,30), font.size=26)
+)
+```
+
+<br><br>
+
+### Data Corruption
+<br><br>
+
+Finally, we apply a displacement to some text.
+
+```{r, echo=T, results="asis"}
+library(svgR)
+WH=c(800, 400) # window rect
+svgR( wh=WH, 
+      g(  lapply(1:50, function(i)text("Data", cxy=runif(2)*.8*WH, 
+                          fill=rrgb(),  font.size=sample(10:30,1))),
+          filter=filter( xy=c(0,0), filterUnits='userSpaceOnUse',
+              feDisplacementMap(
+                in1="SourceGraphic",
+                in2=feTurbulence( baseFrequency=0.00666666666666667, numOctaves=3), 
+                scale=50,
+                yChannelSelector="R",
+                xChannelSelector="B"
+              )
+          )
+      ),
+      text("Data corruption", xy=c(20,30), font.size=26)
+)
+```
+
+<br><br>
+

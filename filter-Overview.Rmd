@@ -175,11 +175,6 @@ is restricted to the interior, while filters are not.
 the **filter element** directly as the value of a *filter attribute*.
 
 
-**Todo!!!:** 
-
-- feFunc***X*** 
-- feTile
-
 
 
 ### The In Attributes of  Filter components

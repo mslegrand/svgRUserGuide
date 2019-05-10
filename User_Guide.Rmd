@@ -288,7 +288,7 @@ Shape Shifting
 ```
 
 ## Displacing (aka. Warping)
-```{r child = 'filter-Displacement.Rmd'}
+```{r child = 'filter-Displacement2.Rmd'}
 ```
 
 ###### ∞

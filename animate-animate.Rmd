@@ -673,20 +673,7 @@ col=c("black","gold","red")
 XWH<-WH-c(0,100)
 svgR( 
       playBar(wh=WH), 
-      symbol(
-        rect( id="dispGradAni36", xy=c(0,0)*WH,  wh=XWH, fill='blue',
-                filter=filter(
-                  feTurbulence(baseFrequency=.005, numOctaves=3, seed=100),
-                  feComponentTransfer(
-                    feFuncR(type="linear", slope=3, intercept=-1),
-                    feFuncG(type="linear", slope=2, intercept=-1),
-                    feFuncB(type="linear", slope=4, intercept=-1),
-                    feFuncA(type="linear", slope=0, intercept=1)
-                  ),
-                  feColorMatrix(type="saturate")
-                )
-        )
-      ),
+      
       text("A Data Flow", xy=c(30,30), font.size=25, fill="blue"),
       g(
         lapply(1:30, function(i)text(cxy=runif(2)*.7*WH+c(50,50), 
@@ -696,7 +683,7 @@ svgR(
         filter( xy=c(0,0), filterUnits='userSpaceOnUse',
           feDisplacementMap(
             in1="SourceGraphic",
-            in2=feImage(xlink.href='#dispGradAni36'),
+            in2=feTurbulence(baseFrequency=.005, numOctaves=3, seed=100),
             scale=50,
             yChannelSelector="R",
             xChannelSelector="B",
@@ -873,7 +860,8 @@ svgR(
 )
 ```
 
-### Path Animation
+### Stab
+
 
 ```{r, echo=T, results="asis"}
 WH<-c(800,300)
@@ -909,7 +897,7 @@ svgR(
 ```
 
 
-### Stab
+### Sin Wave
 
 ```{r, echo=T, results="asis"}
 WH<-c(800,300)
@@ -945,50 +933,10 @@ svgR(
 )
 ```
 
-### Sin Wave
-
-```{r, echo=T, results="asis"}
-WH<-c(800,300)
-N<-8
-xMarg<-50
-NX<-160
-X<-seq(0,N*pi, length.out=NX)
-sx<-(WH[1]-2*xMarg)/(N*pi)
-x<-X*sx+xMarg
-wave<-function(alpha){
-  sy<- - WH[2]/6
-  y<-sin(alpha)*sin(X)
-  y<-y*sy+WH[2]/2
-  rbind(x,y)
-}
-as.path<-function(ptsX){
-  c("M",ptsX[,1],"C",ptsX[,1:(dim(ptsX)[2]) ],"Z")
-}
-
-values=lapply(seq(0,8*pi,length.out=24), function(alpha){
-  as.path(wave(alpha))
-})
-svgR(
-  playBar(wh=WH),
-  text("standing wave", xy=c(20,40), fill='blue', font.size=30),
-  path(
-    fill='red', stroke='blue', 
-    d=as.path( rbind(x, rep(WH[2]/2,NX))),
-    animate( attributeName='d', 
-      values=values,
-      begin=playButton.click(), dur=5, fill="remove"
-    )
-  )
-)
-```
-
-
 ### Standing Wave
 
 ```{r, echo=T, results="asis"}
 WH<-c(800,300)
-pts<-c(1,1)
-
 N<-8
 xMarg<-50
 NX<-160
@@ -1021,6 +969,8 @@ svgR(
   )
 )
 ```
+
+
 
 ## Animating Light Positions
 
